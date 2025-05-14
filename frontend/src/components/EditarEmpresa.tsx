@@ -21,6 +21,7 @@ type Empresa = {
   nombreEmpresa: string;
   descripcion: string;
   direccion: string;
+  fotoUrl?: string | null;
 };
 
 const pulse = keyframes`
@@ -34,7 +35,9 @@ const EditarEmpresa = () => {
     nombreEmpresa: "",
     descripcion: "",
     direccion: "",
+    fotoUrl: "",
   });
+
   const [loading, setLoading] = useState(true);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
 
@@ -105,8 +108,13 @@ const EditarEmpresa = () => {
       headers: { Authorization: `Bearer ${token}` },
     };
 
+    const dataToSend = {
+      ...form,
+      fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl,
+    };
+
     axios
-      .put(`http://localhost:8080/api/empresas/${empresaId}`, form, headers)
+      .put(`http://localhost:8080/api/empresas/${empresaId}`, dataToSend, headers)
       .then(() => {
         toast.success("Perfil actualizado correctamente");
         setTimeout(() => navigate("/empresa"), 2000);
@@ -142,7 +150,7 @@ const EditarEmpresa = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        textAlign: "center"
+        textAlign: "center",
       }}
     >
       <Fade in timeout={800}>
@@ -173,18 +181,13 @@ const EditarEmpresa = () => {
             width: 100,
             animation: `${pulse} 2.5s ease-in-out infinite`,
             mb: 2,
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         />
       </Fade>
 
       <Fade in timeout={1000}>
-        <Typography
-          variant="h4"
-          fontWeight={700}
-          color="#0d47a1"
-          mb={3}
-        >
+        <Typography variant="h4" fontWeight={700} color="#0d47a1" mb={3}>
           Editar Perfil de Empresa
         </Typography>
       </Fade>
@@ -198,7 +201,7 @@ const EditarEmpresa = () => {
             flexDirection: "column",
             gap: 3,
             width: "100%",
-            maxWidth: 500
+            maxWidth: 500,
           }}
         >
           <TextField
@@ -227,6 +230,27 @@ const EditarEmpresa = () => {
             fullWidth
             required
           />
+          <TextField
+            label="Foto (URL)"
+            name="fotoUrl"
+            value={form.fotoUrl || ""}
+            onChange={handleChange}
+            fullWidth
+            placeholder="https://cdn.ejemplo.com/logo.png"
+          />
+          {
+            /* 
+            {form.fotoUrl && form.fotoUrl.trim() !== "" && (
+              <Box mt={2}>
+                <img
+                  src={form.fotoUrl}
+                  alt="Vista previa"
+                  style={{ width: "100%", maxWidth: 250, borderRadius: 8 }}
+                />
+              </Box>
+            )}
+            */
+          }
           <Button
             variant="contained"
             type="submit"
@@ -237,7 +261,7 @@ const EditarEmpresa = () => {
               fontSize: "1rem",
               backgroundColor: "#0d47a1",
               "&:hover": { backgroundColor: "#08306b" },
-              transition: "all 0.3s ease-in-out"
+              transition: "all 0.3s ease-in-out",
             }}
           >
             Guardar cambios
@@ -245,7 +269,6 @@ const EditarEmpresa = () => {
         </Box>
       </Fade>
 
-      {/* Modal logout */}
       {logoutConfirm && (
         <ConfirmModalLogout
           onCancel={() => setLogoutConfirm(false)}

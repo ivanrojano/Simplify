@@ -1,13 +1,7 @@
 package com.fctapp.servicios.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 
 @Entity
 public class Servicio {
@@ -17,20 +11,16 @@ public class Servicio {
 	private Long id;
 
 	private String nombre;
-
 	private String descripcion;
 
 	@ManyToOne
 	@JoinColumn(name = "empresa_id", nullable = false)
-	@JsonBackReference
+	@JsonIgnoreProperties({"servicios"}) 
 	private Empresa empresa;
 
-	public Servicio() {
-		super();
-	}
+	public Servicio() {}
 
 	public Servicio(Long id, String nombre, String descripcion, Empresa empresa) {
-		super();
 		this.id = id;
 		this.nombre = nombre;
 		this.descripcion = descripcion;

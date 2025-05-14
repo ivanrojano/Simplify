@@ -4,6 +4,7 @@ import com.fctapp.servicios.entity.Empresa;
 import com.fctapp.servicios.repository.EmpresaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.fctapp.servicios.dto.ActualizarEmpresaDTO;
 
 import java.util.List;
 
@@ -30,14 +31,28 @@ public class EmpresaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Empresa> actualizar(@PathVariable("id") Long id, @RequestBody Empresa actualizado) {
+    public ResponseEntity<Empresa> actualizar(@PathVariable("id") Long id, @RequestBody ActualizarEmpresaDTO dto) {
         return empresaRepository.findById(id)
                 .map(empresa -> {
-                    empresa.setNombreEmpresa(actualizado.getNombreEmpresa());
-                    empresa.setDescripcion(actualizado.getDescripcion());
-                    empresa.setDireccion(actualizado.getDireccion());
+                    if (dto.getNombreEmpresa() != null) {
+                        empresa.setNombreEmpresa(dto.getNombreEmpresa());
+                    }
+                    if (dto.getDescripcion() != null) {
+                        empresa.setDescripcion(dto.getDescripcion());
+                    }
+                    if (dto.getDireccion() != null) {
+                        empresa.setDireccion(dto.getDireccion());
+                    }
+                    if (dto.getFotoUrl() != null) {
+                        if (dto.getFotoUrl().isBlank()) {
+                            empresa.setFotoUrl(null);
+                        } else {
+                            empresa.setFotoUrl(dto.getFotoUrl());
+                        }
+                    }
                     return ResponseEntity.ok(empresaRepository.save(empresa));
-                }).orElse(ResponseEntity.notFound().build());
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

@@ -1,22 +1,22 @@
 package com.fctapp.servicios.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 @Entity
+@JsonIgnoreProperties({"servicios"}) 
 public class Empresa extends Usuario {
 
 	private String nombreEmpresa;
 	private String descripcion;
 	private String direccion;
+	private String fotoUrl;
 
 	@OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonManagedReference
 	private List<Servicio> servicios = new ArrayList<>();
 
 	public Empresa() {
@@ -60,5 +60,13 @@ public class Empresa extends Usuario {
 
 	public void setServicios(List<Servicio> servicios) {
 		this.servicios = servicios;
+	}
+
+	public String getFotoUrl() {
+		return fotoUrl;
+	}
+
+	public void setFotoUrl(String fotoUrl) {
+		this.fotoUrl = fotoUrl;
 	}
 }

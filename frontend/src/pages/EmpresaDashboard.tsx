@@ -29,6 +29,7 @@ interface Empresa {
   descripcion: string;
   direccion: string;
   rol: string;
+  fotoUrl?: string
 }
 
 interface Servicio {
@@ -64,7 +65,7 @@ const EmpresaDashboard = () => {
     axios
       .get<Servicio[]>(`http://localhost:8080/api/servicios/empresa/${empresaId}`, headers)
       .then((res) => setServicios(res.data))
-      .catch(() => {});
+      .catch(() => { });
   }, [token, empresaId, navigate]);
 
   const confirmLogout = () => {
@@ -127,10 +128,21 @@ const EmpresaDashboard = () => {
         <Fade in timeout={1200}>
           <Paper elevation={12} sx={{ maxWidth: 1100, mx: "auto", p: 4, mb: 4, borderRadius: 3 }}>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={4} alignItems="center">
-              <Avatar sx={{ width: 100, height: 100, bgcolor: "#0d47a1", flexShrink: 0 }}>
-                <BusinessIcon sx={{ fontSize: 48 }} />
+              <Avatar
+                src={empresa.fotoUrl?.trim() ? empresa.fotoUrl : undefined}
+                alt="Foto de empresa"
+                sx={{
+                  width: 150,
+                  height: 150,
+                  bgcolor: "#0d47a1",
+                  flexShrink: 0,
+                  border: "3px solid #0d47a1"
+                }}
+              >
+                {(!empresa.fotoUrl || !empresa.fotoUrl.trim()) && (
+                  <BusinessIcon sx={{ fontSize: 48, color: "#fff" }} />
+                )}
               </Avatar>
-
               <Box flex={1}>
                 <Typography variant="h6" fontWeight={700} gutterBottom>
                   Tu Empresa
