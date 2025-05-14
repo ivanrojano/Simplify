@@ -1,0 +1,33 @@
+package com.fctapp.servicios.service;
+
+import com.fctapp.servicios.entity.*;
+import com.fctapp.servicios.repository.*;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+public class MensajeService {
+
+    private final MensajeRepository mensajeRepo;
+    private final UsuarioRepository usuarioRepo;
+    private final SolicitudServicioRepository solicitudRepo;
+
+    public MensajeService(MensajeRepository mensajeRepo, UsuarioRepository usuarioRepo, SolicitudServicioRepository solicitudRepo) {
+        this.mensajeRepo = mensajeRepo;
+        this.usuarioRepo = usuarioRepo;
+        this.solicitudRepo = solicitudRepo;
+    }
+
+    public Mensaje enviarMensaje(Long emisorId, Long receptorId, Long solicitudId, String contenido) {
+        Usuario emisor = usuarioRepo.findById(emisorId)
+                .orElseThrow(() -> new RuntimeException("Emisor no encontrado"));
+        Usuario receptor = usuarioRepo.findById(receptorId)
+                .orElseThrow(() -> new RuntimeException("Receptor no encontrado"));
+        SolicitudServicio solicitud = solicitudRepo.findById(solicitudId)
+                .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+        Mensaje mensaje = new Mensaje(contenido, LocalDateTime.now(), emisor, receptor, solicitud);
+        return mensajeRepo.save(mensaje);
+    }
+}

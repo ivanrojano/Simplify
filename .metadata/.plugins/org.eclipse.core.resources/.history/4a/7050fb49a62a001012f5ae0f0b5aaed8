@@ -1,0 +1,47 @@
+package com.fctapp.servicios.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fctapp.servicios.dto.ActualizarEstadoDTO;
+import com.fctapp.servicios.dto.CrearSolicitudDTO;
+import com.fctapp.servicios.entity.EstadoSolicitud;
+import com.fctapp.servicios.entity.SolicitudServicio;
+import com.fctapp.servicios.service.SolicitudServicioService;
+
+@RestController
+@RequestMapping("/api/solicitudes")
+public class SolicitudServicioController {
+
+	private final SolicitudServicioService solicitudService;
+
+	public SolicitudServicioController(SolicitudServicioService solicitudService) {
+		this.solicitudService = solicitudService;
+	}
+
+	@PostMapping("/crear")
+	public ResponseEntity<SolicitudServicio> crearSolicitud(@RequestBody CrearSolicitudDTO dto) {
+		return ResponseEntity.ok(solicitudService.crearSolicitud(dto.getClienteId(), dto.getServicioId()));
+	}
+
+	@PutMapping("/{id}/estado")
+    public ResponseEntity<SolicitudServicio> actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody ActualizarEstadoDTO dto) {
+        EstadoSolicitud nuevoEstado = EstadoSolicitud.valueOf(dto.getEstado().toUpperCase());
+        return ResponseEntity.ok(solicitudService.actualizarEstado(id, nuevoEstado));
+        
+    @PutMapping("/{id}/finalizar")
+    @PreAuthorize("hasAuthority('EMPRESA')")
+    public ResponseEntity<SolicitudServicio> finalizarSolicitud(@PathVariable Long id) {
+        return ResponseEntity.ok(solicitudService.marcarComoFinalizada(id));
+    }
+
+    }
+}

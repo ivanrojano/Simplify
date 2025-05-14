@@ -1,0 +1,65 @@
+package com.fctapp.servicios.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.fctapp.servicios.entity.*;
+import com.fctapp.servicios.repository.*;
+
+@Service
+public class SolicitudServicioService {
+
+    private final SolicitudServicioRepository solicitudRepository;
+    private final ClienteRepository clienteRepository;
+    private final ServicioRepository servicioRepository;
+
+    public SolicitudServicioService(SolicitudServicioRepository solicitudRepository,
+                                     ClienteRepository clienteRepository,
+                                     ServicioRepository servicioRepository) {
+        this.solicitudRepository = solicitudRepository;
+        this.clienteRepository = clienteRepository;
+        this.servicioRepository = servicioRepository;
+    }
+
+    public SolicitudServicio crearSolicitud(Long clienteId, Long servicioId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        Servicio servicio = servicioRepository.findById(servicioId)
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+        SolicitudServicio solicitud = new SolicitudServicio();
+        solicitud.setCliente(cliente);
+        solicitud.setServicio(servicio);
+        solicitud.setEstado(EstadoSolicitud.PENDIENTE);
+        solicitud.setFechaCreacion(LocalDateTime.now());
+
+        return solicitudRepository.save(solicitud);
+    }
+
+    public List<SolicitudServicio> obtenerPorEmpresa(Long empresaId) {
+        return solicitudRepository.findByServicioEmpresaId(empresaId);
+    }
+
+    public List<SolicitudServicio> obtenerPorCliente(Long clienteId) {
+        return solicitudRepository.findByClienteId(clienteId);
+    }
+
+    public SolicitudServicio aceptar(Long solicitudId) {
+        SolicitudServicio solicitud = buscarPorId(solicitudId);
+        solicitud.setEstado(EstadoSolicitud.ACEPTADA);
+        return solicitudRepository.save(solicitud);
+    }
+
+    public void rechazar(Long solicitudId) {
+        SolicitudServicio solicitud = buscarPorId(solicitudId);
+        solicitudRepository.delete(solicitud);
+    }
+
+    public SolicitudServicio buscarPorId(Long id) {
+        return solicitudRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+    }
+}

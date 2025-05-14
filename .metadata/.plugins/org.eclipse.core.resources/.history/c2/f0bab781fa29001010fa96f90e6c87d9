@@ -1,0 +1,11 @@
+package com.fctapp.servicios.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.fctapp.servicios.entity.Mensaje;
+
+public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
+    List<Mensaje> findBySolicitudIdOrderByFechaAsc(Long solicitudId);
+}

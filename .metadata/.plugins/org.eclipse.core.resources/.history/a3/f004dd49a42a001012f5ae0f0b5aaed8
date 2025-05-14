@@ -1,0 +1,35 @@
+package com.fctapp.servicios.controller;
+
+import com.fctapp.servicios.entity.Valoracion;
+import com.fctapp.servicios.service.ValoracionService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/valoraciones")
+public class ValoracionController {
+
+    private final ValoracionService valoracionService;
+
+    public ValoracionController(ValoracionService valoracionService) {
+        this.valoracionService = valoracionService;
+    }
+
+    @PostMapping("/crear")
+    public ResponseEntity<Valoracion> valorar(
+            @RequestParam Long clienteId,
+            @RequestParam Long solicitudId,
+            @RequestParam int estrellas,
+            @RequestParam String comentario) {
+        return ResponseEntity.ok(
+                valoracionService.dejarValoracion(clienteId, solicitudId, estrellas, comentario)
+        );
+    }
+
+    @GetMapping("/empresa/{empresaId}")
+    public List<Valoracion> valoracionesEmpresa(@PathVariable Long empresaId) {
+        return valoracionService.listarValoracionesEmpresa(empresaId);
+    }
+}

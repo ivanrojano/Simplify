@@ -1,0 +1,36 @@
+package com.fctapp.servicios.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fctapp.servicios.dto.RegistroClienteDTO;
+import com.fctapp.servicios.dto.RegistroEmpresaDTO;
+import com.fctapp.servicios.entity.Cliente;
+import com.fctapp.servicios.entity.Empresa;
+import com.fctapp.servicios.service.UsuarioService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/auth")
+public class UsuarioController {
+
+    private final UsuarioService usuarioService;
+
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
+
+    @PostMapping("/registro/cliente")
+    public ResponseEntity<Cliente> registrarCliente(@Valid @RequestBody RegistroClienteDTO dto) {
+        return ResponseEntity.ok(usuarioService.registrarCliente(dto));
+    }
+
+    @PostMapping("/registro/empresa")
+    public ResponseEntity<Empresa> registrarEmpresa(@Valid @RequestBody RegistroEmpresaDTO dto) {
+        return ResponseEntity.ok(usuarioService.registrarEmpresa(dto));
+    }
+}

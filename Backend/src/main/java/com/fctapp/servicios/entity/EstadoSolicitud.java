@@ -1,0 +1,8 @@
+package com.fctapp.servicios.entity;
+
+public enum EstadoSolicitud {
+    PENDIENTE,
+    ACEPTADA,
+    RECHAZADA,
+    FINALIZADA
+}

@@ -1,0 +1,31 @@
+package com.fctapp.servicios.controller;
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.fctapp.servicios.dto.MensajeDTO;
+import com.fctapp.servicios.entity.Mensaje;
+import com.fctapp.servicios.service.MensajeService;
+
+@RestController
+@RequestMapping("/api/mensajes")
+public class MensajeController {
+
+    private final MensajeService mensajeService;
+
+    public MensajeController(MensajeService mensajeService) {
+        this.mensajeService = mensajeService;
+    }
+
+    @PostMapping
+    public ResponseEntity<Mensaje> enviarMensaje(@RequestBody MensajeDTO dto) {
+        return ResponseEntity.ok(mensajeService.enviarMensaje(dto));
+    }
+
+    @GetMapping("/{solicitudId}")
+    public ResponseEntity<List<Mensaje>> obtenerMensajes(@PathVariable Long solicitudId) {
+        return ResponseEntity.ok(mensajeService.obtenerMensajes(solicitudId));
+    }
+}

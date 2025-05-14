@@ -1,0 +1,32 @@
+package com.fctapp.servicios.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.fctapp.servicios.entity.SolicitudServicio;
+import com.fctapp.servicios.service.SolicitudServicioService;
+
+@RestController
+@RequestMapping("/api/solicitudes")
+public class SolicitudServicioController {
+
+    private final SolicitudServicioService solicitudService;
+
+    public SolicitudServicioController(SolicitudServicioService solicitudService) {
+        this.solicitudService = solicitudService;
+    }
+
+    @PostMapping("/crear")
+    public ResponseEntity<SolicitudServicio> crearSolicitud(
+            @RequestParam Long clienteId,
+            @RequestParam Long servicioId) {
+        return ResponseEntity.ok(solicitudService.crearSolicitud(clienteId, servicioId));
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<SolicitudServicio> actualizarEstado(
+            @PathVariable Long id,
+            @RequestParam SolicitudServicio.EstadoSolicitud estado) {
+        return ResponseEntity.ok(solicitudService.actualizarEstado(id, estado));
+    }
+}

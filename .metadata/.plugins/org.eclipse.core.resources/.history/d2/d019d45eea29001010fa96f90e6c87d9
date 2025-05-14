@@ -1,0 +1,14 @@
+package com.fctapp.servicios.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Cliente extends Usuario {
+
+    private String nombre;
+    private String direccion;
+}

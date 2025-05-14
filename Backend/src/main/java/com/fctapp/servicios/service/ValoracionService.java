@@ -1,0 +1,63 @@
+package com.fctapp.servicios.service;
+
+import org.springframework.stereotype.Service;
+
+import com.fctapp.servicios.entity.Cliente;
+import com.fctapp.servicios.entity.Empresa;
+import com.fctapp.servicios.entity.EstadoSolicitud;
+import com.fctapp.servicios.entity.SolicitudServicio;
+import com.fctapp.servicios.entity.Valoracion;
+import com.fctapp.servicios.repository.ClienteRepository;
+import com.fctapp.servicios.repository.EmpresaRepository;
+import com.fctapp.servicios.repository.SolicitudServicioRepository;
+import com.fctapp.servicios.repository.ValoracionRepository;
+
+@Service
+public class ValoracionService {
+
+	private final ValoracionRepository valoracionRepo;
+	private final SolicitudServicioRepository solicitudRepo;
+	private final EmpresaRepository empresaRepo;
+	private final ClienteRepository clienteRepo;
+
+	public ValoracionService(ValoracionRepository valoracionRepo, SolicitudServicioRepository solicitudRepo,
+			EmpresaRepository empresaRepo, ClienteRepository clienteRepo) {
+		this.valoracionRepo = valoracionRepo;
+		this.solicitudRepo = solicitudRepo;
+		this.empresaRepo = empresaRepo;
+		this.clienteRepo = clienteRepo;
+	}
+
+	public Valoracion dejarValoracion(Long clienteId, Long solicitudId, int estrellas, String comentario) {
+    // Validar que no exista ya una valoración para la misma solicitud
+    if (valoracionRepo.findBySolicitudId(solicitudId).isPresent()) {
+        throw new RuntimeException("Ya existe una valoración para esta solicitud.");
+    }
+
+    SolicitudServicio solicitud = solicitudRepo.findById(solicitudId)
+            .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+    if (solicitud.getEstado() != EstadoSolicitud.FINALIZADA) {
+        throw new RuntimeException("Solo se pueden valorar solicitudes finalizadas.");
+    }
+
+    Cliente cliente = clienteRepo.findById(clienteId)
+            .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+    Empresa empresa = solicitud.getServicio().getEmpresa();
+
+    Valoracion valoracion = new Valoracion();
+    valoracion.setCliente(cliente);
+    valoracion.setEmpresa(empresa);
+    valoracion.setSolicitud(solicitud);
+    valoracion.setEstrellas(estrellas);
+    valoracion.setComentario(comentario);
+
+    return valoracionRepo.save(valoracion);
+}
+
+
+	public java.util.List<Valoracion> listarValoracionesEmpresa(Long empresaId) {
+		return valoracionRepo.findByEmpresaId(empresaId);
+	}
+}

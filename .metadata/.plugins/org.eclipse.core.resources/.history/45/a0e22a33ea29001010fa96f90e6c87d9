@@ -1,0 +1,5 @@
+package com.fctapp.servicios;
+
+public enum Rol {
+
+}

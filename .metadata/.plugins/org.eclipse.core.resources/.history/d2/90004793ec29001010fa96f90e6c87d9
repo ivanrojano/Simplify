@@ -1,0 +1,32 @@
+package com.fctapp.servicios.controller;
+
+import com.fctapp.servicios.model.Servicio;
+import com.fctapp.servicios.service.ServicioService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/servicios")
+@RequiredArgsConstructor
+public class ServicioController {
+
+    private final ServicioService servicioService;
+
+    @PostMapping("/empresa/{empresaId}")
+    public ResponseEntity<Servicio> crearServicio(@PathVariable Long empresaId, @RequestBody Servicio servicio) {
+        return ResponseEntity.ok(servicioService.crearServicio(empresaId, servicio));
+    }
+
+    @GetMapping("/empresa/{empresaId}")
+    public ResponseEntity<List<Servicio>> listarPorEmpresa(@PathVariable Long empresaId) {
+        return ResponseEntity.ok(servicioService.obtenerServiciosDeEmpresa(empresaId));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Servicio>> listarTodos() {
+        return ResponseEntity.ok(servicioService.obtenerTodos());
+    }
+}

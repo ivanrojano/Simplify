@@ -1,0 +1,51 @@
+package com.fctapp.servicios.service;
+
+import java.time.LocalDateTime;
+
+import org.springframework.stereotype.Service;
+
+import com.fctapp.servicios.entity.*;
+import com.fctapp.servicios.repository.*;
+
+@Service
+public class SolicitudServicioService {
+
+    private final SolicitudServicioRepository solicitudRepo;
+    private final ClienteRepository clienteRepo;
+    private final ServicioRepository servicioRepo;
+
+    public SolicitudServicioService(SolicitudServicioRepository solicitudRepo, ClienteRepository clienteRepo, ServicioRepository servicioRepo) {
+        this.solicitudRepo = solicitudRepo;
+        this.clienteRepo = clienteRepo;
+        this.servicioRepo = servicioRepo;
+    }
+
+    public SolicitudServicio crearSolicitud(Long clienteId, Long servicioId) {
+        Cliente cliente = clienteRepo.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        Servicio servicio = servicioRepo.findById(servicioId)
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+        SolicitudServicio solicitud = new SolicitudServicio();
+        solicitud.setCliente(cliente);
+        solicitud.setServicio(servicio);
+        solicitud.setEstado(SolicitudServicio.EstadoSolicitud.PENDIENTE);
+        solicitud.setFechaCreacion(LocalDateTime.now());
+
+        return solicitudRepo.save(solicitud);
+    }
+
+    public SolicitudServicio actualizarEstado(Long solicitudId, SolicitudServicio.EstadoSolicitud nuevoEstado) {
+        SolicitudServicio solicitud = solicitudRepo.findById(solicitudId)
+                .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+        solicitud.setEstado(nuevoEstado);
+
+        if (nuevoEstado == SolicitudServicio.EstadoSolicitud.RECHAZADA) {
+            solicitudRepo.delete(solicitud);
+            return null;
+        }
+
+        return solicitudRepo.save(solicitud);
+    }
+}

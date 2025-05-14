@@ -1,0 +1,228 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  IconButton,
+  CircularProgress,
+  Fade,
+  keyframes,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ConfirmModalLogout from "../components/ConfirmModalLogout";
+
+type Cliente = {
+  nombre: string;
+  direccion: string;
+  email: string;
+};
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+`;
+
+const EditarCliente = () => {
+  const [form, setForm] = useState<Cliente>({
+    nombre: "",
+    direccion: "",
+    email: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const clienteId = localStorage.getItem("clienteId");
+
+  useEffect(() => {
+    if (!token || !clienteId) {
+      navigate("/login");
+      return;
+    }
+
+    axios
+      .get<Cliente>(`http://localhost:8080/api/clientes/${clienteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setForm(res.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        toast.error("Error al cargar el perfil.");
+        navigate("/cliente");
+      });
+  }, [token, clienteId, navigate]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const validateForm = () => {
+    if (!form.nombre.trim()) return toast.error("El nombre es obligatorio.");
+    if (form.nombre.length > 20) return toast.error("El nombre no puede tener más de 20 caracteres.");
+    if (!form.direccion.trim() || form.direccion.length < 5) return toast.error("La dirección debe tener al menos 5 caracteres.");
+    if (!form.email.includes("@")) return toast.error("Email inválido.");
+    return true;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    axios
+      .put(`http://localhost:8080/api/clientes/${clienteId}`, form, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        toast.success("Perfil actualizado correctamente");
+        setTimeout(() => navigate("/cliente"), 1500);
+      })
+      .catch(() => toast.error("Error al guardar los cambios."));
+  };
+
+  const confirmLogout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
+
+  if (loading)
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
+        <CircularProgress color="primary" />
+      </Box>
+    );
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100dvh",
+        bgcolor: "#ffffff",
+        px: 2,
+        py: 4,
+        fontFamily: "'Inter', system-ui, sans-serif",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center"
+      }}
+    >
+      <Fade in timeout={800}>
+        <IconButton
+          onClick={() => navigate("/cliente")}
+          sx={{ position: "absolute", top: 16, left: 16, color: "#0d47a1" }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      </Fade>
+
+      <Fade in timeout={800}>
+        <IconButton
+          onClick={() => setLogoutConfirm(true)}
+          sx={{ position: "absolute", top: 16, right: 16, color: "#e74c3c" }}
+        >
+          <LogoutIcon />
+        </IconButton>
+      </Fade>
+
+      <Fade in timeout={800}>
+        <Box
+          component="img"
+          src="/logo.png"
+          alt="Logo"
+          onClick={() => navigate("/")}
+          sx={{
+            width: 100,
+            animation: `${pulse} 2.5s ease-in-out infinite`,
+            mb: 2,
+            cursor: "pointer"
+          }}
+        />
+      </Fade>
+
+      <Fade in timeout={1000}>
+        <Typography variant="h4" fontWeight={700} color="#0d47a1" mb={3}>
+          Editar Perfil del Cliente
+        </Typography>
+      </Fade>
+
+      <Fade in timeout={1200}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            width: "100%",
+            maxWidth: 450
+          }}
+        >
+          <TextField
+            label="Nombre"
+            name="nombre"
+            value={form.nombre}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Dirección"
+            name="direccion"
+            value={form.direccion}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+          <Button
+            variant="contained"
+            type="submit"
+            size="large"
+            sx={{
+              py: 1.5,
+              fontWeight: 600,
+              fontSize: "1rem",
+              backgroundColor: "#0d47a1",
+              "&:hover": { backgroundColor: "#08306b" },
+              transition: "all 0.3s ease-in-out"
+            }}
+          >
+            Guardar cambios
+          </Button>
+        </Box>
+      </Fade>
+
+      {logoutConfirm && (
+        <ConfirmModalLogout
+          onCancel={() => setLogoutConfirm(false)}
+          onConfirm={() => {
+            confirmLogout();
+            setLogoutConfirm(false);
+          }}
+        />
+      )}
+
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+    </Box>
+  );
+};
+
+export default EditarCliente;

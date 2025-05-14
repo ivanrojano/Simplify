@@ -1,0 +1,5 @@
+package com.fctapp.servicios.security;
+
+public class JwtFiltro {
+
+}

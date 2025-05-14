@@ -1,0 +1,48 @@
+package com.fctapp.servicios.controller;
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.fctapp.servicios.entity.SolicitudServicio;
+import com.fctapp.servicios.service.SolicitudServicioService;
+
+@RestController
+@RequestMapping("/api/solicitudes")
+public class SolicitudServicioController {
+
+    private final SolicitudServicioService solicitudService;
+
+    public SolicitudServicioController(SolicitudServicioService solicitudService) {
+        this.solicitudService = solicitudService;
+    }
+
+    @PostMapping("/crear")
+    public ResponseEntity<SolicitudServicio> crear(
+            @RequestParam Long clienteId,
+            @RequestParam Long servicioId) {
+        return ResponseEntity.ok(solicitudService.crearSolicitud(clienteId, servicioId));
+    }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<SolicitudServicio>> obtenerPorCliente(@PathVariable Long clienteId) {
+        return ResponseEntity.ok(solicitudService.obtenerPorCliente(clienteId));
+    }
+
+    @GetMapping("/empresa/{empresaId}")
+    public ResponseEntity<List<SolicitudServicio>> obtenerPorEmpresa(@PathVariable Long empresaId) {
+        return ResponseEntity.ok(solicitudService.obtenerPorEmpresa(empresaId));
+    }
+
+    @PutMapping("/{solicitudId}/aceptar")
+    public ResponseEntity<SolicitudServicio> aceptar(@PathVariable Long solicitudId) {
+        return ResponseEntity.ok(solicitudService.aceptar(solicitudId));
+    }
+
+    @DeleteMapping("/{solicitudId}/rechazar")
+    public ResponseEntity<Void> rechazar(@PathVariable Long solicitudId) {
+        solicitudService.rechazar(solicitudId);
+        return ResponseEntity.noContent().build();
+    }
+}

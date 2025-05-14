@@ -1,0 +1,5 @@
+package com.fctapp.servicios.repository;
+
+public interface ClienteReposity {
+
+}

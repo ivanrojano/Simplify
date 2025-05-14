@@ -1,0 +1,54 @@
+package com.fctapp.servicios.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.fctapp.servicios.dto.MensajeDTO;
+import com.fctapp.servicios.entity.*;
+import com.fctapp.servicios.repository.*;
+
+@Service
+public class MensajeService {
+
+    private final MensajeRepository mensajeRepository;
+    private final SolicitudServicioRepository solicitudRepository;
+    private final UsuarioRepository usuarioRepository;
+
+    public MensajeService(MensajeRepository mensajeRepository,
+                          SolicitudServicioRepository solicitudRepository,
+                          UsuarioRepository usuarioRepository) {
+        this.mensajeRepository = mensajeRepository;
+        this.solicitudRepository = solicitudRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    public Mensaje enviarMensaje(MensajeDTO dto) {
+        SolicitudServicio solicitud = solicitudRepository.findById(dto.getSolicitudId())
+                .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+        if (solicitud.getEstado() != EstadoSolicitud.ACEPTADA) {
+            throw new RuntimeException("No se puede enviar mensajes si la solicitud no está aceptada.");
+        }
+
+        Usuario emisor = usuarioRepository.findById(dto.getEmisorId())
+                .orElseThrow(() -> new RuntimeException("Emisor no encontrado"));
+
+        Usuario receptor = usuarioRepository.findById(dto.getReceptorId())
+                .orElseThrow(() -> new RuntimeException("Receptor no encontrado"));
+
+        Mensaje mensaje = new Mensaje();
+        mensaje.setContenido(dto.getContenido());
+        mensaje.setEmisor(emisor);
+        mensaje.setReceptor(receptor);
+        mensaje.setSolicitud(solicitud);
+        mensaje.setFecha(LocalDateTime.now());
+
+        return mensajeRepository.save(mensaje);
+    }
+
+    public List<Mensaje> obtenerMensajes(Long solicitudId) {
+        return mensajeRepository.findBySolicitudIdOrderByFechaAsc(solicitudId);
+    }
+}

@@ -1,0 +1,7 @@
+package com.fctapp.servicios.entity;
+
+public enum Rol {
+    CLIENTE,
+    EMPRESA,
+    ADMIN
+}

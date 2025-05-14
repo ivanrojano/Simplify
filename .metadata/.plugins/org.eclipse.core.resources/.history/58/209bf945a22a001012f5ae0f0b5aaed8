@@ -1,0 +1,5 @@
+package com.fctapp.servicios.entity;
+
+public class Valoracion {
+
+}
