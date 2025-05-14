@@ -22,6 +22,8 @@ interface Cliente {
   nombre: string;
   direccion: string;
   email: string;
+  fotoUrl?: string | null;
+
 }
 
 const ClienteDashboard = () => {
@@ -99,9 +101,21 @@ const ClienteDashboard = () => {
         <Fade in timeout={1300}>
           <Paper elevation={12} sx={{ maxWidth: 900, mx: "auto", p: 4, mb: 4, borderRadius: 3 }}>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={4} alignItems="center">
-              <Avatar sx={{ width: 100, height: 100, bgcolor: "#0d47a1", flexShrink: 0 }}>
-                <PersonIcon sx={{ fontSize: 48 }} />
+              <Avatar
+                sx={{
+                  width: 150,
+                  height: 150,
+                  bgcolor: cliente.fotoUrl ? "transparent" : "#0d47a1",
+                  border: "2px solid #0d47a1",
+                }}
+                src={cliente.fotoUrl && cliente.fotoUrl.trim() !== "" ? cliente.fotoUrl : undefined}
+              >
+                {(!cliente.fotoUrl || cliente.fotoUrl.trim() === "") && (
+                  <PersonIcon sx={{ fontSize: 48 }} />
+                )}
               </Avatar>
+
+
 
               <Box flex={1}>
                 <Typography variant="h6" fontWeight={700} gutterBottom>

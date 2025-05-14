@@ -17,23 +17,25 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
-type Cliente = {
-  nombre: string;
-  direccion: string;
-  email: string;
-};
-
 const pulse = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.12); }
   100% { transform: scale(1); }
 `;
 
+type Cliente = {
+  nombre: string;
+  direccion: string;
+  email: string;
+  fotoUrl?: string | null;
+};
+
 const EditarCliente = () => {
   const [form, setForm] = useState<Cliente>({
     nombre: "",
     direccion: "",
     email: "",
+    fotoUrl: "",
   });
   const [loading, setLoading] = useState(true);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
@@ -77,8 +79,13 @@ const EditarCliente = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    const dataToSend = {
+      ...form,
+      fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl,
+    };
+
     axios
-      .put(`http://localhost:8080/api/clientes/${clienteId}`, form, {
+      .put(`http://localhost:8080/api/clientes/${clienteId}`, dataToSend, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
@@ -113,7 +120,7 @@ const EditarCliente = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        textAlign: "center"
+        textAlign: "center",
       }}
     >
       <Fade in timeout={800}>
@@ -144,7 +151,7 @@ const EditarCliente = () => {
             width: 100,
             animation: `${pulse} 2.5s ease-in-out infinite`,
             mb: 2,
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         />
       </Fade>
@@ -164,7 +171,7 @@ const EditarCliente = () => {
             flexDirection: "column",
             gap: 3,
             width: "100%",
-            maxWidth: 450
+            maxWidth: 450,
           }}
         >
           <TextField
@@ -192,6 +199,14 @@ const EditarCliente = () => {
             fullWidth
             required
           />
+          <TextField
+            label="Foto (URL)"
+            name="fotoUrl"
+            value={form.fotoUrl || ""}
+            onChange={handleChange}
+            fullWidth
+            placeholder="https://ejemplo.com/foto.jpg"
+          />
           <Button
             variant="contained"
             type="submit"
@@ -202,7 +217,7 @@ const EditarCliente = () => {
               fontSize: "1rem",
               backgroundColor: "#0d47a1",
               "&:hover": { backgroundColor: "#08306b" },
-              transition: "all 0.3s ease-in-out"
+              transition: "all 0.3s ease-in-out",
             }}
           >
             Guardar cambios

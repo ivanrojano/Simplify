@@ -1,5 +1,6 @@
 package com.fctapp.servicios.controller;
 
+import com.fctapp.servicios.dto.ActualizarClienteDTO;
 import com.fctapp.servicios.entity.Cliente;
 import com.fctapp.servicios.repository.ClienteRepository;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +31,25 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> actualizar(@PathVariable("id") Long id, @RequestBody Cliente actualizado) {
+    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id,
+            @RequestBody ActualizarClienteDTO dto) {
         return clienteRepository.findById(id)
                 .map(cliente -> {
-                    cliente.setNombre(actualizado.getNombre());
-                    cliente.setDireccion(actualizado.getDireccion());
-                    return ResponseEntity.ok(clienteRepository.save(cliente));
-                }).orElse(ResponseEntity.notFound().build());
+                    if (dto.getNombre() != null) {
+                        cliente.setNombre(dto.getNombre());
+                    }
+                    if (dto.getDireccion() != null) {
+                        cliente.setDireccion(dto.getDireccion());
+                    }
+                    if (dto.getFotoUrl() != null) {
+                        String trimmed = dto.getFotoUrl().trim();
+                        cliente.setFotoUrl(trimmed.isEmpty() ? null : trimmed);
+                    }
+
+                    clienteRepository.save(cliente);
+                    return ResponseEntity.ok(cliente);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
