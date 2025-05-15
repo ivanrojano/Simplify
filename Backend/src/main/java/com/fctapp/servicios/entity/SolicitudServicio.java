@@ -17,7 +17,7 @@ public class SolicitudServicio {
 	private Cliente cliente;
 
 	@ManyToOne
-	@JsonIgnoreProperties({"empresa"}) 
+	@JsonIgnoreProperties({"solicitudes"}) 
 	private Servicio servicio;
 
 	@Enumerated(EnumType.STRING)

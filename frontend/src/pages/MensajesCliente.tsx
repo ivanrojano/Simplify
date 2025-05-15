@@ -32,11 +32,18 @@ interface Mensaje {
 }
 
 interface Solicitud {
+  id: number;
   servicio: {
+    id: number;
+    nombre: string;
     empresa: {
       id: number;
       nombreEmpresa: string;
     };
+  };
+  cliente: {
+    id: number;
+    nombre: string;
   };
 }
 
@@ -45,7 +52,7 @@ const MensajesCliente = () => {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoMensaje, setNuevoMensaje] = useState("");
   const [receptorId, setReceptorId] = useState<number | null>(null);
-  const [empresaNombre, setEmpresaNombre] = useState<string>("");
+  const [empresaNombre, setEmpresaNombre] = useState("Empresa no disponible");
   const token = localStorage.getItem("token");
   const clienteId = Number(localStorage.getItem("clienteId"));
   const navigate = useNavigate();
@@ -62,11 +69,16 @@ const MensajesCliente = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setReceptorId(res.data.servicio.empresa.id);
-        setEmpresaNombre(res.data.servicio.empresa.nombreEmpresa);
+        const empresa = res.data?.servicio?.empresa;
+        if (empresa?.id) {
+          setReceptorId(empresa.id);
+          setEmpresaNombre(empresa.nombreEmpresa || "Empresa sin nombre");
+        } else {
+          toast.error("No se pudo identificar la empresa.");
+        }
       })
       .catch(() => {
-        toast.error("No se pudo obtener la empresa.");
+        toast.error("Error al cargar los datos de la empresa.");
       });
 
     axios
@@ -100,7 +112,7 @@ const MensajesCliente = () => {
         "http://localhost:8080/api/mensajes/enviar",
         {
           emisorId: clienteId,
-          receptorId: receptorId,
+          receptorId,
           solicitudId: Number(solicitudId),
           contenido: nuevoMensaje,
         },
@@ -113,8 +125,6 @@ const MensajesCliente = () => {
       );
 
       setNuevoMensaje("");
-      toast.success("Mensaje enviado");
-
       const res = await axios.get<Mensaje[]>(
         `http://localhost:8080/api/mensajes/por-solicitud?solicitudId=${solicitudId}`,
         {
@@ -135,22 +145,34 @@ const MensajesCliente = () => {
   return (
     <Box sx={{ maxWidth: "900px", margin: "2rem auto", px: 2, pb: 5 }}>
       <Button
-        startIcon={<ArrowBackIcon />} 
+        startIcon={<ArrowBackIcon />}
         onClick={() => navigate("/cliente/solicitudes")}
-        sx={{ position: 'absolute', top: 16, left: 16 }}
+        sx={{ position: "absolute", top: 16, left: 16 }}
       >
         Volver a Solicitudes
       </Button>
 
       <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={1}>
-        Chat con {empresaNombre || "la Empresa"}
+        Chat con {empresaNombre}
       </Typography>
 
       <Divider sx={{ mb: 3 }} />
 
-      <Paper elevation={4} sx={{ backgroundColor: "#f9f9f9", height: 450, overflowY: "auto", p: 2, mb: 3, borderRadius: 3 }}>
+      <Paper
+        elevation={4}
+        sx={{
+          backgroundColor: "#f9f9f9",
+          height: 450,
+          overflowY: "auto",
+          p: 2,
+          mb: 3,
+          borderRadius: 3,
+        }}
+      >
         {mensajes.length === 0 ? (
-          <Typography color="text.secondary" textAlign="center">No hay mensajes todavía.</Typography>
+          <Typography color="text.secondary" textAlign="center">
+            No hay mensajes todavía.
+          </Typography>
         ) : (
           <Stack spacing={1}>
             {mensajes.map((msg) => (
@@ -166,11 +188,17 @@ const MensajesCliente = () => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: msg.emisor.id === clienteId ? "flex-end" : "flex-start",
-                    maxWidth: "75%"
+                    maxWidth: "75%",
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Avatar sx={{ width: 30, height: 30, bgcolor: msg.emisor.id === clienteId ? '#1976d2' : '#6d4c41' }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Avatar
+                      sx={{
+                        width: 30,
+                        height: 30,
+                        bgcolor: msg.emisor.id === clienteId ? "#1976d2" : "#6d4c41",
+                      }}
+                    >
                       <PersonIcon fontSize="small" />
                     </Avatar>
                     <Typography variant="caption" fontWeight={600}>
@@ -183,7 +211,7 @@ const MensajesCliente = () => {
                       px: 2,
                       py: 1,
                       borderRadius: 2,
-                      mt: 0.5
+                      mt: 0.5,
                     }}
                   >
                     <Typography variant="body1">{msg.contenido}</Typography>
