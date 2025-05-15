@@ -11,7 +11,6 @@ import {
   Paper,
   Button,
   Stack,
-  IconButton,
   Divider,
   Avatar,
   Fade
@@ -106,12 +105,20 @@ const EmpresaDashboard = () => {
           position: "relative"
         }}
       >
-        <IconButton
+        <Button
           onClick={() => setLogoutConfirm(true)}
-          sx={{ position: "absolute", top: 16, right: 16, color: "#e74c3c" }}
+          endIcon={<LogoutIcon />}
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            color: "#e74c3c",
+            textTransform: "none",
+            fontWeight: 600
+          }}
         >
-          <LogoutIcon />
-        </IconButton>
+          Cerrar Sesión
+        </Button>
 
         <Fade in timeout={1000}>
           <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={2}>
@@ -206,7 +213,7 @@ const EmpresaDashboard = () => {
             ) : (
               <Stack spacing={2}>
                 {servicios.map((servicio) => (
-                  <Paper key={servicio.id} sx={{ p: 2, borderRadius: 2 }}>
+                  <Paper elevation={6} key={servicio.id} sx={{ p: 2, borderRadius: 2 }}>
                     <Typography><strong>Servicio:</strong> {servicio.nombre}</Typography>
                     <Typography><strong>Descripción:</strong> {servicio.descripcion}</Typography>
                     <Stack direction="row" spacing={1} mt={1}>

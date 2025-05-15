@@ -143,9 +143,20 @@ const SolicitudesEmpresa = () => {
       </Fade>
 
       <Fade in timeout={800}>
-        <IconButton onClick={() => setLogoutConfirm(true)} sx={{ position: "absolute", top: 16, right: 16, color: "#e74c3c" }}>
-          <LogoutIcon />
-        </IconButton>
+        <Button
+          onClick={() => setLogoutConfirm(true)}
+          endIcon={<LogoutIcon />}
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            color: "#e74c3c",
+            textTransform: "none",
+            fontWeight: 600
+          }}
+        >
+          Cerrar Sesión
+        </Button>
       </Fade>
 
       <Fade in timeout={1000}>

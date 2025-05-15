@@ -134,23 +134,31 @@ const AdminDashboard = () => {
     fetchUsuarios();
   }, []);
 
-  return (
-    <Box
+ return (
+  <Box
+    sx={{
+      minHeight: "100dvh",
+      bgcolor: "#ffffff",
+      fontFamily: "'Inter', system-ui, sans-serif",
+      px: { xs: 2, md: 4 },
+      py: 4,
+      position: "relative"
+    }}
+  >
+    <Button
+      onClick={handleLogout}
+      endIcon={<LogoutIcon />}
       sx={{
-        minHeight: "100dvh",
-        bgcolor: "#ffffff",
-        fontFamily: "'Inter', system-ui, sans-serif",
-        px: { xs: 2, md: 4 },
-        py: 4,
-        position: "relative"
+        position: "absolute",
+        top: 16,
+        right: 16,
+        color: "#e74c3c",
+        textTransform: "none",
+        fontWeight: 600
       }}
     >
-      <IconButton
-        onClick={handleLogout}
-        sx={{ position: "absolute", top: 16, right: 16, color: "#e74c3c" }}
-      >
-        <LogoutIcon />
-      </IconButton>
+      Cerrar Sesión
+    </Button>
 
       <Typography
         variant="h3"

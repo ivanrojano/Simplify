@@ -133,12 +133,20 @@ const EditarCliente = () => {
       </Fade>
 
       <Fade in timeout={800}>
-        <IconButton
+        <Button
           onClick={() => setLogoutConfirm(true)}
-          sx={{ position: "absolute", top: 16, right: 16, color: "#e74c3c" }}
+          endIcon={<LogoutIcon />}
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            color: "#e74c3c",
+            textTransform: "none",
+            fontWeight: 600
+          }}
         >
-          <LogoutIcon />
-        </IconButton>
+          Cerrar Sesión
+        </Button>
       </Fade>
 
       <Fade in timeout={800}>

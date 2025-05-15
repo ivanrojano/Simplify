@@ -7,7 +7,6 @@ import {
   Typography,
   Paper,
   Stack,
-  IconButton,
   Avatar,
   Divider,
   CircularProgress,
@@ -50,7 +49,6 @@ const ClienteDashboard = () => {
       .catch(() => navigate("/login"));
   }, [token, clienteId, navigate]);
 
-  const handleLogout = () => setLogoutConfirm(true);
 
   const confirmLogout = () => {
     localStorage.clear();
@@ -79,12 +77,20 @@ const ClienteDashboard = () => {
           position: "relative",
         }}
       >
-        <IconButton
-          onClick={handleLogout}
-          sx={{ position: "absolute", top: 16, right: 16, color: "#e74c3c" }}
+        <Button
+          onClick={() => setLogoutConfirm(true)}
+          endIcon={<LogoutIcon />}
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            color: "#e74c3c",
+            textTransform: "none",
+            fontWeight: 600
+          }}
         >
-          <LogoutIcon />
-        </IconButton>
+          Cerrar Sesión
+        </Button>
 
         <Fade in timeout={1000}>
           <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={1}>
