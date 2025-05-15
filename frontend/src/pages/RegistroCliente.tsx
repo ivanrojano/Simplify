@@ -2,8 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+
 import {
   Box,
   Button,
@@ -12,7 +12,17 @@ import {
   IconButton,
   Fade,
   keyframes,
+  InputAdornment,
+  Tooltip
 } from "@mui/material";
+
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import PersonIcon from "@mui/icons-material/Person";
+import HomeIcon from "@mui/icons-material/Home";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -27,6 +37,9 @@ export default function RegistroCliente() {
     nombre: "",
     direccion: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   const navigate = useNavigate();
 
@@ -57,19 +70,13 @@ export default function RegistroCliente() {
         direccion: "",
       });
     } catch (err) {
-      if (err && typeof err === "object" && "response" in err) {
-        const status = (err as any).response?.status;
-        if (status === 409) {
-          toast.error("Ya existe un cliente con ese correo o nombre.");
-        } else if (status === 401) {
-          toast.error("Ya existe un cliente con ese correo o nombre.");
-        } else if (status === 400) {
-          toast.error("Datos inválidos. Revisa el formulario.");
-        } else {
-          toast.error("Error al registrar cliente.");
-        }
+      const status = (err as any)?.response?.status;
+      if (status === 409 || status === 401) {
+        toast.error("Ya existe un cliente con ese correo o nombre.");
+      } else if (status === 400) {
+        toast.error("Datos inválidos. Revisa el formulario.");
       } else {
-        toast.error("Error desconocido al registrar cliente.");
+        toast.error("Error al registrar cliente.");
       }
       console.error(err);
     }
@@ -144,23 +151,52 @@ export default function RegistroCliente() {
           }}
         >
           <TextField
-            label="Email"
+            label="Correo electrónico"
             name="email"
             type="email"
             value={form.email}
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Correo electrónico">
+                    <EmailIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Contraseña"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={form.password}
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Contraseña">
+                    <LockIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                    <IconButton onClick={togglePasswordVisibility} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Nombre"
             name="nombre"
@@ -168,7 +204,17 @@ export default function RegistroCliente() {
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Nombre completo">
+                    <PersonIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Dirección"
             name="direccion"
@@ -176,7 +222,17 @@ export default function RegistroCliente() {
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Dirección">
+                    <HomeIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <Button
             variant="contained"
             type="submit"

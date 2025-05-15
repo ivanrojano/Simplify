@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+
 import {
   Box,
   Button,
@@ -12,7 +13,17 @@ import {
   IconButton,
   Fade,
   keyframes,
+  InputAdornment,
+  Tooltip,
 } from "@mui/material";
+
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import BusinessIcon from "@mui/icons-material/Business";
+import DescriptionIcon from "@mui/icons-material/Description";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -29,6 +40,9 @@ export default function RegistroEmpresa() {
     direccion: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+
   const navigate = useNavigate();
 
   const handleChange = (
@@ -40,7 +54,6 @@ export default function RegistroEmpresa() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validación básica
     if (
       !form.email ||
       !form.password ||
@@ -66,17 +79,13 @@ export default function RegistroEmpresa() {
         direccion: "",
       });
     } catch (err) {
-      if (err && typeof err === "object" && "response" in err) {
-        const status = (err as any).response?.status;
-        if (status === 409 || status === 401) {
-          toast.error("Ya existe una empresa con ese correo o nombre.");
-        } else if (status === 400) {
-          toast.error("Datos inválidos. Revisa el formulario.");
-        } else {
-          toast.error("Error al registrar empresa.");
-        }
+      const status = (err as any)?.response?.status;
+      if (status === 409 || status === 401) {
+        toast.error("Ya existe una empresa con ese correo o nombre.");
+      } else if (status === 400) {
+        toast.error("Datos inválidos. Revisa el formulario.");
       } else {
-        toast.error("Error desconocido al registrar empresa.");
+        toast.error("Error al registrar empresa.");
       }
       console.error(err);
     }
@@ -151,23 +160,52 @@ export default function RegistroEmpresa() {
           }}
         >
           <TextField
-            label="Email"
+            label="Correo electrónico"
             name="email"
             type="email"
             value={form.email}
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Correo electrónico">
+                    <EmailIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Contraseña"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={form.password}
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Contraseña">
+                    <LockIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                    <IconButton onClick={togglePasswordVisibility} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Nombre de la Empresa"
             name="nombreEmpresa"
@@ -175,7 +213,17 @@ export default function RegistroEmpresa() {
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Nombre de la empresa">
+                    <BusinessIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Descripción"
             name="descripcion"
@@ -185,7 +233,17 @@ export default function RegistroEmpresa() {
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Descripción de la empresa">
+                    <DescriptionIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Dirección"
             name="direccion"
@@ -193,6 +251,15 @@ export default function RegistroEmpresa() {
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Dirección">
+                    <LocationOnIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <Button

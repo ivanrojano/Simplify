@@ -6,15 +6,16 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {
-  Box,
-  Button,
-  Typography,
-  TextField,
-  IconButton,
-  Fade,
-  keyframes,
-} from "@mui/material";
+import { Box, Button, Typography, TextField, IconButton, Fade, keyframes } from "@mui/material";
+
+import Tooltip from "@mui/material/Tooltip";
+
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import InputAdornment from "@mui/material/InputAdornment";
+
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 interface AuthResponse {
   token: string;
@@ -38,7 +39,8 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -152,16 +154,41 @@ const Login = () => {
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                    <EmailIcon sx={{ color: "#0d47a1" }} />
+                </InputAdornment>
+              ),
+            }}
           />
+
           <TextField
             label="Contraseña"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={form.password}
             onChange={handleChange}
             required
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon sx={{ color: "#0d47a1" }} />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                    <IconButton onClick={togglePasswordVisibility} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
+
           <Button
             variant="contained"
             type="submit"
