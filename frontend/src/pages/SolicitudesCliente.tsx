@@ -13,31 +13,26 @@ import {
   InputLabel,
   TextField,
   IconButton,
-  Fade
+  Fade,
 } from "@mui/material";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import LogoutIcon from '@mui/icons-material/Logout';
-import BuildIcon from '@mui/icons-material/Build';
-import BusinessIcon from '@mui/icons-material/Business';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import ChatIcon from '@mui/icons-material/Chat';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import LogoutIcon from "@mui/icons-material/Logout";
+import BusinessIcon from "@mui/icons-material/Business";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import ChatIcon from "@mui/icons-material/Chat";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
 interface Solicitud {
   id: number;
   estado: string;
-  servicio: {
-    nombre: string;
-    empresa: {
-      nombreEmpresa: string;
-    };
-  };
+  fechaCreacion: string;
+  nombreEmpresa: string;
 }
 
 const SolicitudesCliente = () => {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
-  const [filtroEstado, setFiltroEstado] = useState<string>("TODAS");
-  const [busqueda, setBusqueda] = useState<string>("");
+  const [filtroEstado, setFiltroEstado] = useState("TODAS");
+  const [busqueda, setBusqueda] = useState("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const token = localStorage.getItem("token");
   const clienteId = localStorage.getItem("clienteId");
@@ -59,9 +54,9 @@ const SolicitudesCliente = () => {
       });
   }, [token, clienteId, navigate]);
 
-  const solicitudesFiltradas = solicitudes.filter(s => {
+  const solicitudesFiltradas = solicitudes.filter((s) => {
     const coincideEstado = filtroEstado === "TODAS" || s.estado === filtroEstado;
-    const coincideBusqueda = s.servicio.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideBusqueda = s.nombreEmpresa.toLowerCase().includes(busqueda.toLowerCase());
     return coincideEstado && coincideBusqueda;
   });
 
@@ -78,7 +73,7 @@ const SolicitudesCliente = () => {
         px: 2,
         py: 4,
         fontFamily: "'Inter', system-ui, sans-serif",
-        position: "relative"
+        position: "relative",
       }}
     >
       <Fade in timeout={800}>
@@ -100,7 +95,7 @@ const SolicitudesCliente = () => {
             right: 16,
             color: "#e74c3c",
             textTransform: "none",
-            fontWeight: 600
+            fontWeight: 600,
           }}
         >
           Cerrar Sesión
@@ -144,7 +139,7 @@ const SolicitudesCliente = () => {
 
           <TextField
             fullWidth
-            label="Buscar servicio"
+            label="Buscar empresa"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
@@ -153,23 +148,18 @@ const SolicitudesCliente = () => {
 
       <Fade in timeout={1200}>
         {solicitudesFiltradas.length === 0 ? (
-          <Typography textAlign="center">No tienes solicitudes registradas.</Typography>
+          <Typography textAlign="center">
+            No tienes solicitudes registradas.
+          </Typography>
         ) : (
           <Stack spacing={3} maxWidth={800} mx="auto">
             {solicitudesFiltradas.map((solicitud) => (
               <Paper key={solicitud.id} elevation={12} sx={{ p: 3, borderRadius: 3 }}>
                 <Stack spacing={1}>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <BuildIcon fontSize="small" />
-                    <Typography variant="body1">
-                      <strong>Servicio:</strong> {solicitud.servicio.nombre}
-                    </Typography>
-                  </Stack>
-
-                  <Stack direction="row" alignItems="center" spacing={1}>
                     <BusinessIcon fontSize="small" />
                     <Typography variant="body1">
-                      <strong>Empresa:</strong> {solicitud.servicio.empresa.nombreEmpresa}
+                      <strong>Empresa:</strong> {solicitud.nombreEmpresa}
                     </Typography>
                   </Stack>
 
@@ -186,7 +176,7 @@ const SolicitudesCliente = () => {
                     variant="contained"
                     startIcon={<ChatIcon />}
                     onClick={() => navigate(`/cliente/solicitud/${solicitud.id}/mensajes`)}
-                    sx={{ mt: 2, backgroundColor: '#0d47a1' }}
+                    sx={{ mt: 2, backgroundColor: "#0d47a1" }}
                   >
                     Ver Mensajes
                   </Button>

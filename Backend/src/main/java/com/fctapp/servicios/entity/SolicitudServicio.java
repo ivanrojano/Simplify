@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@JsonIgnoreProperties
 public class SolicitudServicio {
 
 	@Id

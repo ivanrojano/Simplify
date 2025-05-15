@@ -3,7 +3,10 @@ package com.fctapp.servicios.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
+@JsonIgnoreProperties
 public class Mensaje {
 
     @Id

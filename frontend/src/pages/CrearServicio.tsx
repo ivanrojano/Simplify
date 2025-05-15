@@ -10,10 +10,14 @@ import {
   Typography,
   IconButton,
   Fade,
-  keyframes
+  keyframes,
+  InputAdornment,
+  Tooltip
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LogoutIcon from "@mui/icons-material/Logout";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import DescriptionIcon from "@mui/icons-material/Description";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
 const pulse = keyframes`
@@ -160,6 +164,15 @@ const CrearServicio = () => {
             onChange={(e) => setNombre(e.target.value)}
             fullWidth
             required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Nombre del servicio">
+                    <DriveFileRenameOutlineIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              )
+            }}
           />
           <TextField
             label="Descripción"
@@ -169,6 +182,15 @@ const CrearServicio = () => {
             required
             multiline
             minRows={3}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Descripción del servicio">
+                    <DescriptionIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              )
+            }}
           />
           <Button
             variant="contained"

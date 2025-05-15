@@ -20,6 +20,7 @@ import com.fctapp.servicios.entity.SolicitudServicio;
 import com.fctapp.servicios.service.SolicitudServicioService;
 
 import jakarta.validation.Valid;
+import com.fctapp.servicios.dto.SolicitudClienteDTO;
 
 @RestController
 @RequestMapping("/api/solicitudes")
@@ -49,11 +50,17 @@ public class SolicitudServicioController {
 		return ResponseEntity.ok(solicitudService.marcarComoFinalizada(id));
 	}
 
-	@GetMapping("/cliente/{id}")
-public ResponseEntity<List<SolicitudServicio>> obtenerPorCliente(@PathVariable Long id) {
+@GetMapping("/cliente/{id}")
+public ResponseEntity<List<SolicitudClienteDTO>> obtenerPorCliente(@PathVariable Long id) {
     List<SolicitudServicio> solicitudes = solicitudService.obtenerSolicitudesPorCliente(id);
-    return ResponseEntity.ok(solicitudes);
+
+    List<SolicitudClienteDTO> dtos = solicitudes.stream()
+        .map(SolicitudClienteDTO::new)
+        .toList();
+
+    return ResponseEntity.ok(dtos);
 }
+
 @GetMapping("/empresa/{empresaId}")
 public ResponseEntity<List<SolicitudServicio>> obtenerPorEmpresa(@PathVariable Long empresaId) {
     List<SolicitudServicio> solicitudes = solicitudService.obtenerSolicitudesPorEmpresa(empresaId);

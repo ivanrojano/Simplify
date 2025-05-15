@@ -11,11 +11,20 @@ import {
   Fade,
   keyframes,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
+
+import BusinessIcon from "@mui/icons-material/Business";
+import DescriptionIcon from "@mui/icons-material/Description";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import ImageIcon from "@mui/icons-material/Image";
+import InputAdornment from "@mui/material/InputAdornment";
+import Tooltip from "@mui/material/Tooltip";
+import LogoutIcon from "@mui/icons-material/Logout";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 
 type Empresa = {
   nombreEmpresa: string;
@@ -161,7 +170,7 @@ const EditarEmpresa = () => {
           <ArrowBackIcon />
         </IconButton>
       </Fade>
-      
+
       <Fade in timeout={800}>
         <Button
           onClick={() => setLogoutConfirm(true)}
@@ -219,6 +228,15 @@ const EditarEmpresa = () => {
             onChange={handleChange}
             fullWidth
             required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Nombre de la Empresa">
+                    <BusinessIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Descripción"
@@ -229,6 +247,15 @@ const EditarEmpresa = () => {
             required
             multiline
             minRows={3}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Descripción de la empresa">
+                    <DescriptionIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Dirección"
@@ -237,28 +264,33 @@ const EditarEmpresa = () => {
             onChange={handleChange}
             fullWidth
             required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Dirección física">
+                    <LocationOnIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
-            label="Foto (URL)"
+            label="Foto de Perfil (URL)"
             name="fotoUrl"
             value={form.fotoUrl || ""}
             onChange={handleChange}
             fullWidth
             placeholder="https://cdn.ejemplo.com/logo.png"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="URL de la imagen">
+                    <ImageIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
-          {
-            /* 
-            {form.fotoUrl && form.fotoUrl.trim() !== "" && (
-              <Box mt={2}>
-                <img
-                  src={form.fotoUrl}
-                  alt="Vista previa"
-                  style={{ width: "100%", maxWidth: 250, borderRadius: 8 }}
-                />
-              </Box>
-            )}
-            */
-          }
           <Button
             variant="contained"
             type="submit"
@@ -275,6 +307,7 @@ const EditarEmpresa = () => {
             Guardar cambios
           </Button>
         </Box>
+
       </Fade>
 
       {logoutConfirm && (

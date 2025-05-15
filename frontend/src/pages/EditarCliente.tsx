@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  IconButton,
-  CircularProgress,
-  Fade,
-  keyframes,
-} from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import LogoutIcon from "@mui/icons-material/Logout";
+import { Box, Button, TextField, Typography, IconButton, CircularProgress, Fade, keyframes, } from "@mui/material";
+
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
+
+import InputAdornment from "@mui/material/InputAdornment";
+import Tooltip from "@mui/material/Tooltip";
+import PersonIcon from "@mui/icons-material/Person";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import EmailIcon from "@mui/icons-material/Email";
+import ImageIcon from "@mui/icons-material/Image";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -189,6 +189,15 @@ const EditarCliente = () => {
             onChange={handleChange}
             fullWidth
             required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Nombre">
+                    <PersonIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Dirección"
@@ -197,6 +206,15 @@ const EditarCliente = () => {
             onChange={handleChange}
             fullWidth
             required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Dirección">
+                    <LocationOnIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Email"
@@ -206,14 +224,32 @@ const EditarCliente = () => {
             onChange={handleChange}
             fullWidth
             required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Correo electrónico">
+                    <EmailIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
-            label="Foto (URL)"
+            label="Foto de Perfil (URL)"
             name="fotoUrl"
             value={form.fotoUrl || ""}
             onChange={handleChange}
             fullWidth
             placeholder="https://ejemplo.com/foto.jpg"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="URL de la foto">
+                    <ImageIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button
             variant="contained"
