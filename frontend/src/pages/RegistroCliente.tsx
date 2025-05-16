@@ -3,7 +3,6 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-
 import {
   Box,
   Button,
@@ -13,7 +12,9 @@ import {
   Fade,
   keyframes,
   InputAdornment,
-  Tooltip
+  Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -40,8 +41,10 @@ export default function RegistroCliente() {
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
-
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -94,9 +97,9 @@ export default function RegistroCliente() {
         bgcolor: "#ffffff",
         fontFamily: "'Inter', system-ui, sans-serif",
         px: 2,
+        py: 4,
         textAlign: "center",
         position: "relative",
-        boxSizing: "border-box",
       }}
     >
       <Fade in timeout={800}>
@@ -115,7 +118,7 @@ export default function RegistroCliente() {
           alt="Logo"
           onClick={() => navigate("/")}
           sx={{
-            width: 120,
+            width: { xs: 90, sm: 120 },
             animation: `${pulse} 2.5s ease-in-out infinite`,
             mb: 1,
             cursor: "pointer",
@@ -125,7 +128,7 @@ export default function RegistroCliente() {
 
       <Fade in timeout={1000}>
         <Typography
-          variant="h5"
+          variant={isSmallScreen ? "h6" : "h5"}
           color="#0d47a1"
           fontWeight={700}
           gutterBottom
@@ -142,12 +145,13 @@ export default function RegistroCliente() {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 1.5,
+            gap: 2,
             width: "100%",
-            maxWidth: 360,
-            maxHeight: "75vh",
+            maxWidth: 400,
+            maxHeight: "70vh",
             overflowY: "auto",
             py: 1,
+            px: { xs: 1, sm: 0 },
           }}
         >
           <TextField
@@ -187,7 +191,7 @@ export default function RegistroCliente() {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <Tooltip title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                  <Tooltip title={showPassword ? "Ocultar" : "Mostrar"}>
                     <IconButton onClick={togglePasswordVisibility} edge="end">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -236,12 +240,13 @@ export default function RegistroCliente() {
           <Button
             variant="contained"
             type="submit"
+            fullWidth
             sx={{
               mt: 1,
-              py: 1.2,
-              backgroundColor: "#0d47a1",
+              py: 1.3,
               fontWeight: 600,
-              fontSize: "0.95rem",
+              fontSize: "1rem",
+              backgroundColor: "#0d47a1",
               "&:hover": { backgroundColor: "#08306b" },
             }}
           >
@@ -253,11 +258,6 @@ export default function RegistroCliente() {
       <ToastContainer
         position="top-center"
         autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
         theme="colored"
       />
     </Box>

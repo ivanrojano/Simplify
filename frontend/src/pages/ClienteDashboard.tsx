@@ -5,15 +5,20 @@ import {
   Box,
   Button,
   Typography,
-  Paper,
-  Stack,
   Avatar,
   Divider,
   CircularProgress,
   Fade,
+  Stack,
 } from "@mui/material";
+
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
+import EditIcon from "@mui/icons-material/Edit";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import EmailIcon from "@mui/icons-material/Email";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
 interface Cliente {
@@ -22,7 +27,6 @@ interface Cliente {
   direccion: string;
   email: string;
   fotoUrl?: string | null;
-
 }
 
 const ClienteDashboard = () => {
@@ -45,10 +49,12 @@ const ClienteDashboard = () => {
 
     axios
       .get<Cliente>(`http://localhost:8080/api/clientes/${clienteId}`, headers)
-      .then((res) => setCliente(res.data))
+      .then((res) => {
+        setCliente(res.data);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      })
       .catch(() => navigate("/login"));
   }, [token, clienteId, navigate]);
-
 
   const confirmLogout = () => {
     localStorage.clear();
@@ -77,103 +83,156 @@ const ClienteDashboard = () => {
           position: "relative",
         }}
       >
+        {/* Botón cerrar sesión (desktop) */}
         <Button
           onClick={() => setLogoutConfirm(true)}
           endIcon={<LogoutIcon />}
           sx={{
             position: "absolute",
-            top: 16,
-            right: 16,
+            top: 24,
+            right: 24,
             color: "#e74c3c",
-            textTransform: "none",
-            fontWeight: 600
+            fontWeight: 600,
+            display: { xs: "none", sm: "flex" },
           }}
         >
           Cerrar Sesión
         </Button>
 
-        <Fade in timeout={1000}>
-          <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={1}>
+        {/* Contenido principal */}
+        <Box sx={{ maxWidth: 900, mx: "auto" }}>
+          <Typography
+            variant="h4"
+            fontWeight={800}
+            textAlign="center"
+            color="#0d47a1"
+            mb={1}
+          >
             Panel del Cliente
           </Typography>
-        </Fade>
 
-        <Fade in timeout={1200}>
-          <Typography variant="h6" fontWeight={500} textAlign="center" mb={3}>
+          <Typography variant="subtitle1" textAlign="center" mb={4}>
             ¡Hola, {cliente.nombre}!
           </Typography>
-        </Fade>
 
-        <Fade in timeout={1300}>
-          <Paper elevation={12} sx={{ maxWidth: 900, mx: "auto", p: 4, mb: 4, borderRadius: 3 }}>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={4} alignItems="center">
-              <Avatar
-                sx={{
-                  width: 150,
-                  height: 150,
-                  bgcolor: cliente.fotoUrl ? "transparent" : "#0d47a1",
-                  border: "2px solid #0d47a1",
-                }}
-                src={cliente.fotoUrl && cliente.fotoUrl.trim() !== "" ? cliente.fotoUrl : undefined}
-              >
-                {(!cliente.fotoUrl || cliente.fotoUrl.trim() === "") && (
-                  <PersonIcon sx={{ fontSize: 48 }} />
-                )}
-              </Avatar>
+          {/* Información del Perfil */}
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={4}
+            alignItems="center"
+            mb={4}
+          >
+            <Avatar
+              sx={{
+                width: 130,
+                height: 130,
+                bgcolor: cliente.fotoUrl ? "transparent" : "#0d47a1",
+                border: "2px solid #0d47a1",
+              }}
+              src={
+                cliente.fotoUrl && cliente.fotoUrl.trim() !== ""
+                  ? cliente.fotoUrl
+                  : undefined
+              }
+            >
+              {!cliente.fotoUrl && <PersonIcon sx={{ fontSize: 48, color: "#fff" }} />}
+            </Avatar>
 
-
-
-              <Box flex={1}>
-                <Typography variant="h6" fontWeight={700} gutterBottom>
-                  Tu Perfil
+            <Box>
+              <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                <Typography variant="h6" fontWeight={700}>
+                  Información del Perfil
                 </Typography>
-                <Divider sx={{ mb: 2 }} />
-                <Stack spacing={1}>
-                  <Typography><strong>Nombre:</strong> {cliente.nombre}</Typography>
-                  <Typography><strong>Dirección:</strong> {cliente.direccion}</Typography>
-                  <Typography><strong>Email:</strong> {cliente.email}</Typography>
-                </Stack>
+              </Stack>
+              <Divider sx={{ mb: 2 }} />
 
-                <Stack direction="row" spacing={2} mt={3} flexWrap="wrap">
-                  <Button
-                    variant="contained"
-                    onClick={handleEditarPerfil}
-                    sx={{
-                      backgroundColor: "#0d47a1",
-                      color: "#fff",
-                      "&:hover": { backgroundColor: "#1976d2" },
-                    }}
-                  >
-                    Editar Perfil
-                  </Button>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#0d47a1",
-                      color: "#fff",
-                      "&:hover": { backgroundColor: "#1976d2" },
-                    }}
-                    onClick={handleVerServicios}
-                  >
-                    Ver Servicios Disponibles
-                  </Button>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#0d47a1",
-                      color: "#fff",
-                      "&:hover": { backgroundColor: "#1976d2" },
-                    }}
-                    onClick={() => navigate("/cliente/solicitudes")}
-                  >
-                    Ver Mis Solicitudes
-                  </Button>
+              <Stack spacing={1}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <PersonIcon sx={{ color: "#0d47a1" }} />
+                  <Typography>
+                    <strong>Nombre:</strong> {cliente.nombre}
+                  </Typography>
                 </Stack>
-              </Box>
-            </Stack>
-          </Paper>
-        </Fade>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <LocationOnIcon sx={{ color: "#0d47a1" }} />
+                  <Typography>
+                    <strong>Dirección:</strong> {cliente.direccion}
+                  </Typography>
+                </Stack>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <EmailIcon sx={{ color: "#0d47a1" }} />
+                  <Typography>
+                    <strong>Email:</strong> {cliente.email}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Box>
+          </Stack>
 
+          {/* Botones de acción */}
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            <Button
+              fullWidth
+              variant="contained"
+              startIcon={<EditIcon />}
+              onClick={handleEditarPerfil}
+              sx={{
+                backgroundColor: "#0d47a1",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#1565c0" },
+              }}
+            >
+              Editar Perfil
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              startIcon={<ViewListIcon />}
+              onClick={handleVerServicios}
+              sx={{
+                backgroundColor: "#0d47a1",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#1565c0" },
+              }}
+            >
+              Ver Servicios
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              startIcon={<ListAltIcon />}
+              onClick={() => navigate("/cliente/solicitudes")}
+              sx={{
+                backgroundColor: "#0d47a1",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#1565c0" },
+              }}
+            >
+              Ver Mis Solicitudes
+            </Button>
+          </Stack>
+        </Box>
+
+        {/* Cerrar sesión en mobile */}
+        <Box
+          sx={{
+            display: { xs: "flex", sm: "none" },
+            position: "fixed",
+            bottom: 16,
+            right: 16,
+          }}
+        >
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => setLogoutConfirm(true)}
+            startIcon={<LogoutIcon />}
+          >
+            Cerrar
+          </Button>
+        </Box>
+
+        {/* Modal de confirmación */}
         {logoutConfirm && (
           <ConfirmModalLogout
             onCancel={() => setLogoutConfirm(false)}

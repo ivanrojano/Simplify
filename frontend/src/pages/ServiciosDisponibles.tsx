@@ -147,8 +147,14 @@ const ServiciosDisponibles = () => {
         </Button>
       </Fade>
 
-      <Fade in timeout={1000}>
-        <Typography variant="h4" fontWeight={700} color="#0d47a1" mb={4}>
+      <Fade in timeout={800}>
+        <Typography
+          variant="h4"
+          fontWeight={800}
+          color="#0d47a1"
+          textAlign="center"
+          mb={4}
+        >
           Servicios Disponibles
         </Typography>
       </Fade>

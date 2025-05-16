@@ -41,7 +41,6 @@ const AppRouter = () => {
         <Route path="/empresa/solicitudes" element={<SolicitudesEmpresa />} />
         <Route path="/empresa/solicitud/:solicitudId/mensajes" element={<MensajesEmpresa />} />
         <Route path="/cliente/solicitud/:solicitudId/mensajes" element={<MensajesCliente />} />
-
       </Routes>
     </Router>
   );

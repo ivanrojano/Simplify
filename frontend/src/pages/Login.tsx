@@ -6,14 +6,21 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Box, Button, Typography, TextField, IconButton, Fade, keyframes } from "@mui/material";
-
-import Tooltip from "@mui/material/Tooltip";
-
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  IconButton,
+  Fade,
+  keyframes,
+  useTheme,
+  useMediaQuery,
+  InputAdornment,
+  Tooltip,
+} from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
-import InputAdornment from "@mui/material/InputAdornment";
-
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
@@ -44,6 +51,9 @@ const Login = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,14 +109,19 @@ const Login = () => {
         bgcolor: "#ffffff",
         fontFamily: "'Inter', system-ui, sans-serif",
         px: 2,
-        textAlign: "center",
-        position: "relative"
+        py: 4,
+        position: "relative",
       }}
     >
       <Fade in timeout={600}>
         <IconButton
           onClick={() => navigate("/")}
-          sx={{ position: "absolute", top: 16, left: 16, color: "#0d47a1" }}
+          sx={{
+            position: "absolute",
+            top: 16,
+            left: 16,
+            color: "#0d47a1",
+          }}
         >
           <ArrowBackIcon />
         </IconButton>
@@ -119,16 +134,21 @@ const Login = () => {
           alt="Logo"
           onClick={() => navigate("/")}
           sx={{
-            width: 120,
+            width: { xs: 100, sm: 120 },
             animation: `${pulse} 2.5s ease-in-out infinite`,
             mb: 2,
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         />
       </Fade>
 
       <Fade in timeout={1000}>
-        <Typography variant="h3" color="#0d47a1" fontWeight={700} gutterBottom>
+        <Typography
+          variant={isSmallScreen ? "h4" : "h3"}
+          color="#0d47a1"
+          fontWeight={700}
+          gutterBottom
+        >
           Iniciar Sesión
         </Typography>
       </Fade>
@@ -143,7 +163,8 @@ const Login = () => {
             gap: 2,
             width: "100%",
             maxWidth: 400,
-            mt: 2
+            mt: 2,
+            px: { xs: 1, sm: 0 },
           }}
         >
           <TextField
@@ -157,7 +178,7 @@ const Login = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                    <EmailIcon sx={{ color: "#0d47a1" }} />
+                  <EmailIcon sx={{ color: "#0d47a1" }} />
                 </InputAdornment>
               ),
             }}
@@ -192,6 +213,7 @@ const Login = () => {
           <Button
             variant="contained"
             type="submit"
+            fullWidth
             sx={{
               mt: 1,
               py: 1.5,
@@ -199,7 +221,7 @@ const Login = () => {
               fontSize: "1rem",
               backgroundColor: "#0d47a1",
               "&:hover": { backgroundColor: "#08306b" },
-              transition: "all 0.3s ease-in-out"
+              transition: "all 0.3s ease-in-out",
             }}
           >
             Iniciar sesión
@@ -217,7 +239,7 @@ const Login = () => {
               textTransform: "none",
               fontWeight: 600,
               color: "#0d47a1",
-              "&:hover": { textDecoration: "underline" }
+              "&:hover": { textDecoration: "underline" },
             }}
           >
             Regístrate aquí

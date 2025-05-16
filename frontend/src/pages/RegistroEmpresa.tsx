@@ -2,7 +2,6 @@ import { useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -15,8 +14,11 @@ import {
   keyframes,
   InputAdornment,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -42,8 +44,10 @@ export default function RegistroEmpresa() {
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
-
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -54,13 +58,8 @@ export default function RegistroEmpresa() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !form.email ||
-      !form.password ||
-      !form.nombreEmpresa ||
-      !form.descripcion ||
-      !form.direccion
-    ) {
+    const { email, password, nombreEmpresa, descripcion, direccion } = form;
+    if (!email || !password || !nombreEmpresa || !descripcion || !direccion) {
       toast.warn("Todos los campos son obligatorios.");
       return;
     }
@@ -68,9 +67,7 @@ export default function RegistroEmpresa() {
     try {
       await axios.post("http://localhost:8080/api/auth/registro/empresa", form);
       toast.success("Empresa registrada correctamente");
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
+      setTimeout(() => navigate("/"), 3000);
       setForm({
         email: "",
         password: "",
@@ -94,20 +91,19 @@ export default function RegistroEmpresa() {
   return (
     <Box
       sx={{
-        height: "100dvh",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
+        minHeight: "100vh",
         bgcolor: "#ffffff",
         fontFamily: "'Inter', system-ui, sans-serif",
         px: 2,
+        py: 4,
         textAlign: "center",
         position: "relative",
-        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
+      {/* Icono de volver */}
       <Fade in timeout={800}>
         <IconButton
           onClick={() => navigate(-1)}
@@ -117,6 +113,7 @@ export default function RegistroEmpresa() {
         </IconButton>
       </Fade>
 
+      {/* Logo */}
       <Fade in timeout={800}>
         <Box
           component="img"
@@ -124,7 +121,7 @@ export default function RegistroEmpresa() {
           alt="Logo"
           onClick={() => navigate("/")}
           sx={{
-            width: 120,
+            width: { xs: 90, sm: 120 },
             animation: `${pulse} 2.5s ease-in-out infinite`,
             mb: 1,
             cursor: "pointer",
@@ -132,18 +129,19 @@ export default function RegistroEmpresa() {
         />
       </Fade>
 
+      {/* Título */}
       <Fade in timeout={1000}>
         <Typography
-          variant="h5"
+          variant={isSmallScreen ? "h6" : "h5"}
           color="#0d47a1"
           fontWeight={700}
           gutterBottom
-          sx={{ mb: 1 }}
         >
           Registro de Empresa
         </Typography>
       </Fade>
 
+      {/* Formulario */}
       <Fade in timeout={1200}>
         <Box
           component="form"
@@ -151,12 +149,14 @@ export default function RegistroEmpresa() {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 1.5,
+            gap: 2,
             width: "100%",
-            maxWidth: 360,
-            maxHeight: "75vh",
+            maxWidth: 400,
+            maxHeight: "65vh",
             overflowY: "auto",
+            mt: 1,
             py: 1,
+            px: { xs: 1, sm: 0 },
           }}
         >
           <TextField
@@ -196,7 +196,7 @@ export default function RegistroEmpresa() {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <Tooltip title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                  <Tooltip title={showPassword ? "Ocultar" : "Mostrar"}>
                     <IconButton onClick={togglePasswordVisibility} edge="end">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -265,12 +265,13 @@ export default function RegistroEmpresa() {
           <Button
             variant="contained"
             type="submit"
+            fullWidth
             sx={{
               mt: 1,
-              py: 1.2,
-              backgroundColor: "#0d47a1",
+              py: 1.3,
               fontWeight: 600,
-              fontSize: "0.95rem",
+              fontSize: "1rem",
+              backgroundColor: "#0d47a1",
               "&:hover": { backgroundColor: "#08306b" },
             }}
           >
@@ -279,16 +280,7 @@ export default function RegistroEmpresa() {
         </Box>
       </Fade>
 
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="colored"
-      />
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </Box>
   );
 }
