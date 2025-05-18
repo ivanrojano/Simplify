@@ -41,6 +41,7 @@ interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
+  precio: number;
 }
 
 const EmpresaDashboard = () => {
@@ -70,16 +71,13 @@ const EmpresaDashboard = () => {
     axios
       .get<Servicio[]>(`http://localhost:8080/api/servicios/empresa/${empresaId}`, headers)
       .then((res) => setServicios(res.data))
-      .catch(() => {});
+      .catch(() => { });
   }, [token, empresaId, navigate]);
 
   const confirmLogout = () => {
     localStorage.clear();
     navigate("/");
   };
-
-  const handleEdit = () => navigate("/empresa/editar");
-  const handleCrearServicio = () => navigate("/empresa/crear-servicio");
 
   const confirmarEliminacion = async () => {
     if (!servicioAEliminar) return;
@@ -100,7 +98,7 @@ const EmpresaDashboard = () => {
 
   return (
     <Fade in timeout={800}>
-      <Box sx={{bgcolor: "#ffffff", px: 2, pt: 4, pb: 6, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <Box sx={{ bgcolor: "#ffffff", px: 2, pt: 4, pb: 6, fontFamily: "'Inter', system-ui, sans-serif" }}>
         <Button
           onClick={() => setLogoutConfirm(true)}
           endIcon={<LogoutIcon />}
@@ -147,25 +145,15 @@ const EmpresaDashboard = () => {
               </Stack>
               <Stack direction="row" spacing={2} mt={3} flexWrap="wrap">
                 <Tooltip title="Editar Perfil">
-                  <Button variant="contained" startIcon={<EditIcon />} onClick={handleEdit} sx={{ backgroundColor: "#0d47a1", color: "#fff", borderRadius: "20px" }}>Editar Perfil</Button>
-                </Tooltip>
-
-                <Tooltip title="Crear Nuevo Servicio">
-                  <Button variant="contained" startIcon={<AddBusinessIcon />} onClick={handleCrearServicio} sx={{ backgroundColor: "#0d47a1", color: "#fff", borderRadius: "20px" }}>Crear Servicio</Button>
-                </Tooltip>
-
-                <Tooltip title="Ver Solicitudes">
-                  <Button variant="contained" startIcon={<VisibilityIcon />} onClick={() => navigate("/empresa/solicitudes")} sx={{ backgroundColor: "#0d47a1", color: "#fff", borderRadius: "20px" }}>Ver Solicitudes</Button>
+                  <Button variant="contained" startIcon={<EditIcon />} onClick={() => navigate("/empresa/editar")} sx={{ backgroundColor: "#0d47a1", color: "#fff", borderRadius: "20px", minWidth: 180 }}>Editar Perfil</Button></Tooltip>
+                <Tooltip title="Crear Nuevo Servicio"><Button variant="contained" startIcon={<AddBusinessIcon />} onClick={() => navigate("/empresa/crear-servicio")} sx={{ backgroundColor: "#0d47a1", color: "#fff", borderRadius: "20px", minWidth: 180 }}>Crear Servicio</Button></Tooltip>
+                <Tooltip title="Ver Solicitudes"><Button variant="contained" startIcon={<VisibilityIcon />} onClick={() => navigate("/empresa/solicitudes")} sx={{ backgroundColor: "#0d47a1", color: "#fff", borderRadius: "20px", minWidth: 180 }}>Ver Solicitudes</Button>
                 </Tooltip>
               </Stack>
             </Box>
           </Stack>
-            <Box flex={1}>
-              
-            </Box>
 
-              <Divider sx={{ mb: 2 }} />
-
+          <Divider sx={{ mb: 2, color: "#0d47a1" }} />
 
           <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)} centered sx={{ mb: 4 }}>
             <Tooltip title="Ver tus Servicios">
@@ -179,7 +167,7 @@ const EmpresaDashboard = () => {
           {tab === 0 && (
             <Box>
               {servicios.length === 0 ? (
-                <Typography color="text.secondary" sx={{textAlign: 'center'}}>No tienes servicios registrados.</Typography>
+                <Typography color="text.secondary" sx={{ textAlign: 'center' }}>No tienes servicios registrados.</Typography>
               ) : (
                 <Box
                   sx={{
@@ -191,7 +179,7 @@ const EmpresaDashboard = () => {
                   {servicios.map((servicio) => (
                     <Paper
                       key={servicio.id}
-                      elevation={3}
+                      elevation={6}
                       sx={{
                         borderRadius: 2,
                         p: 2,
@@ -224,6 +212,23 @@ const EmpresaDashboard = () => {
                         }}
                       >
                         {servicio.descripcion}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        color="text.primary"
+                        fontWeight={600}
+                        sx={{
+                          mb: 2,
+                          fontSize: "1rem",
+                        }}
+                      >
+                        Precio:{" "}
+                        {new Intl.NumberFormat("es-ES", {
+                          style: "currency",
+                          currency: "EUR",
+                          minimumFractionDigits: 2,
+                        }).format(servicio.precio)}
                       </Typography>
 
                       <Stack direction="row" spacing={1} justifyContent="flex-end">

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fctapp.servicios.dto.EditarServicioDTO;
 import com.fctapp.servicios.entity.Empresa;
 import com.fctapp.servicios.entity.Servicio;
 import com.fctapp.servicios.repository.EmpresaRepository;
@@ -19,10 +20,9 @@ public class ServicioService {
     private final SolicitudServicioRepository solicitudServicioRepository;
 
     public ServicioService(
-        ServicioRepository servicioRepository,
-        EmpresaRepository empresaRepository,
-        SolicitudServicioRepository solicitudServicioRepository
-    ) {
+            ServicioRepository servicioRepository,
+            EmpresaRepository empresaRepository,
+            SolicitudServicioRepository solicitudServicioRepository) {
         this.servicioRepository = servicioRepository;
         this.empresaRepository = empresaRepository;
         this.solicitudServicioRepository = solicitudServicioRepository;
@@ -46,10 +46,21 @@ public class ServicioService {
     @Transactional
     public boolean eliminarServicio(Long id) {
         if (servicioRepository.existsById(id)) {
-            solicitudServicioRepository.deleteByServicioId(id); 
-            servicioRepository.deleteById(id); 
+            solicitudServicioRepository.deleteByServicioId(id);
+            servicioRepository.deleteById(id);
             return true;
         }
         return false;
+    }
+
+    public Servicio editarServicio(Long id, EditarServicioDTO dto) {
+        Servicio servicio = servicioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+        servicio.setNombre(dto.getNombre());
+        servicio.setDescripcion(dto.getDescripcion());
+        servicio.setPrecio(dto.getPrecio());
+
+        return servicioRepository.save(servicio);
     }
 }

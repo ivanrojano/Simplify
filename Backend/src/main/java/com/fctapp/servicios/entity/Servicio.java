@@ -11,14 +11,18 @@ public class Servicio {
 	private Long id;
 
 	private String nombre;
+
 	private String descripcion;
+
+	private int precio;
 
 	@ManyToOne
 	@JoinColumn(name = "empresa_id", nullable = false)
-	@JsonIgnoreProperties({"servicios"}) 
+	@JsonIgnoreProperties({ "servicios" })
 	private Empresa empresa;
 
-	public Servicio() {}
+	public Servicio() {
+	}
 
 	public Servicio(Long id, String nombre, String descripcion, Empresa empresa) {
 		this.id = id;
@@ -57,5 +61,13 @@ public class Servicio {
 
 	public void setEmpresa(Empresa empresa) {
 		this.empresa = empresa;
+	}
+
+	public void setPrecio(int precio) {
+		this.precio = precio;
+	}
+
+	public int getPrecio() {
+		return precio;
 	}
 }

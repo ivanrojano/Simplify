@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.fctapp.servicios.entity.Servicio;
 import com.fctapp.servicios.service.ServicioService;
+import com.fctapp.servicios.dto.EditarServicioDTO;
 
 @RestController
 @RequestMapping("/api/servicios")
@@ -32,13 +33,19 @@ public class ServicioController {
     public ResponseEntity<List<Servicio>> listarTodos() {
         return ResponseEntity.ok(servicioService.obtenerTodos());
     }
-    
+
     @DeleteMapping("/{id}")
-public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-    boolean eliminado = servicioService.eliminarServicio(id);
-    return eliminado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-}
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        boolean eliminado = servicioService.eliminarServicio(id);
+        return eliminado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Servicio> editarServicio(
+            @PathVariable Long id,
+            @RequestBody EditarServicioDTO dto) {
+        Servicio servicioActualizado = servicioService.editarServicio(id, dto);
+        return ResponseEntity.ok(servicioActualizado);
+    }
 
 }
-
-

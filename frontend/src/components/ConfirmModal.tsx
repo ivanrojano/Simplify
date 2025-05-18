@@ -55,6 +55,10 @@ const ConfirmModal: React.FC<Props> = ({ title, message, onConfirm, onCancel }) 
             fontFamily: "system-ui, sans-serif",
             position: "relative",
             boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem"
           }}
         >
           <button
@@ -65,7 +69,7 @@ const ConfirmModal: React.FC<Props> = ({ title, message, onConfirm, onCancel }) 
               right: "1rem",
               background: "none",
               border: "none",
-              fontSize: "1.5rem",
+              fontSize: "2rem",
               cursor: "pointer",
               color: "#555",
             }}
@@ -74,41 +78,21 @@ const ConfirmModal: React.FC<Props> = ({ title, message, onConfirm, onCancel }) 
             &times;
           </button>
 
-          <h2 style={{ fontSize: "1.6rem", fontWeight: 600, marginBottom: "1rem" }}>
-            {title}
-          </h2>
+          <div>
+            <h2 style={{ fontSize: "1.6rem", fontWeight: 600, marginBottom: "1rem" }}>
+              {title}
+            </h2>
+            <p style={{ fontSize: "1.05rem", lineHeight: 1.6 }}>{message}</p>
+          </div>
 
-          <p style={{ fontSize: "1.05rem", lineHeight: 1.6 }}>{message}</p>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "1rem",
-              marginTop: "2rem",
-            }}
-          >
-            <button
-              onClick={onCancel}
-              style={{
-                backgroundColor: "#e0e0e0",
-                color: "#333",
-                padding: "0.8em 1.6em",
-                borderRadius: "10px",
-                border: "none",
-                fontWeight: 600,
-                fontSize: "1rem",
-                cursor: "pointer",
-              }}
-            >
-              Cancelar
-            </button>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
             <button
               onClick={onConfirm}
               style={{
+                width: "100%",
                 backgroundColor: "#d32f2f",
                 color: "white",
-                padding: "0.8em 1.6em",
+                padding: "0.9em 1.6em",
                 borderRadius: "10px",
                 border: "none",
                 fontWeight: 600,
@@ -118,7 +102,24 @@ const ConfirmModal: React.FC<Props> = ({ title, message, onConfirm, onCancel }) 
               onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#b71c1c")}
               onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#d32f2f")}
             >
-              Eliminar
+              Confirmar
+            </button>
+
+            <button
+              onClick={onCancel}
+              style={{
+                width: "100%",
+                backgroundColor: "#e0e0e0",
+                color: "#333",
+                padding: "0.9em 1.6em",
+                borderRadius: "10px",
+                border: "none",
+                fontWeight: 600,
+                fontSize: "1rem",
+                cursor: "pointer",
+              }}
+            >
+              Cancelar
             </button>
           </div>
         </motion.div>

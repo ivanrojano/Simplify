@@ -13,6 +13,10 @@ import {
   CircularProgress,
   IconButton,
   Fade,
+  Avatar,
+  Tooltip,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -20,6 +24,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EmailIcon from "@mui/icons-material/Email";
+import SearchIcon from "@mui/icons-material/Search";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
 type Servicio = {
@@ -33,11 +38,13 @@ type Servicio = {
     descripcion: string;
     direccion: string;
     email: string;
+    fotoUrl?: string | null;
   };
 };
 
 type Solicitud = {
   id: number;
+  estado: string;
   clienteId: number;
   servicio: {
     id: number;
@@ -47,11 +54,17 @@ type Solicitud = {
   };
 };
 
+type EmpresaSolicitada = {
+  empresaId: number;
+  estado: string;
+};
+
 const ServiciosDisponibles = () => {
   const [servicios, setServicios] = useState<Servicio[]>([]);
-  const [empresasSolicitadas, setEmpresasSolicitadas] = useState<number[]>([]);
+  const [empresasSolicitadas, setEmpresasSolicitadas] = useState<EmpresaSolicitada[]>([]);
   const [loading, setLoading] = useState(true);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const clienteId = localStorage.getItem("clienteId");
@@ -64,12 +77,10 @@ const ServiciosDisponibles = () => {
 
     const headers = { headers: { Authorization: `Bearer ${token}` } };
 
-    // Leer desde localStorage
     const localData = localStorage.getItem("empresasSolicitadas");
-    const empresasFromLocal = localData ? JSON.parse(localData) : [];
+    const empresasFromLocal: EmpresaSolicitada[] = localData ? JSON.parse(localData) : [];
     setEmpresasSolicitadas(empresasFromLocal);
 
-    // Obtener servicios
     axios
       .get<Servicio[]>("http://localhost:8080/api/servicios", headers)
       .then((res) => {
@@ -81,13 +92,21 @@ const ServiciosDisponibles = () => {
         setLoading(false);
       });
 
-    // Obtener solicitudes del cliente
     axios
       .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/cliente/${clienteId}`, headers)
       .then((res) => {
-        const empresasYaSolicitadas = res.data.map((s) => s.servicio.empresa.id);
-        // Combinar con las del localStorage sin duplicados
-        const combined = Array.from(new Set([...empresasFromLocal, ...empresasYaSolicitadas]));
+        const solicitudes = res.data.map((s) => ({
+          empresaId: s.servicio.empresa.id,
+          estado: s.estado,
+        }));
+
+        const combined = [
+          ...solicitudes,
+          ...empresasFromLocal.filter(
+            (local) => !solicitudes.some((s) => s.empresaId === local.empresaId)
+          ),
+        ];
+
         setEmpresasSolicitadas(combined);
         localStorage.setItem("empresasSolicitadas", JSON.stringify(combined));
       })
@@ -106,8 +125,10 @@ const ServiciosDisponibles = () => {
 
       toast.success("Solicitud enviada correctamente");
 
+      const nuevaEmpresa: EmpresaSolicitada = { empresaId, estado: "PENDIENTE" };
+
       setEmpresasSolicitadas((prev) => {
-        const updated = prev.includes(empresaId) ? prev : [...prev, empresaId];
+        const updated = [...prev.filter((e) => e.empresaId !== empresaId), nuevaEmpresa];
         localStorage.setItem("empresasSolicitadas", JSON.stringify(updated));
         return updated;
       });
@@ -121,22 +142,31 @@ const ServiciosDisponibles = () => {
     navigate("/");
   };
 
+  const term = searchTerm.toLowerCase();
+  const serviciosFiltrados = servicios.filter((servicio) =>
+    servicio.nombre.toLowerCase().includes(term) ||
+    servicio.empresa.nombreEmpresa.toLowerCase().includes(term) ||
+    servicio.empresa.direccion.toLowerCase().includes(term) ||
+    servicio.descripcion.toLowerCase().includes(term)
+  );
+
   return (
     <Box
       sx={{
         minHeight: "100dvh",
         bgcolor: "#ffffff",
-        px: 2,
+        px: { xs: 2, sm: 4 },
         py: 4,
         fontFamily: "'Inter', system-ui, sans-serif",
         position: "relative",
-        textAlign: "center"
+        textAlign: "center",
       }}
     >
+      {/* Botones arriba en las esquinas */}
       <Fade in timeout={800}>
         <IconButton
           onClick={() => navigate("/cliente")}
-          sx={{ position: "absolute", top: 16, left: 16, color: "#0d47a1" }}
+          sx={{ position: "fixed", top: 8, left: 8, color: "#0d47a1", zIndex: 1300 }}
         >
           <ArrowBackIcon />
         </IconButton>
@@ -147,12 +177,13 @@ const ServiciosDisponibles = () => {
           onClick={() => setLogoutConfirm(true)}
           endIcon={<LogoutIcon />}
           sx={{
-            position: "absolute",
-            top: 16,
-            right: 16,
+            position: "fixed",
+            top: 8,
+            right: 8,
             color: "#e74c3c",
             textTransform: "none",
-            fontWeight: 600
+            fontWeight: 600,
+            zIndex: 1300,
           }}
         >
           Cerrar Sesión
@@ -160,40 +191,87 @@ const ServiciosDisponibles = () => {
       </Fade>
 
       <Fade in timeout={800}>
-        <Typography
-          variant="h4"
-          fontWeight={800}
-          color="#0d47a1"
-          textAlign="center"
-          mb={4}
-        >
+        <Typography variant="h4" fontWeight={800} color="#0d47a1" mb={4}>
           Servicios Disponibles
         </Typography>
+      </Fade>
+
+      <Fade in timeout={800}>
+        <Box mb={4} width="100%" maxWidth="800px" mx="auto">
+          <TextField
+            fullWidth
+            variant="outlined"
+            label="Buscar por servicio, empresa o dirección"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoFocus
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
       </Fade>
 
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
           <CircularProgress color="primary" />
         </Box>
-      ) : servicios.length === 0 ? (
-        <Typography>No hay servicios disponibles en este momento.</Typography>
+      ) : serviciosFiltrados.length === 0 ? (
+        <Typography>No hay servicios que coincidan con la búsqueda.</Typography>
       ) : (
         <Fade in timeout={1200}>
-          <Stack spacing={3} maxWidth={800} mx="auto">
-            {servicios.map((servicio) => {
-              const yaSolicitado = empresasSolicitadas.includes(servicio.empresa.id);
+          <Stack spacing={3} width="100%" maxWidth="1400px" mx="auto" px={2}>
+            {serviciosFiltrados.map((servicio) => {
+              const solicitudExistente = empresasSolicitadas.find(
+                (s) => s.empresaId === servicio.empresa.id
+              );
+              const yaSolicitado =
+                solicitudExistente && solicitudExistente.estado !== "FINALIZADA";
+
+              const hasFoto = servicio.empresa.fotoUrl?.trim();
 
               return (
-                <Paper
-                  key={servicio.id}
-                  elevation={12}
-                  sx={{ p: 3, borderRadius: 3, textAlign: "left" }}
-                >
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    {servicio.nombre}
-                  </Typography>
-                  <Typography gutterBottom>{servicio.descripcion}</Typography>
+                <Paper key={servicio.id} elevation={12} sx={{ p: 3, borderRadius: 3, textAlign: "left" }}>
+                  <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                    <Tooltip title={servicio.empresa.nombreEmpresa}>
+                      <Avatar
+                        alt={servicio.nombre}
+                        src={hasFoto ? servicio.empresa.fotoUrl! : undefined}
+                        sx={{
+                          bgcolor: "#0d47a1",
+                          width: 90,
+                          height: 90,
+                          fontWeight: 600,
+                          border: '3px solid',
+                          borderColor: '#0d47a1',
+                        }}
+                      >
+                        {!hasFoto && servicio.nombre.charAt(0).toUpperCase()}
+                      </Avatar>
+                    </Tooltip>
+                    <Box>
+                      <Typography variant="h6" fontWeight={700} color="#0d47a1">
+                        {servicio.nombre}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {servicio.descripcion}
+                      </Typography>
+                      <Typography variant="body1" fontWeight={600}>
+                        Precio:{" "}
+                        {new Intl.NumberFormat("es-ES", {
+                          style: "currency",
+                          currency: "EUR",
+                        }).format(servicio.precio)}
+                      </Typography>
+                    </Box>
+                  </Stack>
+
                   <Divider sx={{ my: 2 }} />
+
                   <Stack spacing={1}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <BusinessIcon fontSize="small" />
@@ -228,7 +306,7 @@ const ServiciosDisponibles = () => {
                     disabled={yaSolicitado}
                   >
                     {yaSolicitado
-                      ? "Ya solicitaste un servicio de esta empresa"
+                      ? "Ya solicitaste este servicio"
                       : "Solicitar Servicio"}
                   </Button>
                 </Paper>

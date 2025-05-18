@@ -2,76 +2,93 @@ package com.fctapp.servicios.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @JsonIgnoreProperties
 public class SolicitudServicio {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne
-	@JsonIgnoreProperties({"solicitudes"}) 
-	private Cliente cliente;
+    @ManyToOne
+    @JsonIgnoreProperties({"solicitudes"})
+    private Cliente cliente;
 
-	@ManyToOne
-	@JsonIgnoreProperties({"solicitudes"}) 
-	private Servicio servicio;
+    @ManyToOne
+    @JsonIgnoreProperties({"solicitudes"})
+    private Servicio servicio;
 
-	@Enumerated(EnumType.STRING)
-	private EstadoSolicitud estado;
+    @Enumerated(EnumType.STRING)
+    private EstadoSolicitud estado;
 
-	private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaCreacion;
 
-	public SolicitudServicio() {}
+    @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("solicitud")
+    private List<Mensaje> mensajes = new ArrayList<>();
 
-	public SolicitudServicio(Long id, Cliente cliente, Servicio servicio, EstadoSolicitud estado, LocalDateTime fechaCreacion) {
-		this.id = id;
-		this.cliente = cliente;
-		this.servicio = servicio;
-		this.estado = estado;
-		this.fechaCreacion = fechaCreacion;
-	}
+    public SolicitudServicio() {}
 
-	public Long getId() {
-		return id;
-	}
+    public SolicitudServicio(Long id, Cliente cliente, Servicio servicio, EstadoSolicitud estado, LocalDateTime fechaCreacion) {
+        this.id = id;
+        this.cliente = cliente;
+        this.servicio = servicio;
+        this.estado = estado;
+        this.fechaCreacion = fechaCreacion;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    // Getters y setters
 
-	public Cliente getCliente() {
-		return cliente;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Servicio getServicio() {
-		return servicio;
-	}
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-	public void setServicio(Servicio servicio) {
-		this.servicio = servicio;
-	}
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
-	public EstadoSolicitud getEstado() {
-		return estado;
-	}
+    public Servicio getServicio() {
+        return servicio;
+    }
 
-	public void setEstado(EstadoSolicitud estado) {
-		this.estado = estado;
-	}
+    public void setServicio(Servicio servicio) {
+        this.servicio = servicio;
+    }
 
-	public LocalDateTime getFechaCreacion() {
-		return fechaCreacion;
-	}
+    public EstadoSolicitud getEstado() {
+        return estado;
+    }
 
-	public void setFechaCreacion(LocalDateTime fechaCreacion) {
-		this.fechaCreacion = fechaCreacion;
-	}
+    public void setEstado(EstadoSolicitud estado) {
+        this.estado = estado;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public List<Mensaje> getMensajes() {
+        return mensajes;
+    }
+
+    public void setMensajes(List<Mensaje> mensajes) {
+        this.mensajes = mensajes;
+    }
 }

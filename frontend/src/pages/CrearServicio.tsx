@@ -18,6 +18,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import DescriptionIcon from "@mui/icons-material/Description";
+import EuroIcon from "@mui/icons-material/Euro";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
 const pulse = keyframes`
@@ -29,6 +30,7 @@ const pulse = keyframes`
 const CrearServicio = () => {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [precio, setPrecio] = useState<number | "">("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
 
   const navigate = useNavigate();
@@ -43,6 +45,11 @@ const CrearServicio = () => {
 
     if (!descripcion.trim() || descripcion.length < 10 || descripcion.length > 200) {
       toast.error("La descripción debe tener entre 10 y 200 caracteres.");
+      return false;
+    }
+
+    if (precio === "" || isNaN(Number(precio)) || Number(precio) <= 0) {
+      toast.error("El precio debe ser un número positivo.");
       return false;
     }
 
@@ -61,7 +68,7 @@ const CrearServicio = () => {
     try {
       await axios.post(
         `http://localhost:8080/api/servicios/empresa/${empresaId}`,
-        { nombre, descripcion },
+        { nombre, descripcion, precio },
         headers
       );
 
@@ -187,6 +194,23 @@ const CrearServicio = () => {
                 <InputAdornment position="start">
                   <Tooltip title="Descripción del servicio">
                     <DescriptionIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              )
+            }}
+          />
+          <TextField
+            label="Precio (€)"
+            type="number"
+            value={precio}
+            onChange={(e) => setPrecio(Number(e.target.value))}
+            fullWidth
+            required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Precio del servicio">
+                    <EuroIcon sx={{ color: "#0d47a1" }} />
                   </Tooltip>
                 </InputAdornment>
               )

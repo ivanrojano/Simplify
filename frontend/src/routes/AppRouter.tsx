@@ -34,7 +34,7 @@ const AppRouter = () => {
         <Route path="/admin" element={<PanelAdmin />} />
         <Route path="/empresa/editar" element={<EditarEmpresa />} />
         <Route path="/empresa/crear-servicio" element={<CrearServicio />} />
-        <Route path="/empresa/servicio/editar/:servicioId" element={<EditarServicio />} />
+        <Route path="/empresa/servicio/editar/:id" element={<EditarServicio />} />
         <Route path="/cliente/editar" element={<EditarCliente />} />
         <Route path="/cliente/servicios" element={<ServiciosDisponibles />} />
         <Route path="/cliente/solicitudes" element={<SolicitudesCliente />} />
