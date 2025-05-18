@@ -47,7 +47,6 @@ type Solicitud = {
   };
 };
 
-
 const ServiciosDisponibles = () => {
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const [empresasSolicitadas, setEmpresasSolicitadas] = useState<number[]>([]);
@@ -65,6 +64,12 @@ const ServiciosDisponibles = () => {
 
     const headers = { headers: { Authorization: `Bearer ${token}` } };
 
+    // Leer desde localStorage
+    const localData = localStorage.getItem("empresasSolicitadas");
+    const empresasFromLocal = localData ? JSON.parse(localData) : [];
+    setEmpresasSolicitadas(empresasFromLocal);
+
+    // Obtener servicios
     axios
       .get<Servicio[]>("http://localhost:8080/api/servicios", headers)
       .then((res) => {
@@ -76,11 +81,15 @@ const ServiciosDisponibles = () => {
         setLoading(false);
       });
 
+    // Obtener solicitudes del cliente
     axios
       .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/cliente/${clienteId}`, headers)
       .then((res) => {
         const empresasYaSolicitadas = res.data.map((s) => s.servicio.empresa.id);
-        setEmpresasSolicitadas(empresasYaSolicitadas);
+        // Combinar con las del localStorage sin duplicados
+        const combined = Array.from(new Set([...empresasFromLocal, ...empresasYaSolicitadas]));
+        setEmpresasSolicitadas(combined);
+        localStorage.setItem("empresasSolicitadas", JSON.stringify(combined));
       })
       .catch(() => {
         toast.error("No se pudieron cargar las solicitudes previas.");
@@ -94,11 +103,14 @@ const ServiciosDisponibles = () => {
         { clienteId: Number(clienteId), servicioId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       toast.success("Solicitud enviada correctamente");
 
-      setEmpresasSolicitadas((prev) =>
-        prev.includes(empresaId) ? prev : [...prev, empresaId]
-      );
+      setEmpresasSolicitadas((prev) => {
+        const updated = prev.includes(empresaId) ? prev : [...prev, empresaId];
+        localStorage.setItem("empresasSolicitadas", JSON.stringify(updated));
+        return updated;
+      });
     } catch {
       toast.error("No se pudo enviar la solicitud.");
     }
@@ -226,7 +238,6 @@ const ServiciosDisponibles = () => {
         </Fade>
       )}
 
-      {/* Modal logout */}
       {logoutConfirm && (
         <ConfirmModalLogout
           onCancel={() => setLogoutConfirm(false)}

@@ -179,7 +179,7 @@ const EmpresaDashboard = () => {
           {tab === 0 && (
             <Box>
               {servicios.length === 0 ? (
-                <Typography color="text.secondary">No tienes servicios registrados.</Typography>
+                <Typography color="text.secondary" sx={{textAlign: 'center'}}>No tienes servicios registrados.</Typography>
               ) : (
                 <Box
                   sx={{

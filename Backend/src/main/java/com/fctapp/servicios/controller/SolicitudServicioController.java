@@ -20,7 +20,7 @@ import com.fctapp.servicios.entity.SolicitudServicio;
 import com.fctapp.servicios.service.SolicitudServicioService;
 
 import jakarta.validation.Valid;
-import com.fctapp.servicios.dto.SolicitudClienteDTO;
+import com.fctapp.servicios.dto.SolicitudDTO;
 
 @RestController
 @RequestMapping("/api/solicitudes")
@@ -50,35 +50,33 @@ public class SolicitudServicioController {
 		return ResponseEntity.ok(solicitudService.marcarComoFinalizada(id));
 	}
 
-@GetMapping("/cliente/{id}")
-public ResponseEntity<List<SolicitudClienteDTO>> obtenerPorCliente(@PathVariable Long id) {
-    List<SolicitudServicio> solicitudes = solicitudService.obtenerSolicitudesPorCliente(id);
+	@GetMapping("/cliente/{id}")
+	public ResponseEntity<List<SolicitudDTO>> obtenerSolicitudesDetalladas(@PathVariable Long id) {
+		List<SolicitudServicio> solicitudes = solicitudService.obtenerSolicitudesPorCliente(id);
 
-    List<SolicitudClienteDTO> dtos = solicitudes.stream()
-        .map(SolicitudClienteDTO::new)
-        .toList();
+		List<SolicitudDTO> dtos = solicitudes.stream()
+				.map(SolicitudDTO::new)
+				.toList();
 
-    return ResponseEntity.ok(dtos);
+		return ResponseEntity.ok(dtos);
+	}
+
+	@GetMapping("/empresa/{empresaId}")
+	public ResponseEntity<List<SolicitudServicio>> obtenerPorEmpresa(@PathVariable Long empresaId) {
+		List<SolicitudServicio> solicitudes = solicitudService.obtenerSolicitudesPorEmpresa(empresaId);
+		return ResponseEntity.ok(solicitudes);
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> eliminarSolicitud(@PathVariable Long id) {
+		boolean eliminada = solicitudService.eliminarSiFinalizada(id);
+		return eliminada ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<SolicitudServicio> obtenerSolicitudPorId(@PathVariable Long id) {
+		SolicitudServicio solicitud = solicitudService.obtenerPorId(id);
+		return ResponseEntity.ok(solicitud);
+	}
+
 }
-
-@GetMapping("/empresa/{empresaId}")
-public ResponseEntity<List<SolicitudServicio>> obtenerPorEmpresa(@PathVariable Long empresaId) {
-    List<SolicitudServicio> solicitudes = solicitudService.obtenerSolicitudesPorEmpresa(empresaId);
-    return ResponseEntity.ok(solicitudes);
-}
-
-@DeleteMapping("/{id}")
-public ResponseEntity<Void> eliminarSolicitud(@PathVariable Long id) {
-    boolean eliminada = solicitudService.eliminarSiFinalizada(id);
-    return eliminada ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
-}
-
-@GetMapping("/{id}")
-public ResponseEntity<SolicitudServicio> obtenerSolicitudPorId(@PathVariable Long id) {
-    SolicitudServicio solicitud = solicitudService.obtenerPorId(id);
-    return ResponseEntity.ok(solicitud);
-}
-
-}
-
-
