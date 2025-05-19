@@ -17,6 +17,7 @@ import SolicitudesCliente from "../pages/SolicitudesCliente";
 import SolicitudesEmpresa from "../pages/SolicitudesEmpresa";
 import MensajesEmpresa from "../pages/MensajesEmpresa";
 import MensajesCliente from "../pages/MensajesCliente";
+import { QueEsSimplify } from "../pages/QueEsSimplify";
 
 const AppRouter = () => {
 
@@ -25,6 +26,7 @@ const AppRouter = () => {
       <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Index />} />
+        <Route path="/simplify" element={<QueEsSimplify />} />
         <Route path="/registro" element={<InicioRegistro />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro/cliente" element={<RegistroCliente />} />

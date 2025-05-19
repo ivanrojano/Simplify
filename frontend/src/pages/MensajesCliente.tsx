@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import {
   Box,
   Typography,
@@ -11,10 +12,15 @@ import {
   TextField,
   Stack,
   Divider,
-  Avatar
+  IconButton,
+  Fade,
 } from "@mui/material";
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import PersonIcon from "@mui/icons-material/Person";
+import LogoutIcon from "@mui/icons-material/Logout";
+
+import ConfirmModalLogout from "../components/ConfirmModalLogout";
+import MensajeCortosCliente from "../components/MensajeCortosCliente";
 
 interface Usuario {
   id: number;
@@ -34,16 +40,10 @@ interface Mensaje {
 interface Solicitud {
   id: number;
   servicio: {
-    id: number;
-    nombre: string;
     empresa: {
       id: number;
       nombreEmpresa: string;
     };
-  };
-  cliente: {
-    id: number;
-    nombre: string;
   };
 }
 
@@ -53,6 +53,8 @@ const MensajesCliente = () => {
   const [nuevoMensaje, setNuevoMensaje] = useState("");
   const [receptorId, setReceptorId] = useState<number | null>(null);
   const [empresaNombre, setEmpresaNombre] = useState("Empresa no disponible");
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+
   const token = localStorage.getItem("token");
   const clienteId = Number(localStorage.getItem("clienteId"));
   const navigate = useNavigate();
@@ -86,8 +88,7 @@ const MensajesCliente = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setMensajes(res.data))
-      .catch((err) => {
-        console.error("Error al cargar mensajes:", err);
+      .catch(() => {
         toast.error("No se pudieron cargar los mensajes.");
       });
   }, [token, solicitudId, clienteId, navigate]);
@@ -125,6 +126,7 @@ const MensajesCliente = () => {
       );
 
       setNuevoMensaje("");
+
       const res = await axios.get<Mensaje[]>(
         `http://localhost:8080/api/mensajes/por-solicitud?solicitudId=${solicitudId}`,
         {
@@ -132,32 +134,61 @@ const MensajesCliente = () => {
         }
       );
       setMensajes(res.data);
-    } catch (error) {
-      console.error("Error al enviar mensaje:", error);
+    } catch {
       toast.error("Error al enviar mensaje.");
     }
   };
 
-  const obtenerNombreEmisor = (emisor: Usuario) => {
-    return emisor.rol === "EMPRESA" ? emisor.nombreEmpresa : emisor.nombre;
+  const confirmLogout = () => {
+    localStorage.clear();
+    navigate("/");
   };
 
   return (
-    <Box sx={{ maxWidth: "900px", margin: "2rem auto", px: 2, pb: 5 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate("/cliente/solicitudes")}
-        sx={{ position: "absolute", top: 16, left: 16 }}
-      >
-        Volver a Solicitudes
-      </Button>
+    <Box sx={{ maxWidth: "900px", margin: "2rem auto", px: 2, pb: 5, position: "relative" }}>
+      {/* Botón volver */}
+      <Fade in timeout={600}>
+        <IconButton
+          onClick={() => navigate("/cliente/solicitudes")}
+          sx={{
+            position: "fixed",
+            top: 16,
+            left: 16,
+            color: "#0d47a1",
+            zIndex: 1300,
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      </Fade>
 
+      {/* Botón cerrar sesión */}
+      <Fade in timeout={600}>
+        <Button
+          onClick={() => setLogoutConfirm(true)}
+          endIcon={<LogoutIcon />}
+          sx={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            color: "#e74c3c",
+            fontWeight: 600,
+            textTransform: "none",
+            zIndex: 1300,
+          }}
+        >
+          Cerrar sesión
+        </Button>
+      </Fade>
+
+      {/* Título */}
       <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={1}>
         Chat con {empresaNombre}
       </Typography>
 
       <Divider sx={{ mb: 3 }} />
 
+      {/* Lista de mensajes */}
       <Paper
         elevation={4}
         sx={{
@@ -175,58 +206,36 @@ const MensajesCliente = () => {
           </Typography>
         ) : (
           <Stack spacing={1}>
-            {mensajes.map((msg) => (
-              <Box
-                key={msg.id}
-                sx={{
-                  display: "flex",
-                  justifyContent: msg.emisor.id === clienteId ? "flex-end" : "flex-start",
-                }}
-              >
+            {mensajes.map((msg) => {
+              const esEmisor = msg.emisor.id === clienteId;
+              const nombreEmisor = msg.emisor.rol === "EMPRESA"
+                ? msg.emisor.nombreEmpresa || "Empresa"
+                : msg.emisor.nombre || "Usuario";
+
+              return (
                 <Box
+                  key={msg.id}
                   sx={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: msg.emisor.id === clienteId ? "flex-end" : "flex-start",
-                    maxWidth: "75%",
+                    justifyContent: esEmisor ? "flex-end" : "flex-start",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Avatar
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        bgcolor: msg.emisor.id === clienteId ? "#1976d2" : "#6d4c41",
-                      }}
-                    >
-                      <PersonIcon fontSize="small" />
-                    </Avatar>
-                    <Typography variant="caption" fontWeight={600}>
-                      {obtenerNombreEmisor(msg.emisor)}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      bgcolor: msg.emisor.id === clienteId ? "#e3f2fd" : "#fff3e0",
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2,
-                      mt: 0.5,
-                    }}
-                  >
-                    <Typography variant="body1">{msg.contenido}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(msg.fecha).toLocaleString()}
-                    </Typography>
-                  </Box>
+                  <MensajeCortosCliente
+                    contenido={msg.contenido}
+                    fecha={msg.fecha}
+                    esEmpresa={msg.emisor.rol === "EMPRESA"}
+                    esEmisor={esEmisor}
+                    nombreEmisor={nombreEmisor}
+                  />
                 </Box>
-              </Box>
-            ))}
+              );
+            })}
             <div ref={chatEndRef} />
           </Stack>
         )}
       </Paper>
 
+      {/* Input enviar */}
       <Stack direction="row" spacing={2}>
         <TextField
           fullWidth
@@ -235,10 +244,21 @@ const MensajesCliente = () => {
           onChange={(e) => setNuevoMensaje(e.target.value)}
           variant="outlined"
         />
-        <Button variant="contained" onClick={enviarMensaje}>
+        <Button variant="contained" onClick={enviarMensaje} sx={{ background: "#0d47a1" }}>
           Enviar
         </Button>
       </Stack>
+
+      {/* Confirmación logout */}
+      {logoutConfirm && (
+        <ConfirmModalLogout
+          onCancel={() => setLogoutConfirm(false)}
+          onConfirm={() => {
+            confirmLogout();
+            setLogoutConfirm(false);
+          }}
+        />
+      )}
 
       <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </Box>

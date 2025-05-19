@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import {
   Box,
   Typography,
@@ -11,10 +12,17 @@ import {
   TextField,
   Stack,
   Divider,
-  Avatar
+  Avatar,
+  IconButton,
+  Fade,
 } from "@mui/material";
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
+
+import ConfirmModalLogout from "../components/ConfirmModalLogout";
+import MensajeBubble from "../components/MensajesCortosEmpresa";
 
 interface Usuario {
   id: number;
@@ -44,6 +52,8 @@ const MensajesEmpresa = () => {
   const [nuevoMensaje, setNuevoMensaje] = useState("");
   const [receptorId, setReceptorId] = useState<number | null>(null);
   const [clienteNombre, setClienteNombre] = useState<string>("");
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+
   const token = localStorage.getItem("token");
   const empresaId = Number(localStorage.getItem("empresaId"));
   const navigate = useNavigate();
@@ -72,8 +82,7 @@ const MensajesEmpresa = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setMensajes(res.data))
-      .catch((err) => {
-        console.error("Error al cargar mensajes:", err);
+      .catch(() => {
         toast.error("No se pudieron cargar los mensajes.");
       });
   }, [token, solicitudId, empresaId, navigate]);
@@ -120,83 +129,128 @@ const MensajesEmpresa = () => {
         }
       );
       setMensajes(res.data);
-    } catch (error) {
-      console.error("Error al enviar mensaje:", error);
+    } catch {
       toast.error("Error al enviar mensaje.");
     }
   };
 
-  const obtenerNombreEmisor = (emisor: Usuario) => {
-    return emisor.rol === "EMPRESA" ? emisor.nombreEmpresa : emisor.nombre;
+  const obtenerNombreEmisor = (emisor: Usuario) =>
+    emisor.rol === "EMPRESA" ? emisor.nombreEmpresa : emisor.nombre;
+
+  const obtenerInicial = (nombre?: string) => {
+    return nombre?.charAt(0).toUpperCase() || "?";
+  };
+
+  const confirmLogout = () => {
+    localStorage.clear();
+    navigate("/");
   };
 
   return (
-    <Box sx={{ maxWidth: "900px", margin: "2rem auto", px: 2, pb: 5 }}>
-      <Button
-        startIcon={<ArrowBackIcon />} 
-        onClick={() => navigate("/empresa/solicitudes")}
-        sx={{ position: 'absolute', top: 16, left: 16 }}
-      >
-        Volver a Solicitudes
-      </Button>
+    <Box sx={{ maxWidth: "900px", margin: "2rem auto", px: 2, pb: 5, position: "relative" }}>
+      {/* Botón volver */}
+      <Fade in timeout={600}>
+        <IconButton
+          onClick={() => navigate("/empresa/solicitudes")}
+          sx={{
+            position: "fixed",
+            top: 16,
+            left: 16,
+            color: "#0d47a1",
+            zIndex: 1300,
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      </Fade>
 
+      {/* Botón cerrar sesión */}
+      <Fade in timeout={600}>
+        <Button
+          onClick={() => setLogoutConfirm(true)}
+          endIcon={<LogoutIcon />}
+          sx={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            color: "#e74c3c",
+            fontWeight: 600,
+            textTransform: "none",
+            zIndex: 1300,
+          }}
+        >
+          Cerrar sesión
+        </Button>
+      </Fade>
+
+      {/* Título */}
       <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={1}>
         Chat con {clienteNombre || "el Cliente"}
       </Typography>
 
       <Divider sx={{ mb: 3 }} />
 
-      <Paper elevation={4} sx={{ backgroundColor: "#f9f9f9", height: 450, overflowY: "auto", p: 2, mb: 3, borderRadius: 3 }}>
+      {/* Lista de mensajes */}
+      <Paper
+        elevation={4}
+        sx={{
+          backgroundColor: "#f9f9f9",
+          height: 450,
+          overflowY: "auto",
+          p: 2,
+          mb: 3,
+          borderRadius: 3,
+        }}
+      >
         {mensajes.length === 0 ? (
-          <Typography color="text.secondary" textAlign="center">No hay mensajes todavía.</Typography>
+          <Typography color="text.secondary" textAlign="center">
+            No hay mensajes todavía.
+          </Typography>
         ) : (
           <Stack spacing={1}>
-            {mensajes.map((msg) => (
-              <Box
-                key={msg.id}
-                sx={{
-                  display: "flex",
-                  justifyContent: msg.emisor.id === empresaId ? "flex-end" : "flex-start",
-                }}
-              >
+            {mensajes.map((msg) => {
+              const esEmpresa = msg.emisor.id === empresaId;
+              const nombre = obtenerNombreEmisor(msg.emisor);
+              return (
                 <Box
+                  key={msg.id}
                   sx={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: msg.emisor.id === empresaId ? "flex-end" : "flex-start",
-                    maxWidth: "75%"
+                    justifyContent: esEmpresa ? "flex-end" : "flex-start",
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Avatar sx={{ width: 30, height: 30, bgcolor: msg.emisor.id === empresaId ? '#1976d2' : '#6d4c41' }}>
-                      <PersonIcon fontSize="small" />
-                    </Avatar>
-                    <Typography variant="caption" fontWeight={600}>
-                      {obtenerNombreEmisor(msg.emisor)}
-                    </Typography>
-                  </Box>
                   <Box
                     sx={{
-                      bgcolor: msg.emisor.id === empresaId ? "#e3f2fd" : "#fff3e0",
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2,
-                      mt: 0.5
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: esEmpresa ? "flex-end" : "flex-start",
+                      maxWidth: "75%",
                     }}
                   >
-                    <Typography variant="body1">{msg.contenido}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(msg.fecha).toLocaleString()}
-                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Avatar sx={{ width: 30, height: 30, bgcolor: "#0d47a1", fontSize: 14 }}>
+                        {nombre ? obtenerInicial(nombre) : <PersonIcon fontSize="small" />}
+                      </Avatar>
+                      <Typography variant="caption" fontWeight={600}>
+                        {nombre}
+                      </Typography>
+                    </Box>
+
+                    <MensajeBubble
+                      contenido={msg.contenido}
+                      fecha={msg.fecha}
+                      esEmpresa={esEmpresa}
+                    />
                   </Box>
                 </Box>
-              </Box>
-            ))}
+              );
+            })}
             <div ref={chatEndRef} />
           </Stack>
         )}
       </Paper>
 
+      {/* Input para enviar mensaje */}
       <Stack direction="row" spacing={2}>
         <TextField
           fullWidth
@@ -205,10 +259,21 @@ const MensajesEmpresa = () => {
           onChange={(e) => setNuevoMensaje(e.target.value)}
           variant="outlined"
         />
-        <Button variant="contained" onClick={enviarMensaje}>
+        <Button variant="contained" onClick={enviarMensaje} sx={{ background: "#0d47a1" }}>
           Enviar
         </Button>
       </Stack>
+
+      {/* Confirmación logout */}
+      {logoutConfirm && (
+        <ConfirmModalLogout
+          onCancel={() => setLogoutConfirm(false)}
+          onConfirm={() => {
+            confirmLogout();
+            setLogoutConfirm(false);
+          }}
+        />
+      )}
 
       <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </Box>
