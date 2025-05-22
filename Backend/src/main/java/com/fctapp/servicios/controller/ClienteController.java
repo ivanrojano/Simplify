@@ -1,21 +1,26 @@
 package com.fctapp.servicios.controller;
 
 import com.fctapp.servicios.dto.ActualizarClienteDTO;
+import com.fctapp.servicios.dto.CambiarContraseñaDTO;
 import com.fctapp.servicios.entity.Cliente;
 import com.fctapp.servicios.repository.ClienteRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
 
     private final ClienteRepository clienteRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public ClienteController(ClienteRepository clienteRepository) {
+    public ClienteController(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping
@@ -48,6 +53,24 @@ public class ClienteController {
 
                     clienteRepository.save(cliente);
                     return ResponseEntity.ok(cliente);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}/cambiar-password")
+    public ResponseEntity<?> cambiarPassword(@PathVariable Long id,
+            @RequestBody CambiarContraseñaDTO dto) {
+        return clienteRepository.findById(id)
+                .map(cliente -> {
+                    if (!passwordEncoder.matches(dto.getPasswordActual(), cliente.getPassword())) {
+                        return ResponseEntity.badRequest()
+                                .body(Map.of("mensaje", "La contraseña actual es incorrecta"));
+                    }
+
+                    cliente.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+                    clienteRepository.save(cliente);
+
+                    return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada"));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

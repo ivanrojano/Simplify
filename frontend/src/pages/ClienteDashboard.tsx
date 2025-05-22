@@ -1,75 +1,97 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 import {
   Box,
   Button,
   Typography,
   Avatar,
-  Divider,
   CircularProgress,
   Fade,
-  Stack,
-} from "@mui/material";
+  Tabs,
+  Tab,
+} from "@mui/material"
 
-import LogoutIcon from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
-import EditIcon from "@mui/icons-material/Edit";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import EmailIcon from "@mui/icons-material/Email";
-import ConfirmModalLogout from "../components/ConfirmModalLogout";
+import LogoutIcon from "@mui/icons-material/Logout"
+
+import ConfirmModalLogout from "../components/ConfirmModalLogout"
+import PerfilCliente from "../components/PerfilCliente"
+import ServiciosCliente from "../components/ServiciosClientes"
+import SolicitudesCliente from "../components/SolicitudesClientes"
+import ResumenCliente from "../components/ResumenCliente"
 
 interface Cliente {
-  id: number;
-  nombre: string;
-  direccion: string;
-  email: string;
-  fotoUrl?: string | null;
+  id: number
+  nombre: string
+  direccion: string
+  email: string
+  fotoUrl?: string | null
+}
+
+interface Solicitud {
+  id: number
+  estado: string
+  fechaCreacion: string
+  servicio: {
+    nombre: string
+    empresa: {
+      nombreEmpresa: string
+    }
+  }
 }
 
 const ClienteDashboard = () => {
-  const [cliente, setCliente] = useState<Cliente | null>(null);
-  const [logoutConfirm, setLogoutConfirm] = useState(false);
-  const navigate = useNavigate();
+  const [cliente, setCliente] = useState<Cliente | null>(null)
+  const [solicitudes, setSolicitudes] = useState<Solicitud[]>([])
+  const [logoutConfirm, setLogoutConfirm] = useState(false)
+  const [tabValue, setTabValue] = useState(0)
+  const navigate = useNavigate()
 
-  const token = localStorage.getItem("token");
-  const clienteId = localStorage.getItem("clienteId");
+  const cargarSolicitudes = () => {
+    const token = localStorage.getItem("token")
+    const clienteId = localStorage.getItem("clienteId")
+    const headers = { headers: { Authorization: `Bearer ${token}` } }
+
+    if (!token || !clienteId) return
+
+    axios
+      .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/cliente/${clienteId}`, headers)
+      .then((res) => setSolicitudes(res.data))
+      .catch(() => console.error("Error al cargar solicitudes"))
+  }
 
   useEffect(() => {
+    const token = localStorage.getItem("token")
+    const clienteId = localStorage.getItem("clienteId")
+
     if (!token || !clienteId) {
-      navigate("/login");
-      return;
+      navigate("/login")
+      return
     }
 
-    const headers = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
+    const headers = { headers: { Authorization: `Bearer ${token}` } }
 
     axios
       .get<Cliente>(`http://localhost:8080/api/clientes/${clienteId}`, headers)
       .then((res) => {
-        setCliente(res.data);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        setCliente(res.data)
+        window.scrollTo({ top: 0, behavior: "smooth" })
+        cargarSolicitudes()
       })
-      .catch(() => navigate("/login"));
-  }, [token, clienteId, navigate]);
+      .catch(() => navigate("/login"))
+  }, [navigate])
 
   const confirmLogout = () => {
-    localStorage.clear();
-    navigate("/");
-  };
-
-  const handleEditarPerfil = () => navigate("/cliente/editar");
-  const handleVerServicios = () => navigate("/cliente/servicios");
+    localStorage.clear()
+    navigate("/")
+  }
 
   if (!cliente)
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
         <CircularProgress color="primary" />
       </Box>
-    );
+    )
 
   return (
     <Fade in timeout={800}>
@@ -99,121 +121,85 @@ const ClienteDashboard = () => {
           Cerrar Sesión
         </Button>
 
-        {/* Contenido principal */}
-        <Box sx={{ maxWidth: 900, mx: "auto" }}>
-          <Typography
-            variant="h4"
-            fontWeight={800}
-            textAlign="center"
-            color="#0d47a1"
-            mb={1}
-          >
-            Panel del Cliente
-          </Typography>
-
-          <Typography variant="subtitle1" textAlign="center" mb={4}>
-            ¡Hola, {cliente.nombre}!
-          </Typography>
-
-          {/* Información del Perfil */}
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={4}
-            alignItems="center"
-            mb={4}
+        {/* Header cliente + Tabs */}
+        <Box sx={{ mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              flexDirection: { xs: "column", sm: "row" },
+              textAlign: { xs: "center", sm: "left" },
+            }}
           >
             <Avatar
               sx={{
-                width: 130,
-                height: 130,
+                width: 90,
+                height: 90,
                 bgcolor: cliente.fotoUrl ? "transparent" : "#0d47a1",
                 border: "2px solid #0d47a1",
+                fontWeight: 700,
+                fontSize: 28,
+                color: "#fff",
               }}
-              src={
-                cliente.fotoUrl && cliente.fotoUrl.trim() !== ""
-                  ? cliente.fotoUrl
-                  : undefined
-              }
+              src={cliente.fotoUrl || undefined}
             >
-              {!cliente.fotoUrl && <PersonIcon sx={{ fontSize: 48, color: "#fff" }} />}
+              {!cliente.fotoUrl ? cliente.nombre?.charAt(0).toUpperCase() : null}
             </Avatar>
 
             <Box>
-              <Stack direction="row" alignItems="center" spacing={1} mb={1}>
-                <Typography variant="h6" fontWeight={700}>
-                  Información del Perfil
-                </Typography>
-              </Stack>
-              <Divider sx={{ mb: 2 }} />
-
-              <Stack spacing={1}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <PersonIcon sx={{ color: "#0d47a1" }} />
-                  <Typography>
-                    <strong>Nombre:</strong> {cliente.nombre}
-                  </Typography>
-                </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <LocationOnIcon sx={{ color: "#0d47a1" }} />
-                  <Typography>
-                    <strong>Dirección:</strong> {cliente.direccion}
-                  </Typography>
-                </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <EmailIcon sx={{ color: "#0d47a1" }} />
-                  <Typography>
-                    <strong>Email:</strong> {cliente.email}
-                  </Typography>
-                </Stack>
-              </Stack>
+              <Typography variant="h5" fontWeight={900} color="#0d47a1">
+                Panel del Cliente
+              </Typography>
+              <Typography variant="subtitle1" color="text.secondary">
+                ¡Bienvenido de nuevo, {cliente.nombre}!
+              </Typography>
             </Box>
-          </Stack>
+          </Box>
 
-          {/* Botones de acción */}
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            <Button
-              fullWidth
-              variant="contained"
-              startIcon={<EditIcon />}
-              onClick={handleEditarPerfil}
-              sx={{
-                backgroundColor: "#0d47a1",
-                color: "#fff",
-                "&:hover": { backgroundColor: "#1565c0" },
+          <Box mt={2}>
+            <Tabs
+              value={tabValue}
+              onChange={(_e, newVal) => {
+                setTabValue(newVal)
+                if (newVal === 0 || newVal === 3) cargarSolicitudes()
               }}
+              textColor="primary"
+              indicatorColor="primary"
+              variant="scrollable"
+              scrollButtons="auto"
             >
-              Editar Perfil
-            </Button>
-            <Button
-              fullWidth
-              variant="contained"
-              startIcon={<ViewListIcon />}
-              onClick={handleVerServicios}
-              sx={{
-                backgroundColor: "#0d47a1",
-                color: "#fff",
-                "&:hover": { backgroundColor: "#1565c0" },
-              }}
-            >
-              Ver Servicios
-            </Button>
-            <Button
-              fullWidth
-              variant="contained"
-              startIcon={<ListAltIcon />}
-              onClick={() => navigate("/cliente/solicitudes")}
-              sx={{
-                backgroundColor: "#0d47a1",
-                color: "#fff",
-                "&:hover": { backgroundColor: "#1565c0" },
-              }}
-            >
-              Ver Mis Solicitudes
-            </Button>
-          </Stack>
+              <Tab label="Resumen" />
+              <Tab label="Mi Perfil" />
+              <Tab label="Servicios" />
+              <Tab label="Solicitudes" />
+            </Tabs>
+          </Box>
         </Box>
 
-        {/* Cerrar sesión en mobile */}
+        {/* Contenido dinámico */}
+        <Box>
+          {tabValue === 0 && (
+            <ResumenCliente
+              nombre={cliente.nombre}
+              solicitudes={solicitudes}
+              onVerSolicitudes={() => setTabValue(3)} 
+            />
+          )}
+          {tabValue === 1 && (
+            <PerfilCliente
+              nombre={cliente.nombre}
+              direccion={cliente.direccion}
+              email={cliente.email}
+              id={cliente.id}
+              fotoUrl={cliente.fotoUrl}
+            />
+          )}
+          {tabValue === 2 && <ServiciosCliente />}
+          {tabValue === 3 && <SolicitudesCliente />}
+        </Box>
+
+        {/* Botón cerrar sesión (mobile) */}
         <Box
           sx={{
             display: { xs: "flex", sm: "none" },
@@ -232,19 +218,19 @@ const ClienteDashboard = () => {
           </Button>
         </Box>
 
-        {/* Modal de confirmación */}
+        {/* Modal confirmación logout */}
         {logoutConfirm && (
           <ConfirmModalLogout
             onCancel={() => setLogoutConfirm(false)}
             onConfirm={() => {
-              confirmLogout();
-              setLogoutConfirm(false);
+              confirmLogout()
+              setLogoutConfirm(false)
             }}
           />
         )}
       </Box>
     </Fade>
-  );
-};
+  )
+}
 
-export default ClienteDashboard;
+export default ClienteDashboard
