@@ -114,7 +114,7 @@ const SolicitudesCliente = () => {
         border: "1px solid #e0e0e0",
         borderRadius: 5,
         p: { xs: 2, sm: 3 },
-        boxShadow: 1,
+        boxShadow: 4,
         bgcolor: "#fafafa",
         minHeight: 200,
       }}

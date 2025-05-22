@@ -14,11 +14,8 @@ import {
   Snackbar,
 } from "@mui/material"
 import axios from "axios"
-
-
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
-
 import MuiAlert from "@mui/material/Alert"
 
 import EditIcon from "@mui/icons-material/Edit"
@@ -27,6 +24,9 @@ import EmailIcon from "@mui/icons-material/Email"
 import FingerprintIcon from "@mui/icons-material/Fingerprint"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import ErrorIcon from "@mui/icons-material/Error"
+import PhoneIcon from "@mui/icons-material/Phone"
+import LocationCityIcon from "@mui/icons-material/LocationCity"
+import HomeIcon from "@mui/icons-material/Home"
 
 interface Props {
   nombre: string
@@ -34,9 +34,23 @@ interface Props {
   email: string
   id: number
   fotoUrl?: string | null
+  telefono?: string | null
+  codigoPostal?: string | null
+  ciudad?: string | null
+  fechaRegistro?: string
 }
 
-const PerfilCliente = ({ nombre, direccion, email, id, fotoUrl }: Props) => {
+const PerfilCliente = ({
+  nombre,
+  direccion,
+  email,
+  id,
+  fotoUrl,
+  telefono,
+  codigoPostal,
+  ciudad,
+  fechaRegistro,
+}: Props) => {
   const navigate = useNavigate()
 
   const [passwordActual, setPasswordActual] = useState("")
@@ -107,7 +121,7 @@ const PerfilCliente = ({ nombre, direccion, email, id, fotoUrl }: Props) => {
         border: "1px solid #e0e0e0",
         borderRadius: 5,
         p: 3,
-        boxShadow: 1,
+        boxShadow: 4,
         bgcolor: "#fafafa",
       }}
     >
@@ -118,7 +132,7 @@ const PerfilCliente = ({ nombre, direccion, email, id, fotoUrl }: Props) => {
         Detalles de tu cuenta y perfil
       </Typography>
 
-      {/* Avatar + Nombre */}
+      {/* Avatar + Nombre y Fecha */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={3}
@@ -140,48 +154,101 @@ const PerfilCliente = ({ nombre, direccion, email, id, fotoUrl }: Props) => {
           {!fotoUrl ? nombre.charAt(0).toUpperCase() : null}
         </Avatar>
 
-        <Typography
-          variant="h5"
-          fontWeight={800}
-          color="#0d47a1"
-          sx={{ textAlign: { xs: "center", sm: "left" } }}
-        >
-          {nombre}
-        </Typography>
+        <Box textAlign={{ xs: "center", sm: "left" }}>
+          <Typography variant="h5" fontWeight={800} color="#0d47a1">
+            {nombre || "Sin datos"}
+          </Typography>
+          <Typography variant="subtitle2" color="text.secondary" mt={1}>
+            Cliente desde:{" "}
+            {fechaRegistro
+              ? new Date(fechaRegistro).toLocaleDateString()
+              : "Sin datos"}
+          </Typography>
+        </Box>
       </Stack>
 
-      {/* Datos personales */}
-      <Stack direction="row" flexWrap="wrap" rowGap={2} columnGap={4} mb={3}>
-        <Box sx={{ minWidth: "240px" }}>
-          <Typography>
-            <EmailIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
-            <strong>Email:</strong> {email}
-          </Typography>
+      {/* Alerta si perfil incompleto */}
+      {(!telefono || !ciudad || !codigoPostal) && (
+        <Box mb={3}>
+          <MuiAlert severity="warning" sx={{ mb: 2 }}>
+            Tu perfil no está completo. Por favor, actualiza tus datos para aprovechar todas las funcionalidades.
+          </MuiAlert>
         </Box>
+      )}
 
-        <Box sx={{ minWidth: "240px" }}>
-          <Typography>
-            <LocationOnIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
-            <strong>Dirección:</strong> {direccion}
-          </Typography>
-        </Box>
+      {/* Datos personales - 3 columnas por fila */}
+      <Stack spacing={3} mb={3}>
+        {/* Fila 1 */}
+        <Stack
+          direction="row"
+          gap={3}
+          flexWrap="wrap"
+          justifyContent="space-between"
+          sx={{ width: "100%" }}
+        >
+          <Box sx={{ flex: 1, minWidth: "280px", textAlign: "left", mb: 3}}>
+            <Typography>
+              <EmailIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+              <strong>Email:</strong> {email || "Sin datos"}
+            </Typography>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: "280px", textAlign: "center" }}>
+            <Typography>
+              <LocationOnIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+              <strong>Dirección:</strong> {direccion?.trim() || "Sin datos"}
+            </Typography>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: "280px", textAlign: "right" }}>
+            <Typography>
+              <PhoneIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+              <strong>Teléfono:</strong> {telefono?.trim() || "Sin datos"}
+            </Typography>
+          </Box>
+        </Stack>
 
-        <Box sx={{ minWidth: "240px" }}>
-          <Typography>
-            <FingerprintIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
-            <strong>ID de Cliente:</strong> #{id.toString().padStart(6, "0")}
-          </Typography>
-        </Box>
+        {/* Fila 2 */}
+        <Stack
+          direction="row"
+          gap={3}
+          flexWrap="wrap"
+          justifyContent="space-between"
+          sx={{ width: "100%"}}
+        >
+          <Box sx={{ flex: 1, minWidth: "280px", textAlign: "left" }}>
+            <Typography>
+              <LocationCityIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+              <strong>Ciudad:</strong> {ciudad?.trim() || "Sin datos"}
+            </Typography>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: "280px", textAlign: "center" }}>
+            <Typography>
+              <HomeIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+              <strong>Código Postal:</strong> {codigoPostal?.trim() || "Sin datos"}
+            </Typography>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: "280px", textAlign: "right" }}>
+            <Typography>
+              <FingerprintIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+              <strong>ID de Cliente:</strong> #{id.toString().padStart(6, "0")}
+            </Typography>
+          </Box>
+        </Stack>
       </Stack>
 
       <Button
         variant="contained"
+        fullWidth
         startIcon={<EditIcon />}
         onClick={() => navigate("/cliente/editar")}
-        sx={{ backgroundColor: "#0d47a1", "&:hover": { backgroundColor: "#1565c0" } }}
+        sx={{
+          mt:3,
+          backgroundColor: "#0d47a1",
+          "&:hover": { backgroundColor: "#1565c0" },
+        }}
       >
         Editar Perfil
       </Button>
+
 
       <Divider sx={{ mt: 6 }} />
 
@@ -197,7 +264,7 @@ const PerfilCliente = ({ nombre, direccion, email, id, fotoUrl }: Props) => {
 
         <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
           {/* Formulario */}
-          <Paper sx={{ p: 3, flex: 1 }}>
+          <Paper elevation={4} sx={{ p: 3, flex: 1 }}>
             <Stack spacing={2}>
               <TextField
                 label="Contraseña Actual"
@@ -243,7 +310,7 @@ const PerfilCliente = ({ nombre, direccion, email, id, fotoUrl }: Props) => {
           </Paper>
 
           {/* Consejos de Seguridad */}
-          <Paper sx={{ p: 3, flex: 1 }}>
+          <Paper elevation={4} sx={{ p: 3, flex: 1 }}>
             <Typography variant="h5" fontWeight={900} mb={2}>
               Consejos de Seguridad
             </Typography>

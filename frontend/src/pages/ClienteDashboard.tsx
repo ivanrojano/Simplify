@@ -26,6 +26,10 @@ interface Cliente {
   direccion: string
   email: string
   fotoUrl?: string | null
+  telefono?: string | null
+  codigoPostal?: string | null
+  ciudad?: string | null
+  fechaRegistro?: string
 }
 
 interface Solicitud {
@@ -173,6 +177,8 @@ const ClienteDashboard = () => {
               <Tab label="Mi Perfil" />
               <Tab label="Servicios" />
               <Tab label="Solicitudes" />
+              <Tab label="Mensajes" />
+
             </Tabs>
           </Box>
         </Box>
@@ -183,7 +189,7 @@ const ClienteDashboard = () => {
             <ResumenCliente
               nombre={cliente.nombre}
               solicitudes={solicitudes}
-              onVerSolicitudes={() => setTabValue(3)} 
+              onVerSolicitudes={() => setTabValue(3)}
             />
           )}
           {tabValue === 1 && (
@@ -193,9 +199,15 @@ const ClienteDashboard = () => {
               email={cliente.email}
               id={cliente.id}
               fotoUrl={cliente.fotoUrl}
+              telefono={cliente.telefono}
+              codigoPostal={cliente.codigoPostal}
+              ciudad={cliente.ciudad}
+              fechaRegistro={cliente.fechaRegistro}
             />
           )}
+
           {tabValue === 2 && <ServiciosCliente />}
+
           {tabValue === 3 && <SolicitudesCliente />}
         </Box>
 

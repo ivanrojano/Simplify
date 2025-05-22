@@ -4,6 +4,9 @@ import com.fctapp.servicios.dto.ActualizarClienteDTO;
 import com.fctapp.servicios.dto.CambiarContraseñaDTO;
 import com.fctapp.servicios.entity.Cliente;
 import com.fctapp.servicios.repository.ClienteRepository;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -36,20 +39,36 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id,
-            @RequestBody ActualizarClienteDTO dto) {
+    public ResponseEntity<Cliente> actualizarCliente(
+            @PathVariable Long id,
+            @Valid @RequestBody ActualizarClienteDTO dto) {
+
         return clienteRepository.findById(id)
                 .map(cliente -> {
-                    if (dto.getNombre() != null) {
-                        cliente.setNombre(dto.getNombre());
+                    if (dto.getNombre() != null && !dto.getNombre().isBlank()) {
+                        cliente.setNombre(dto.getNombre().trim());
                     }
-                    if (dto.getDireccion() != null) {
-                        cliente.setDireccion(dto.getDireccion());
+                    if (dto.getDireccion() != null && !dto.getDireccion().isBlank()) {
+                        cliente.setDireccion(dto.getDireccion().trim());
                     }
                     if (dto.getFotoUrl() != null) {
                         String trimmed = dto.getFotoUrl().trim();
                         cliente.setFotoUrl(trimmed.isEmpty() ? null : trimmed);
                     }
+                    cliente.setTelefono(
+                            dto.getTelefono() != null && !dto.getTelefono().isBlank()
+                                    ? dto.getTelefono().trim()
+                                    : null);
+
+                    cliente.setCodigoPostal(
+                            dto.getCodigoPostal() != null && !dto.getCodigoPostal().isBlank()
+                                    ? dto.getCodigoPostal().trim()
+                                    : null);
+
+                    cliente.setCiudad(
+                            dto.getCiudad() != null && !dto.getCiudad().isBlank()
+                                    ? dto.getCiudad().trim()
+                                    : null);
 
                     clienteRepository.save(cliente);
                     return ResponseEntity.ok(cliente);

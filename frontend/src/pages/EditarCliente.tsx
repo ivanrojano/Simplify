@@ -1,21 +1,33 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, TextField, Typography, IconButton, CircularProgress, Fade, keyframes, } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  IconButton,
+  CircularProgress,
+  Fade,
+  keyframes,
+  InputAdornment,
+  Tooltip,
+} from "@mui/material";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
-import InputAdornment from "@mui/material/InputAdornment";
-import Tooltip from "@mui/material/Tooltip";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 import ImageIcon from "@mui/icons-material/Image";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PhoneIcon from "@mui/icons-material/Phone";
+import HomeIcon from "@mui/icons-material/Home";
+import LocationCityIcon from "@mui/icons-material/LocationCity";
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -28,6 +40,9 @@ type Cliente = {
   direccion: string;
   email: string;
   fotoUrl?: string | null;
+  telefono?: string;
+  codigoPostal?: string;
+  ciudad?: string;
 };
 
 const EditarCliente = () => {
@@ -36,7 +51,11 @@ const EditarCliente = () => {
     direccion: "",
     email: "",
     fotoUrl: "",
+    telefono: "",
+    codigoPostal: "",
+    ciudad: "",
   });
+
   const [loading, setLoading] = useState(true);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const navigate = useNavigate();
@@ -69,9 +88,13 @@ const EditarCliente = () => {
 
   const validateForm = () => {
     if (!form.nombre.trim()) return toast.error("El nombre es obligatorio.");
-    if (form.nombre.length > 20) return toast.error("El nombre no puede tener más de 20 caracteres.");
-    if (!form.direccion.trim() || form.direccion.length < 5) return toast.error("La dirección debe tener al menos 5 caracteres.");
+    if (form.nombre.length > 20)
+      return toast.error("El nombre no puede tener más de 20 caracteres.");
+    if (!form.direccion.trim() || form.direccion.length < 5)
+      return toast.error("La dirección debe tener al menos 5 caracteres.");
     if (!form.email.includes("@")) return toast.error("Email inválido.");
+    if (form.telefono && form.telefono.length < 7)
+      return toast.error("El teléfono debe tener al menos 7 dígitos.");
     return true;
   };
 
@@ -92,7 +115,10 @@ const EditarCliente = () => {
         toast.success("Perfil actualizado correctamente");
         setTimeout(() => navigate("/cliente"), 1500);
       })
-      .catch(() => toast.error("Error al guardar los cambios."));
+      .catch((error) => {
+        console.error(error.response?.data || error);
+        toast.error(error.response?.data?.mensaje || "Error al guardar los cambios.");
+      });
   };
 
   const confirmLogout = () => {
@@ -114,7 +140,6 @@ const EditarCliente = () => {
         bgcolor: "#ffffff",
         px: 2,
         py: 4,
-        fontFamily: "'Inter', system-ui, sans-serif",
         position: "relative",
         display: "flex",
         flexDirection: "column",
@@ -142,7 +167,7 @@ const EditarCliente = () => {
             right: 16,
             color: "#e74c3c",
             textTransform: "none",
-            fontWeight: 600
+            fontWeight: 600,
           }}
         >
           Cerrar Sesión
@@ -229,6 +254,54 @@ const EditarCliente = () => {
                 <InputAdornment position="start">
                   <Tooltip title="Correo electrónico">
                     <EmailIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Teléfono"
+            name="telefono"
+            value={form.telefono || ""}
+            onChange={handleChange}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Teléfono">
+                    <PhoneIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Código Postal"
+            name="codigoPostal"
+            value={form.codigoPostal || ""}
+            onChange={handleChange}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Código Postal">
+                    <HomeIcon sx={{ color: "#0d47a1" }} />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Ciudad"
+            name="ciudad"
+            value={form.ciudad || ""}
+            onChange={handleChange}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip title="Ciudad">
+                    <LocationCityIcon sx={{ color: "#0d47a1" }} />
                   </Tooltip>
                 </InputAdornment>
               ),
