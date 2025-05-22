@@ -13,9 +13,12 @@ import {
   InputLabel,
   IconButton,
   Tooltip,
+  Button,
 } from "@mui/material"
 import RefreshIcon from "@mui/icons-material/Refresh"
+import DeleteIcon from "@mui/icons-material/Delete"
 import axios from "axios"
+import ConfirmModalEliminarSolicitud from "../components/ConfirmModalEliminarSolicitud"
 
 interface Solicitud {
   id: number
@@ -52,6 +55,8 @@ const SolicitudesCliente = () => {
   const [busquedaEmpresa, setBusquedaEmpresa] = useState("")
   const [filtroFecha, setFiltroFecha] = useState("")
   const [rotating, setRotating] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [solicitudAEliminar, setSolicitudAEliminar] = useState<number | null>(null)
 
   const token = localStorage.getItem("token")
   const clienteId = localStorage.getItem("clienteId")
@@ -108,6 +113,20 @@ const SolicitudesCliente = () => {
     setTimeout(() => setRotating(false), 600)
   }
 
+  const handleConfirmEliminar = async () => {
+    if (!solicitudAEliminar || !token) return
+
+    try {
+      await axios.delete(`http://localhost:8080/api/solicitudes/${solicitudAEliminar}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setSolicitudes((prev) => prev.filter((s) => s.id !== solicitudAEliminar))
+      setModalOpen(false)
+    } catch (err) {
+      console.error("Error al eliminar la solicitud", err)
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -126,13 +145,7 @@ const SolicitudesCliente = () => {
         Historial y estado de todas tus solicitudes de servicio
       </Typography>
 
-      {/* Filtros */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={2}
-        mb={3}
-        alignItems="center"
-      >
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={3} alignItems="center">
         <FormControl fullWidth>
           <InputLabel>Estado</InputLabel>
           <Select
@@ -199,12 +212,7 @@ const SolicitudesCliente = () => {
         filteredSolicitudes.map((solicitud) => (
           <Paper key={solicitud.id} elevation={8} sx={{ p: 2, mb: 2 }}>
             <Stack spacing={1}>
-              {/* Línea 1: ID y Fecha */}
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-              >
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Typography fontWeight={700}>
                   SOL-{new Date(solicitud.fechaCreacion).getFullYear()}-{solicitud.id
                     .toString()
@@ -215,7 +223,6 @@ const SolicitudesCliente = () => {
                 </Typography>
               </Stack>
 
-              {/* Línea 2: Estado (Chip debajo del servicio) */}
               <Chip
                 label={solicitud.estado.toUpperCase()}
                 color={getChipColor(solicitud.estado)}
@@ -223,14 +230,34 @@ const SolicitudesCliente = () => {
                 sx={{ alignSelf: "flex-start", fontWeight: 600 }}
               />
 
-              {/* Línea 3: Empresa */}
               <Typography variant="body2" color="text.secondary">
                 Empresa: {solicitud.servicio.empresa.nombreEmpresa}
               </Typography>
+
+              {solicitud.estado === "FINALIZADA" && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={() => {
+                    setSolicitudAEliminar(solicitud.id)
+                    setModalOpen(true)
+                  }}
+                  sx={{ alignSelf: "flex-end", mt: 1 }}
+                >
+                  Eliminar
+                </Button>
+              )}
             </Stack>
           </Paper>
         ))
       )}
+
+      <ConfirmModalEliminarSolicitud
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmEliminar}
+      />
     </Box>
   )
 }

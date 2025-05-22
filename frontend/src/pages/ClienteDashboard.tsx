@@ -19,6 +19,7 @@ import PerfilCliente from "../components/PerfilCliente"
 import ServiciosCliente from "../components/ServiciosClientes"
 import SolicitudesCliente from "../components/SolicitudesClientes"
 import ResumenCliente from "../components/ResumenCliente"
+import MensajesCliente from "../components/MensajesClientes"
 
 interface Cliente {
   id: number
@@ -178,7 +179,6 @@ const ClienteDashboard = () => {
               <Tab label="Servicios" />
               <Tab label="Solicitudes" />
               <Tab label="Mensajes" />
-
             </Tabs>
           </Box>
         </Box>
@@ -209,6 +209,8 @@ const ClienteDashboard = () => {
           {tabValue === 2 && <ServiciosCliente />}
 
           {tabValue === 3 && <SolicitudesCliente />}
+
+          {tabValue === 4 && <MensajesCliente />}
         </Box>
 
         {/* Botón cerrar sesión (mobile) */}
