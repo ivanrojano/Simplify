@@ -88,12 +88,12 @@ const ResumenCliente = ({ nombre, solicitudes, onVerSolicitudes }: Props) => {
                 mb: 4,
             }}
         >
-            <Typography variant="h6" fontWeight={900} mb={3}>
+            <Typography variant="h6" fontWeight={900} mb={1}>
                 ¡Hola, {nombre}!
             </Typography>
 
-            <Typography variant="subtitle1" fontWeight={700} mb={3}>
-                Resumen de tu Panel
+            <Typography variant="body2" color="text.secondary" mb={3}>
+                Resumen de tu panel
             </Typography>
 
             {/* Tarjetas de estado */}

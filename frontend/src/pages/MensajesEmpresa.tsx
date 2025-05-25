@@ -151,7 +151,7 @@ const MensajesEmpresa = () => {
       {/* Botón volver */}
       <Fade in timeout={600}>
         <IconButton
-          onClick={() => navigate("/empresa/solicitudes")}
+          onClick={() => navigate("/empresa")}
           sx={{
             position: "fixed",
             top: 16,

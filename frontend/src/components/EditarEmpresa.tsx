@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 import {
   Box,
   Button,
@@ -9,35 +9,55 @@ import {
   IconButton,
   CircularProgress,
   Fade,
+  Snackbar,
+  Alert,
   keyframes,
-} from "@mui/material";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+} from "@mui/material"
 
-import ConfirmModalLogout from "../components/ConfirmModalLogout";
+import ConfirmModalLogout from "../components/ConfirmModalLogout"
 
-import BusinessIcon from "@mui/icons-material/Business";
-import DescriptionIcon from "@mui/icons-material/Description";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import ImageIcon from "@mui/icons-material/Image";
-import InputAdornment from "@mui/material/InputAdornment";
-import Tooltip from "@mui/material/Tooltip";
-import LogoutIcon from "@mui/icons-material/Logout";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import BusinessIcon from "@mui/icons-material/Business"
+import DescriptionIcon from "@mui/icons-material/Description"
+import LocationOnIcon from "@mui/icons-material/LocationOn"
+import ImageIcon from "@mui/icons-material/Image"
+import InputAdornment from "@mui/material/InputAdornment"
+import Tooltip from "@mui/material/Tooltip"
+import LogoutIcon from "@mui/icons-material/Logout"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
+import FingerprintIcon from "@mui/icons-material/Fingerprint"
+import PhoneIcon from "@mui/icons-material/Phone"
+import AccessTimeIcon from "@mui/icons-material/AccessTime"
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt"
+import ApartmentIcon from "@mui/icons-material/Apartment"
+import HomeIcon from "@mui/icons-material/Home"
+import LocationCityIcon from "@mui/icons-material/LocationCity"
+import MapIcon from "@mui/icons-material/Map"
+import PublicIcon from "@mui/icons-material/Public"
+import LanguageIcon from "@mui/icons-material/Language"
 
 
 type Empresa = {
-  nombreEmpresa: string;
-  descripcion: string;
-  direccion: string;
-  fotoUrl?: string | null;
-};
+  nombreEmpresa: string
+  descripcion: string
+  direccion: string
+  fotoUrl?: string | null
+  nif?: string
+  telefono?: string
+  horarioAtencion?: string
+  numeroEmpleados?: number
+  tipoEmpresa?: string
+  codigoPostal?: string
+  ciudad?: string
+  provincia?: string
+  pais?: string
+  sitioWeb?: string
+}
 
 const pulse = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.12); }
   100% { transform: scale(1); }
-`;
+`
 
 const EditarEmpresa = () => {
   const [form, setForm] = useState<Empresa>({
@@ -45,106 +65,88 @@ const EditarEmpresa = () => {
     descripcion: "",
     direccion: "",
     fotoUrl: "",
-  });
+    nif: "",
+    telefono: "",
+    horarioAtencion: "",
+    numeroEmpleados: undefined,
+    tipoEmpresa: "",
+    codigoPostal: "",
+    ciudad: "",
+    provincia: "",
+    pais: "",
+    sitioWeb: "",
+  })
 
-  const [loading, setLoading] = useState(true);
-  const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [loading, setLoading] = useState(true)
+  const [logoutConfirm, setLogoutConfirm] = useState(false)
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" })
 
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const empresaId = localStorage.getItem("empresaId");
+  const navigate = useNavigate()
+  const token = localStorage.getItem("token")
+  const empresaId = localStorage.getItem("empresaId")
 
   useEffect(() => {
     if (!token || !empresaId) {
-      navigate("/login");
-      return;
+      navigate("/login")
+      return
     }
 
-    const headers = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
+    const headers = { headers: { Authorization: `Bearer ${token}` } }
 
     axios
       .get<Empresa>(`http://localhost:8080/api/empresas/${empresaId}`, headers)
       .then((res) => {
-        setForm(res.data);
-        setLoading(false);
+        setForm(res.data)
+        setLoading(false)
       })
       .catch((err) => {
-        console.error("Error al cargar empresa:", err);
-        toast.error("Error al cargar el perfil.");
-        navigate("/empresa");
-      });
-  }, [token, empresaId, navigate]);
+        console.error("Error al cargar empresa:", err)
+        setSnackbar({ open: true, message: "Error al cargar el perfil", severity: "error" })
+        navigate("/empresa")
+      })
+  }, [token, empresaId, navigate])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const validateForm = (): boolean => {
-    const { nombreEmpresa, descripcion, direccion } = form;
-
-    if (!nombreEmpresa.trim()) {
-      toast.error("El nombre es obligatorio");
-      return false;
-    }
-
-    if (nombreEmpresa.length > 20) {
-      toast.error("El nombre no puede tener más de 20 caracteres");
-      return false;
-    }
-
-    if (!descripcion.trim() || descripcion.length < 10) {
-      toast.error("La descripción debe tener al menos 10 caracteres");
-      return false;
-    }
-
-    if (!direccion.trim() || direccion.length < 5) {
-      toast.error("La dirección debe tener al menos 5 caracteres");
-      return false;
-    }
-
-    return true;
-  };
+    const { name, value } = e.target
+    setForm({ ...form, [name]: name === "numeroEmpleados" ? parseInt(value) || 0 : value })
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+    e.preventDefault()
 
-    const headers = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
+    const headers = { headers: { Authorization: `Bearer ${token}` } }
 
     const dataToSend = {
       ...form,
       fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl,
-    };
+    }
 
     axios
       .put(`http://localhost:8080/api/empresas/${empresaId}`, dataToSend, headers)
       .then(() => {
-        toast.success("Perfil actualizado correctamente");
-        setTimeout(() => navigate("/empresa"), 2000);
+        setSnackbar({ open: true, message: "Perfil actualizado correctamente", severity: "success" })
+        setTimeout(() => navigate("/empresa"), 2000)
       })
       .catch((err) => {
-        console.error("Error al actualizar empresa:", err);
-        toast.error("Error al guardar los cambios.");
-      });
-  };
+        console.error("Error al actualizar empresa:", err)
+        setSnackbar({ open: true, message: "Error al guardar los cambios", severity: "error" })
+      })
+  }
 
   const confirmLogout = () => {
-    localStorage.clear();
-    navigate("/");
-  };
+    localStorage.clear()
+    navigate("/")
+  }
 
-  if (loading)
+  if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
         <CircularProgress color="primary" />
       </Box>
-    );
+    )
+  }
 
   return (
     <Box
@@ -181,7 +183,7 @@ const EditarEmpresa = () => {
             right: 16,
             color: "#e74c3c",
             textTransform: "none",
-            fontWeight: 600
+            fontWeight: 600,
           }}
         >
           Cerrar Sesión
@@ -218,79 +220,44 @@ const EditarEmpresa = () => {
             flexDirection: "column",
             gap: 3,
             width: "100%",
-            maxWidth: 500,
+            maxWidth: 600,
           }}
         >
-          <TextField
-            label="Nombre de la Empresa"
-            name="nombreEmpresa"
-            value={form.nombreEmpresa}
-            onChange={handleChange}
-            fullWidth
-            required
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Nombre de la Empresa">
-                    <BusinessIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Descripción"
-            name="descripcion"
-            value={form.descripcion}
-            onChange={handleChange}
-            fullWidth
-            required
-            multiline
-            minRows={3}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Descripción de la empresa">
-                    <DescriptionIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Dirección"
-            name="direccion"
-            value={form.direccion}
-            onChange={handleChange}
-            fullWidth
-            required
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Dirección física">
-                    <LocationOnIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Foto de Perfil (URL)"
-            name="fotoUrl"
-            value={form.fotoUrl || ""}
-            onChange={handleChange}
-            fullWidth
-            placeholder="https://cdn.ejemplo.com/logo.png"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="URL de la imagen">
-                    <ImageIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
+          {[
+            { label: "Nombre de la Empresa", name: "nombreEmpresa", icon: <BusinessIcon /> },
+            { label: "Descripción", name: "descripcion", icon: <DescriptionIcon />, multiline: true },
+            { label: "Dirección", name: "direccion", icon: <LocationOnIcon /> },
+            { label: "Foto de Perfil (URL)", name: "fotoUrl", icon: <ImageIcon /> },
+            { label: "NIF", name: "nif", icon: <FingerprintIcon /> },
+            { label: "Teléfono", name: "telefono", icon: <PhoneIcon /> },
+            { label: "Horario de Atención", name: "horarioAtencion", icon: <AccessTimeIcon /> },
+            { label: "Número de Empleados", name: "numeroEmpleados", type: "number", icon: <PeopleAltIcon /> },
+            { label: "Tipo de Empresa", name: "tipoEmpresa", icon: <ApartmentIcon /> },
+            { label: "Código Postal", name: "codigoPostal", icon: <HomeIcon /> },
+            { label: "Ciudad", name: "ciudad", icon: <LocationCityIcon /> },
+            { label: "Provincia", name: "provincia", icon: <MapIcon /> },
+            { label: "País", name: "pais", icon: <PublicIcon /> },
+            { label: "Sitio Web", name: "sitioWeb", icon: <LanguageIcon /> },
+          ].map(({ label, name, icon, multiline, type }) => (
+            <TextField
+              key={name}
+              label={label}
+              name={name}
+              value={(form as any)[name] || ""}
+              onChange={handleChange}
+              fullWidth
+              multiline={multiline}
+              type={type || "text"}
+              InputProps={{
+                startAdornment: icon ? (
+                  <InputAdornment position="start">
+                    <Tooltip title={label}>{icon}</Tooltip>
+                  </InputAdornment>
+                ) : undefined,
+              }}
+            />
+          ))}
+
           <Button
             variant="contained"
             type="submit"
@@ -307,22 +274,36 @@ const EditarEmpresa = () => {
             Guardar cambios
           </Button>
         </Box>
-
       </Fade>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity as "success" | "error"}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       {logoutConfirm && (
         <ConfirmModalLogout
           onCancel={() => setLogoutConfirm(false)}
           onConfirm={() => {
-            confirmLogout();
-            setLogoutConfirm(false);
+            confirmLogout()
+            setLogoutConfirm(false)
           }}
         />
       )}
-
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </Box>
-  );
-};
+  )
+}
 
-export default EditarEmpresa;
+export default EditarEmpresa

@@ -2,8 +2,6 @@ import { useState, useContext } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
@@ -18,11 +16,15 @@ import {
   useMediaQuery,
   InputAdornment,
   Tooltip,
+  Snackbar,
+  Alert as MuiAlert,
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
 
 interface AuthResponse {
   token: string;
@@ -55,6 +57,10 @@ const Login = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -77,7 +83,9 @@ const Login = () => {
         localStorage.setItem("clienteId", id.toString());
       }
 
-      toast.success(`Bienvenido ${decoded.sub} (rol: ${rol})`);
+      setSnackbarMessage(`Bienvenido ${decoded.sub} (rol: ${rol})`);
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
 
       switch (rol) {
         case "CLIENTE":
@@ -94,7 +102,9 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error de login:", error);
-      toast.error("Credenciales incorrectas o error del servidor");
+      setSnackbarMessage("Credenciales incorrectas o error del servidor");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
 
@@ -247,7 +257,34 @@ const Login = () => {
         </Typography>
       </Fade>
 
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <MuiAlert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          elevation={6}
+          variant="filled"
+          iconMapping={{
+            success: <CheckCircleIcon sx={{ color: "#0d47a1", fontSize: 28 }} />,
+            error: <ErrorIcon sx={{ color: "#0d47a1", fontSize: 28 }} />,
+          }}
+          sx={{
+            backgroundColor: "#e3f2fd",
+            color: "#0d47a1",
+            fontWeight: 600,
+            fontSize: "1rem",
+            px: 3,
+            py: 2.5,
+            minWidth: "300px",
+          }}
+        >
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
     </Box>
   );
 };

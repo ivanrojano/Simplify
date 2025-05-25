@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   Box,
   Button,
@@ -13,6 +11,8 @@ import {
   keyframes,
   InputAdornment,
   Tooltip,
+  Snackbar,
+  Alert as MuiAlert,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -20,6 +20,8 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import DescriptionIcon from "@mui/icons-material/Description";
 import EuroIcon from "@mui/icons-material/Euro";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
 
 interface Servicio {
   id: number;
@@ -27,7 +29,6 @@ interface Servicio {
   descripcion: string;
   precio: number;
 }
-
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -40,6 +41,10 @@ const EditarServicio = () => {
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState<number | "">("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -61,30 +66,35 @@ const EditarServicio = () => {
           setDescripcion(servicio.descripcion);
           setPrecio(servicio.precio);
         } else {
-          toast.error("Servicio no encontrado");
+          mostrarSnackbar("Servicio no encontrado", "error");
           navigate("/empresa");
         }
       })
       .catch(() => {
-        toast.error("Error al cargar el servicio");
+        mostrarSnackbar("Error al cargar el servicio", "error");
         navigate("/empresa");
       });
-
   }, [id, navigate, token]);
+
+  const mostrarSnackbar = (mensaje: string, tipo: "success" | "error") => {
+    setSnackbarMessage(mensaje);
+    setSnackbarSeverity(tipo);
+    setSnackbarOpen(true);
+  };
 
   const validarCampos = (): boolean => {
     if (!nombre.trim() || nombre.length < 5 || nombre.length > 40) {
-      toast.error("El nombre debe tener entre 5 y 40 caracteres.");
+      mostrarSnackbar("El nombre debe tener entre 5 y 40 caracteres.", "error");
       return false;
     }
 
     if (!descripcion.trim() || descripcion.length < 10 || descripcion.length > 200) {
-      toast.error("La descripción debe tener entre 10 y 200 caracteres.");
+      mostrarSnackbar("La descripción debe tener entre 10 y 200 caracteres.", "error");
       return false;
     }
 
     if (precio === "" || isNaN(Number(precio)) || Number(precio) <= 0) {
-      toast.error("El precio debe ser un número positivo.");
+      mostrarSnackbar("El precio debe ser un número positivo.", "error");
       return false;
     }
 
@@ -102,10 +112,10 @@ const EditarServicio = () => {
         { nombre, descripcion, precio },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Servicio actualizado correctamente");
+      mostrarSnackbar("Servicio actualizado correctamente", "success");
       setTimeout(() => navigate("/empresa"), 2000);
     } catch (error) {
-      toast.error("Error al actualizar el servicio");
+      mostrarSnackbar("Error al actualizar el servicio", "error");
     }
   };
 
@@ -261,6 +271,35 @@ const EditarServicio = () => {
         </Box>
       </Fade>
 
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <MuiAlert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          elevation={6}
+          variant="filled"
+          iconMapping={{
+            success: <CheckCircleIcon sx={{ color: "#0d47a1", fontSize: 28 }} />,
+            error: <ErrorIcon sx={{ color: "#0d47a1", fontSize: 28 }} />,
+          }}
+          sx={{
+            backgroundColor: "#e3f2fd",
+            color: "#0d47a1",
+            fontWeight: 600,
+            fontSize: "1rem",
+            px: 3,
+            py: 2.5,
+            minWidth: "300px",
+          }}
+        >
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
+
       {logoutConfirm && (
         <ConfirmModalLogout
           onCancel={() => setLogoutConfirm(false)}
@@ -270,8 +309,6 @@ const EditarServicio = () => {
           }}
         />
       )}
-
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </Box>
   );
 };
