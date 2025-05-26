@@ -10,23 +10,30 @@ import {
   CircularProgress,
   Tooltip,
   TextField,
+  Avatar,
 } from "@mui/material"
 
-import MuiAlert from "@mui/material/Alert";
+import MuiAlert from "@mui/material/Alert"
 
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import ConfirmModalEliminar from "./ConfirmModalEliminar"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorIcon from "@mui/icons-material/Error";
-import ServicioForm from "./ServicioFormulario" 
-import RefreshIcon from "@mui/icons-material/Refresh";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import ErrorIcon from "@mui/icons-material/Error"
+import ServicioForm from "./ServicioFormulario"
+import RefreshIcon from "@mui/icons-material/Refresh"
+import { useNavigate } from "react-router-dom"
 
 interface Servicio {
   id: number
   nombre: string
   descripcion: string
   precio: number
+  empresa: {
+    id: number
+    nombreEmpresa: string
+    fotoUrl?: string
+  }
 }
 
 const ListaServicios = () => {
@@ -45,6 +52,8 @@ const ListaServicios = () => {
 
   const empresaId = localStorage.getItem("empresaId")
   const token = localStorage.getItem("token")
+
+  const navigate = useNavigate()
 
   const fetchServicios = async () => {
     try {
@@ -69,7 +78,7 @@ const ListaServicios = () => {
         `http://localhost:8080/api/servicios/${servicioSeleccionado.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
-      setServicios((prev) => prev.filter(s => s.id !== servicioSeleccionado.id))
+      setServicios((prev) => prev.filter((s) => s.id !== servicioSeleccionado.id))
       setSnackbarMessage("Servicio eliminado correctamente")
       setSnackbarSeverity("success")
     } catch {
@@ -82,9 +91,9 @@ const ListaServicios = () => {
   }
 
   const actualizarServicio = (servicioActualizado: Servicio) => {
-    setServicios(prev => prev.map(s =>
-      s.id === servicioActualizado.id ? servicioActualizado : s
-    ))
+    setServicios((prev) =>
+      prev.map((s) => (s.id === servicioActualizado.id ? servicioActualizado : s))
+    )
     setEditandoId(null)
     setSnackbarMessage("Servicio actualizado correctamente")
     setSnackbarSeverity("success")
@@ -101,7 +110,7 @@ const ListaServicios = () => {
     fetchServicios()
   }, [])
 
-  const serviciosFiltrados = servicios.filter(servicio =>
+  const serviciosFiltrados = servicios.filter((servicio) =>
     servicio.nombre.toLowerCase().includes(busqueda.toLowerCase())
   )
 
@@ -157,7 +166,7 @@ const ListaServicios = () => {
               fontSize: 22,
             }}
           >
-            <RefreshIcon></RefreshIcon>
+            <RefreshIcon />
           </IconButton>
         </Tooltip>
       </Stack>
@@ -173,15 +182,7 @@ const ListaServicios = () => {
       ) : (
         <Stack spacing={2} width="100%">
           {serviciosFiltrados.map((servicio) => (
-            <Paper
-              key={servicio.id}
-              sx={{
-                p: 2,
-                borderRadius: 3,
-                boxShadow: 5,
-              }}
-              elevation={2}
-            >
+            <Paper key={servicio.id} sx={{ p: 2, borderRadius: 3, boxShadow: 5 }} elevation={2}>
               {editandoId === servicio.id ? (
                 <ServicioForm
                   servicio={servicio}
@@ -190,20 +191,49 @@ const ListaServicios = () => {
                 />
               ) : (
                 <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight={900}>
-                      {servicio.nombre}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" mt={0.5}>
-                      {servicio.descripcion}
-                    </Typography>
-                    <Typography variant="body2" fontWeight={600} mt={1}>
-                      Precio Estimado: {new Intl.NumberFormat("es-ES", {
-                        style: "currency",
-                        currency: "EUR",
-                      }).format(servicio.precio)}
-                    </Typography>
-                  </Box>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    {/* Avatar empresa */}
+                    <Tooltip title="Ver perfil de la empresa">
+                      <Avatar
+                        src={servicio.empresa.fotoUrl || undefined}
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          bgcolor: "#0d47a1",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => navigate(`/empresa/ver/${servicio.empresa.id}`)}
+                      >
+                        {!servicio.empresa.fotoUrl
+                          ? servicio.empresa.nombreEmpresa.charAt(0).toUpperCase()
+                          : null}
+                      </Avatar>
+                    </Tooltip>
+
+                    <Box>
+                      <Tooltip title="Ver perfil de la empresa">
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={900}
+                          sx={{ cursor: "pointer" }}
+                          onClick={() => navigate(`/empresa/ver/${servicio.empresa.id}`)}
+                        >
+                          {servicio.nombre}
+                        </Typography>
+                      </Tooltip>
+                      <Typography variant="body2" color="text.secondary" mt={0.5}>
+                        {servicio.descripcion}
+                      </Typography>
+                      <Typography variant="body2" fontWeight={600} mt={1}>
+                        Precio Estimado:{" "}
+                        {new Intl.NumberFormat("es-ES", {
+                          style: "currency",
+                          currency: "EUR",
+                        }).format(servicio.precio)}
+                      </Typography>
+                    </Box>
+                  </Stack>
 
                   <Stack direction="row" spacing={1}>
                     <Tooltip title="Editar servicio">

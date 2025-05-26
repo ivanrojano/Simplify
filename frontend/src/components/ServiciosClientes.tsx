@@ -11,6 +11,7 @@ import {
   CircularProgress,
   Snackbar,
   TextField,
+  Tooltip,
 } from "@mui/material"
 
 import BusinessIcon from "@mui/icons-material/Business"
@@ -21,6 +22,7 @@ import MuiAlert from "@mui/material/Alert"
 import type { AlertColor } from "@mui/material/Alert"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import ErrorIcon from "@mui/icons-material/Error"
+import { useNavigate } from "react-router-dom"
 
 interface Servicio {
   id: number
@@ -56,13 +58,13 @@ const ServiciosCliente = () => {
   const [enviandoSolicitudId, setEnviandoSolicitudId] = useState<number | null>(null)
 
   const [filtro, setFiltro] = useState("")
-
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success")
 
   const token = localStorage.getItem("token")
   const clienteId = localStorage.getItem("clienteId")
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!token || !clienteId) return
@@ -114,8 +116,11 @@ const ServiciosCliente = () => {
   }
 
   const yaSolicitado = (servicioId: number) => {
-    const solicitud = solicitudes.find((s) => s.servicioId === servicioId)
-    return solicitud && solicitud.estado !== "FINALIZADA" && solicitud.estado !== "RECHAZADA"
+    return solicitudes.some(
+      (s) =>
+        s.servicioId === servicioId &&
+        (s.estado === "PENDIENTE" || s.estado === "ACEPTADA")
+    )
   }
 
   const showSnackbar = (message: string, severity: AlertColor) => {
@@ -165,28 +170,28 @@ const ServiciosCliente = () => {
           No se encontraron servicios.
         </Typography>
       ) : (
-        <>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-              gap: 3,
-            }}
-          >
-            {serviciosFiltrados.slice(0, 6).map((servicio) => {
-              const empresa = servicio.empresa
-              const hasFoto = empresa.fotoUrl?.trim()
-              const isSolicitado = yaSolicitado(servicio.id)
-              const isEnviando = enviandoSolicitudId === servicio.id
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: 3,
+          }}
+        >
+          {serviciosFiltrados.map((servicio) => {
+            const empresa = servicio.empresa
+            const hasFoto = empresa.fotoUrl?.trim()
+            const isSolicitado = yaSolicitado(servicio.id)
+            const isEnviando = enviandoSolicitudId === servicio.id
 
-              return (
-                <Paper key={servicio.id} elevation={8} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3 }}>
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={2}
-                    alignItems={{ xs: "flex-start", sm: "center" }}
-                    mb={2}
-                  >
+            return (
+              <Paper key={servicio.id} elevation={8} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3 }}>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                  alignItems={{ xs: "flex-start", sm: "center" }}
+                  mb={2}
+                >
+                  <Tooltip title="Ver perfil de la empresa">
                     <Avatar
                       src={hasFoto ? empresa.fotoUrl! : undefined}
                       sx={{
@@ -195,75 +200,90 @@ const ServiciosCliente = () => {
                         bgcolor: "#0d47a1",
                         fontSize: 32,
                         fontWeight: 600,
+                        cursor: "pointer",
                       }}
+                      onClick={() => navigate(`/empresa/ver/${empresa.id}`)}
                     >
                       {!hasFoto && empresa.nombreEmpresa.charAt(0).toUpperCase()}
                     </Avatar>
+                  </Tooltip>
 
-                    <Box>
-                      <Typography variant="h6" fontWeight={700} color="#0d47a1">
-                        {servicio.nombre}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {servicio.descripcion}
-                      </Typography>
-                      <Typography variant="body1" fontWeight={600}>
-                        Precio: {new Intl.NumberFormat("es-ES", {
-                          style: "currency",
-                          currency: "EUR",
-                        }).format(servicio.precio)}
-                      </Typography>
-                    </Box>
-                  </Stack>
+                  <Box>
+                    <Typography variant="h6" fontWeight={700} color="#0d47a1">
+                      {servicio.nombre}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      {servicio.descripcion}
+                    </Typography>
+                    <Typography variant="body1" fontWeight={600}>
+                      Precio: {new Intl.NumberFormat("es-ES", {
+                        style: "currency",
+                        currency: "EUR",
+                      }).format(servicio.precio)}
+                    </Typography>
+                  </Box>
+                </Stack>
 
-                  <Divider sx={{ my: 2 }} />
+                <Divider sx={{ my: 2 }} />
 
-                  <Stack spacing={1} mb={2}>
-                    <Typography>
+                <Stack spacing={1} mb={2}>
+                  <Tooltip title="Ver perfil de la empresa">
+                    <Typography
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => navigate(`/empresa/ver/${empresa.id}`)}
+                    >
                       <BusinessIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
                       <strong>Empresa:</strong> {empresa.nombreEmpresa}
                     </Typography>
-                    <Typography>
-                      <LocationOnIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
-                      <strong>Dirección:</strong> {empresa.direccion}
-                    </Typography>
-                    <Typography>
-                      <EmailIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
-                      <strong>Email:</strong> {empresa.email}
-                    </Typography>
-                    <Typography>
-                      <DescriptionIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
-                      <strong>Descripción:</strong> {empresa.descripcion}
-                    </Typography>
-                  </Stack>
+                  </Tooltip>
+                  <Typography>
+                    <LocationOnIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+                    <strong>Dirección:</strong> {empresa.direccion}
+                  </Typography>
+                  <Typography>
+                    <EmailIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+                    <strong>Email:</strong> {empresa.email}
+                  </Typography>
+                  <Typography>
+                    <DescriptionIcon fontSize="small" sx={{ mr: 1, color: "#0d47a1" }} />
+                    <strong>Descripción:</strong> {empresa.descripcion}
+                  </Typography>
+                </Stack>
 
-                  <Button
-                    variant="contained"
-                    onClick={() => solicitarServicio(servicio.id)}
-                    disabled={isSolicitado || isEnviando}
-                    sx={{
-                      px: 5,
-                      py: 1,
-                      bgcolor: "#0d47a1",
-                      fontWeight: 500,
-                      fontSize: "0.95rem",
-                      borderRadius: 2,
-                      textTransform: "none",
-                      alignSelf: "flex-start",
-                      "&:hover": { bgcolor: "#1565c0" },
-                    }}
-                  >
-                    {isSolicitado
-                      ? "Ya solicitaste este servicio"
-                      : isEnviando
-                      ? "Enviando..."
-                      : "Solicitar servicio"}
-                  </Button>
-                </Paper>
-              )
-            })}
-          </Box>
-        </>
+                <Tooltip
+                  title={
+                    isSolicitado ? "Ya tienes una solicitud pendiente o aceptada" : "Solicitar servicio"
+                  }
+                >
+                  <span>
+                    <Button
+                      variant="contained"
+                      onClick={() => solicitarServicio(servicio.id)}
+                      disabled={isSolicitado || isEnviando}
+                      sx={{
+                        px: 5,
+                        py: 1,
+                        bgcolor: "#0d47a1",
+                        fontWeight: 500,
+                        fontSize: "0.95rem",
+                        borderRadius: 2,
+                        textTransform: "none",
+                        alignSelf: "flex-start",
+                        "&:hover": { bgcolor: "#1565c0" },
+                      }}
+                    >
+                      {isSolicitado
+                        ? "Ya solicitado"
+                        : isEnviando
+                        ? "Enviando..."
+                        : "Solicitar servicio"}
+                    </Button>
+                  </span>
+                </Tooltip>
+              </Paper>
+            )
+          })}
+        </Box>
       )}
 
       <Snackbar

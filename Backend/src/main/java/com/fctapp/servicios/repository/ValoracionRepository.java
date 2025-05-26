@@ -8,6 +8,9 @@ import com.fctapp.servicios.entity.Valoracion;
 
 public interface ValoracionRepository extends JpaRepository<Valoracion, Long> {
     List<Valoracion> findByEmpresaId(Long empresaId);
-        Optional<Valoracion> findBySolicitudId(Long solicitudId); 
+
+    Optional<Valoracion> findBySolicitudId(Long solicitudId);
+
+    List<Valoracion> findBySolicitudServicioEmpresaId(Long empresaId);
 
 }

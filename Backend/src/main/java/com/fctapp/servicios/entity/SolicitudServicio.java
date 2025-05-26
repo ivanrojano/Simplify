@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @JsonIgnoreProperties
 public class SolicitudServicio {
@@ -16,11 +19,12 @@ public class SolicitudServicio {
     private Long id;
 
     @ManyToOne
-    @JsonIgnoreProperties({"solicitudes"})
+    @JsonIgnoreProperties({ "solicitudes" })
     private Cliente cliente;
 
     @ManyToOne
-    @JsonIgnoreProperties({"solicitudes"})
+    @JsonIgnoreProperties({ "solicitudes" })
+    @OnDelete(action = OnDeleteAction.CASCADE) 
     private Servicio servicio;
 
     @Enumerated(EnumType.STRING)
@@ -28,13 +32,21 @@ public class SolicitudServicio {
 
     private LocalDateTime fechaCreacion;
 
+    @Column(nullable = false)
+    private boolean valorada = false;
+
     @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("solicitud")
     private List<Mensaje> mensajes = new ArrayList<>();
 
-    public SolicitudServicio() {}
+    @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Valoracion> valoraciones;
 
-    public SolicitudServicio(Long id, Cliente cliente, Servicio servicio, EstadoSolicitud estado, LocalDateTime fechaCreacion) {
+    public SolicitudServicio() {
+    }
+
+    public SolicitudServicio(Long id, Cliente cliente, Servicio servicio, EstadoSolicitud estado,
+            LocalDateTime fechaCreacion) {
         this.id = id;
         this.cliente = cliente;
         this.servicio = servicio;
@@ -91,4 +103,13 @@ public class SolicitudServicio {
     public void setMensajes(List<Mensaje> mensajes) {
         this.mensajes = mensajes;
     }
+
+    public boolean isValorada() {
+        return valorada;
+    }
+
+    public void setValorada(boolean valorada) {
+        this.valorada = valorada;
+    }
+
 }

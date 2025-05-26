@@ -5,18 +5,19 @@ import {
   CircularProgress,
   Stack,
   Chip,
+  Paper,
+  Rating
 } from "@mui/material"
 import axios from "axios"
 
-import BusinessIcon from "@mui/icons-material/Business"
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt"
-import LanguageIcon from "@mui/icons-material/Language"
+import AccessTimeIcon from "@mui/icons-material/AccessTime"
+import MailOutlineIcon from "@mui/icons-material/MailOutline"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 
 interface EmpresaProps {
   nombreEmpresa: string
   numeroEmpleados: number
   sitioWeb?: string
-  tipoEmpresa?: string
 }
 
 interface Servicio {
@@ -37,11 +38,52 @@ interface Solicitud {
   }
 }
 
+interface Valoracion {
+  estrellas: number
+  comentario: string
+  nombreCliente: string
+  nombreServicio: string
+  fecha: string
+}
+
+
+
 const ResumenEmpresa: FC = () => {
   const [empresa, setEmpresa] = useState<EmpresaProps | null>(null)
   const [servicios, setServicios] = useState<Servicio[]>([])
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState(true)
+  const [valoraciones, setValoraciones] = useState<Valoracion[]>([])
+
+  const getChipColor = (estado: string) => {
+    switch (estado) {
+      case "PENDIENTE":
+        return "warning"
+      case "ACEPTADA":
+        return "info"
+      case "FINALIZADA":
+        return "success"
+      case "RECHAZADA":
+        return "error"
+      default:
+        return "default"
+    }
+  }
+
+  const getCardBgColor = (estado: string) => {
+    switch (estado) {
+      case "FINALIZADA":
+        return "#e8f5e9"
+      case "ACEPTADA":
+        return "#e3f2fd"
+      case "PENDIENTE":
+        return "#fffde7"
+      case "RECHAZADA":
+        return "#ffebee"
+      default:
+        return "#f5f5f5"
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -52,7 +94,11 @@ const ResumenEmpresa: FC = () => {
       return
     }
 
-    const headers = { headers: { Authorization: `Bearer ${token}` } }
+    const headers = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
 
     axios
       .get<EmpresaProps>(`http://localhost:8080/api/empresas/${empresaId}`, headers)
@@ -61,7 +107,7 @@ const ResumenEmpresa: FC = () => {
         setLoading(false)
       })
       .catch((err) => {
-        console.error("Error al cargar empresa:", err)
+        console.error("Error al cargar la empresa:", err)
         setLoading(false)
       })
 
@@ -77,13 +123,22 @@ const ResumenEmpresa: FC = () => {
     axios
       .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/empresa/${empresaId}`, headers)
       .then((res) => {
-        const recientes = res.data
-          .sort((a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime())
-          .slice(0, 3)
-        setSolicitudes(recientes)
+        setSolicitudes(res.data)
       })
       .catch((err) => {
         console.error("Error al cargar solicitudes:", err)
+      })
+
+    axios
+      .get<Valoracion[]>(`http://localhost:8080/api/valoraciones/empresa/${empresaId}`, headers)
+      .then((res) => {
+        const recientes = res.data
+          .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+          .slice(0, 2)
+        setValoraciones(recientes)
+      })
+      .catch((err) => {
+        console.error("Error al cargar valoraciones:", err)
       })
   }, [])
 
@@ -97,21 +152,31 @@ const ResumenEmpresa: FC = () => {
 
   if (!empresa) return null
 
-  const empresaCards = [
+  const pendientes = solicitudes.filter((s) => s.estado === "PENDIENTE")
+  const aceptadas = solicitudes.filter((s) => s.estado === "ACEPTADA")
+  const finalizadas = solicitudes.filter((s) => s.estado === "FINALIZADA")
+
+  const cards = [
     {
-      title: "Nombre de Empresa",
-      value: empresa.nombreEmpresa || "Sin datos",
-      icon: <BusinessIcon sx={{ color: "#0d47a1", fontSize: 36 }} />,
+      title: "Pendientes",
+      count: pendientes.length,
+      icon: <AccessTimeIcon sx={{ color: "#fbc02d", fontSize: 36 }} />,
+      color: "#fffde7",
+      descripcion: "Servicios en Proceso",
     },
     {
-      title: "Empleados",
-      value: empresa.numeroEmpleados?.toString() || "Sin datos",
-      icon: <PeopleAltIcon sx={{ color: "#0d47a1", fontSize: 36 }} />,
+      title: "Aceptadas",
+      count: aceptadas.length,
+      icon: <MailOutlineIcon sx={{ color: "#1976d2", fontSize: 36 }} />,
+      color: "#e3f2fd",
+      descripcion: "Servicios Aceptados",
     },
     {
-      title: "Sitio Web",
-      value: empresa.sitioWeb || "Sin datos",
-      icon: <LanguageIcon sx={{ color: "#0d47a1", fontSize: 36 }} />,
+      title: "Finalizadas",
+      count: finalizadas.length,
+      icon: <CheckCircleIcon sx={{ color: "#2e7d32", fontSize: 36 }} />,
+      color: "#e8f5e9",
+      descripcion: "Servicios Finalizados",
     },
   ]
 
@@ -127,44 +192,42 @@ const ResumenEmpresa: FC = () => {
       }}
     >
       <Typography variant="h6" fontWeight={900} mb={1}>
-        ¡Hola, {empresa.nombreEmpresa || "Empresa"}!
+        ¡Hola, {empresa.nombreEmpresa}!
       </Typography>
 
       <Typography variant="body2" color="text.secondary" mb={3}>
         Resumen de tu panel
       </Typography>
 
-      {/* Tarjetas Empresa */}
+      {/* Tarjetas de estado */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: 2,
+          mt: 4,
         }}
       >
-        {empresaCards.map((card, i) => (
+        {cards.map((card) => (
           <Box
-            key={i}
+            key={card.title}
             sx={{
               flex: "1 1 30%",
               minWidth: "250px",
+              backgroundColor: card.color,
               borderRadius: 3,
               p: 2,
               boxShadow: 5,
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              "&:hover": {
-                transform: "scale(1.03)",
-                boxShadow: 10,
-              },
             }}
           >
             <Stack spacing={1} alignItems="center">
               {card.icon}
-              <Typography>{card.title}</Typography>
-              <Typography variant="h6" fontWeight={900}>
-                {card.value}
+              <Typography fontWeight={600}>{card.title}</Typography>
+              <Typography variant="h5" fontWeight={900}>
+                {card.count}
               </Typography>
+              <Typography>{card.descripcion}</Typography>
             </Stack>
           </Box>
         ))}
@@ -186,7 +249,7 @@ const ResumenEmpresa: FC = () => {
               borderRadius: 3,
               p: 3,
               bgcolor: "#ffffff",
-              boxShadow: 5,
+              boxShadow: 2,
               textAlign: "center",
             }}
           >
@@ -201,7 +264,7 @@ const ResumenEmpresa: FC = () => {
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent: "start",
               flexWrap: "wrap",
               gap: 2,
             }}
@@ -210,21 +273,19 @@ const ResumenEmpresa: FC = () => {
               <Box
                 key={servicio.id}
                 sx={{
-                  flex: "1 1 30%",
-                  minWidth: "250px",
+                  flex: "1 1 250px",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #e0e0e0",
                   borderRadius: 3,
                   p: 2,
                   boxShadow: 5,
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                  "&:hover": {
-                    transform: "scale(1.03)",
-                    boxShadow: 10,
-                  },
                 }}
               >
-                <Stack spacing={1} alignItems="center" textAlign="center">
-                  <BusinessIcon sx={{ color: "#0d47a1", fontSize: 36 }} />
-                  <Typography fontWeight={600}>{servicio.nombre}</Typography>
+                <Stack spacing={1}>
+                  <CheckCircleIcon sx={{ color: "#1976d2", fontSize: 32 }} />
+                  <Typography variant="subtitle1" fontWeight={700}>
+                    {servicio.nombre}
+                  </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {servicio.descripcion}
                   </Typography>
@@ -235,71 +296,102 @@ const ResumenEmpresa: FC = () => {
         )}
       </Box>
 
-      {/* Solicitudes recientes */}
+      {/* Últimas Solicitudes */}
       <Box mt={6}>
         <Typography variant="h6" fontWeight={900} mb={1}>
           Últimas Solicitudes
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
-          Estas son las últimas solicitudes que has recibido.
+          Estas son las solicitudes más recientes que has recibido.
         </Typography>
 
-        <Stack spacing={2}>
-          {solicitudes.length === 0 ? (
-            <Typography color="text.secondary">No hay solicitudes recientes.</Typography>
-          ) : (
-            solicitudes.map((s) => (
-              <Box
-                key={s.id}
-                sx={{
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 3,
-                  p: 2,
-                  bgcolor: "#ffffff",
-                  boxShadow: 2,
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                  "&:hover": {
-                    transform: "scale(1.01)",
-                    boxShadow: 4,
-                  },
-                }}
-              >
-                <Stack spacing={1}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography fontWeight={700}>
-                      #{s.id.toString().padStart(3, "0")}
+        {solicitudes.length === 0 ? (
+          <Typography color="text.secondary">No hay solicitudes recientes.</Typography>
+        ) : (
+          <Stack spacing={2}>
+            {[...solicitudes]
+              .sort((a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime())
+              .slice(0, 3)
+              .map((s) => (
+                <Paper
+                  key={s.id}
+                  elevation={5}
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    backgroundColor: getCardBgColor(s.estado),
+                  }}
+                >
+                  <Stack spacing={1}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography fontWeight={700}>
+                        SOL-{new Date(s.fechaCreacion).getFullYear()}-{s.id.toString().padStart(3, "0")}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {new Date(s.fechaCreacion).toLocaleDateString("es-ES")}
+                      </Typography>
+                    </Stack>
+
+                    <Typography variant="subtitle1" fontWeight={700}>
+                      {s.servicio.nombre}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {new Date(s.fechaCreacion).toLocaleDateString("es-ES")}
+                    <Typography fontWeight={600} color="text.secondary">
+                      Cliente: {s.cliente.nombre}
+                    </Typography>
+
+                    <Chip
+                      label={s.estado}
+                      size="small"
+                      color={getChipColor(s.estado)}
+                      sx={{ width: "fit-content" }}
+                    />
+                  </Stack>
+                </Paper>
+
+              ))}
+          </Stack>
+        )}
+      </Box>
+
+      {/* Valoraciones Recientes */}
+      <Box mt={6}>
+        <Typography variant="h6" fontWeight={900} mb={1}>
+          Valoraciones Recientes
+        </Typography>
+        <Typography variant="body2" color="text.secondary" mb={3}>
+          Opiniones de clientes sobre tus servicios.
+        </Typography>
+
+        {valoraciones.length === 0 ? (
+          <Typography color="text.secondary">No tienes valoraciones recientes.</Typography>
+        ) : (
+          <Stack spacing={2}>
+            {[...valoraciones]
+              .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+              .slice(0, 2)
+              .map((v, i) => (
+                <Paper
+                  key={i}
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    bgcolor: "#fffde7",
+                    boxShadow: 3,
+                  }}
+                >
+                  <Stack spacing={1}>
+                    <Rating value={v.estrellas} readOnly />
+                    <Typography variant="body1" fontWeight={600} color="black">
+                      {v.comentario}
+                    </Typography>
+                    <Typography variant="caption" color="black">
+                      Servicio: <strong>{v.nombreServicio}</strong> — Cliente: <strong>{v.nombreCliente}</strong>
                     </Typography>
                   </Stack>
-
-                  <Typography>
-                    <strong>Servicio:</strong> {s.servicio.nombre}
-                  </Typography>
-                  <Typography>
-                    <strong>Cliente:</strong> {s.cliente.nombre}
-                  </Typography>
-
-                  <Chip
-                    label={s.estado}
-                    color={
-                      s.estado === "ACEPTADA"
-                        ? "success"
-                        : s.estado === "PENDIENTE"
-                          ? "warning"
-                          : s.estado === "RECHAZADA"
-                            ? "error"
-                            : "default"
-                    }
-                    size="small"
-                    sx={{ alignSelf: "flex-start" }}
-                  />
-                </Stack>
-              </Box>
-            ))
-          )}
-        </Stack>
+                </Paper>
+              ))}
+          </Stack>
+        )}
       </Box>
     </Box>
   )

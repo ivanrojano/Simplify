@@ -15,6 +15,8 @@ import SolicitudesEmpresa from "../pages/SolicitudesEmpresa";
 import MensajesEmpresa from "../pages/MensajesEmpresa";
 import MensajesCliente from "../pages/MensajesClienteDetalle";
 import { QueEsSimplify } from "../pages/QueEsSimplify";
+import VerPerfilEmpresa from "../components/VerPerfilEmpresa";
+import PoliticaPrivacidad from "../pages/PolitiicaPrivacidad";
 
 const AppRouter = () => {
 
@@ -37,6 +39,8 @@ const AppRouter = () => {
         <Route path="/empresa/solicitudes" element={<SolicitudesEmpresa />} />
         <Route path="/empresa/solicitud/:solicitudId/mensajes" element={<MensajesEmpresa />} />
         <Route path="/cliente/solicitud/:solicitudId/mensajes" element={<MensajesCliente />} />
+        <Route path="/empresa/ver/:empresaId" element={<VerPerfilEmpresa />} />
+        <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
       </Routes>
     </Router>
   );

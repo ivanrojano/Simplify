@@ -5,24 +5,24 @@ import jakarta.persistence.*;
 @Entity
 public class Valoracion {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    private int estrellas; // 1 a 5
+	private int estrellas;
 
-    private String comentario;
+	private String comentario;
 
-    @ManyToOne
-    private Cliente cliente;
+	@ManyToOne
+	private Cliente cliente;
 
-    @ManyToOne
-    private Empresa empresa;
+	@ManyToOne
+	private Empresa empresa;
 
-    @OneToOne
-    private SolicitudServicio solicitud;
+	@ManyToOne
+	@JoinColumn(name = "solicitud_id", nullable = false)
+	private SolicitudServicio solicitud;
 
-    
 	public Valoracion() {
 		super();
 	}
@@ -84,5 +84,5 @@ public class Valoracion {
 
 	public void setSolicitud(SolicitudServicio solicitud) {
 		this.solicitud = solicitud;
-	}    
+	}
 }

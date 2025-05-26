@@ -15,49 +15,55 @@ import com.fctapp.servicios.repository.ValoracionRepository;
 @Service
 public class ValoracionService {
 
-	private final ValoracionRepository valoracionRepo;
-	private final SolicitudServicioRepository solicitudRepo;
-	private final EmpresaRepository empresaRepo;
-	private final ClienteRepository clienteRepo;
+    private final ValoracionRepository valoracionRepo;
+    private final SolicitudServicioRepository solicitudRepo;
+    private final EmpresaRepository empresaRepo;
+    private final ClienteRepository clienteRepo;
 
-	public ValoracionService(ValoracionRepository valoracionRepo, SolicitudServicioRepository solicitudRepo,
-			EmpresaRepository empresaRepo, ClienteRepository clienteRepo) {
-		this.valoracionRepo = valoracionRepo;
-		this.solicitudRepo = solicitudRepo;
-		this.empresaRepo = empresaRepo;
-		this.clienteRepo = clienteRepo;
-	}
-
-	public Valoracion dejarValoracion(Long clienteId, Long solicitudId, int estrellas, String comentario) {
-    // Validar que no exista ya una valoración para la misma solicitud
-    if (valoracionRepo.findBySolicitudId(solicitudId).isPresent()) {
-        throw new RuntimeException("Ya existe una valoración para esta solicitud.");
+    public ValoracionService(ValoracionRepository valoracionRepo, SolicitudServicioRepository solicitudRepo,
+            EmpresaRepository empresaRepo, ClienteRepository clienteRepo) {
+        this.valoracionRepo = valoracionRepo;
+        this.solicitudRepo = solicitudRepo;
+        this.empresaRepo = empresaRepo;
+        this.clienteRepo = clienteRepo;
     }
 
-    SolicitudServicio solicitud = solicitudRepo.findById(solicitudId)
-            .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+    public Valoracion dejarValoracion(Long clienteId, Long solicitudId, int estrellas, String comentario) {
+        if (valoracionRepo.findBySolicitudId(solicitudId).isPresent()) {
+            throw new RuntimeException("Ya existe una valoración para esta solicitud.");
+        }
 
-    if (solicitud.getEstado() != EstadoSolicitud.FINALIZADA) {
-        throw new RuntimeException("Solo se pueden valorar solicitudes finalizadas.");
+        SolicitudServicio solicitud = solicitudRepo.findById(solicitudId)
+                .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+        if (solicitud.getEstado() != EstadoSolicitud.FINALIZADA) {
+            throw new RuntimeException("Solo se pueden valorar solicitudes finalizadas.");
+        }
+
+        Cliente cliente = clienteRepo.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        Empresa empresa = solicitud.getServicio().getEmpresa();
+
+        Valoracion valoracion = new Valoracion();
+        valoracion.setCliente(cliente);
+        valoracion.setEmpresa(empresa);
+        valoracion.setSolicitud(solicitud);
+        valoracion.setEstrellas(estrellas);
+        valoracion.setComentario(comentario);
+
+        // Guardar la valoración
+        valoracion = valoracionRepo.save(valoracion);
+
+        // Actualizar solicitud como valorada
+        solicitud.setValorada(true);
+        solicitudRepo.save(solicitud);
+
+        return valoracion;
+
     }
 
-    Cliente cliente = clienteRepo.findById(clienteId)
-            .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-
-    Empresa empresa = solicitud.getServicio().getEmpresa();
-
-    Valoracion valoracion = new Valoracion();
-    valoracion.setCliente(cliente);
-    valoracion.setEmpresa(empresa);
-    valoracion.setSolicitud(solicitud);
-    valoracion.setEstrellas(estrellas);
-    valoracion.setComentario(comentario);
-
-    return valoracionRepo.save(valoracion);
-}
-
-
-	public java.util.List<Valoracion> listarValoracionesEmpresa(Long empresaId) {
-		return valoracionRepo.findByEmpresaId(empresaId);
-	}
+    public java.util.List<Valoracion> listarValoracionesEmpresa(Long empresaId) {
+        return valoracionRepo.findByEmpresaId(empresaId);
+    }
 }

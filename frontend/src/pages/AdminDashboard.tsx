@@ -21,9 +21,9 @@ import {
   TableRow,
   Paper,
   Stack,
-  IconButton
 } from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
+import ConfirmModalResetPassword from "../components/ConfirmModalResetPassword";
 
 interface Usuario {
   id: number;
@@ -52,6 +52,7 @@ const AdminDashboard = () => {
   const [usuarioAEliminar, setUsuarioAEliminar] = useState<Usuario | null>(null);
   const [filtroRol, setFiltroRol] = useState<string>("TODOS");
   const navigate = useNavigate();
+  const [usuarioAResetear, setUsuarioAResetear] = useState<Usuario | null>(null);
 
   let emailActual = "";
   let rolActual = "";
@@ -88,6 +89,20 @@ const AdminDashboard = () => {
       toast.warning("No se pudo eliminar el usuario.");
     }
   };
+
+  const resetearPassword = async (id: number) => {
+    try {
+      await axios.put(
+        `http://localhost:8080/api/admin/usuarios/${id}/reset-password`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Contraseña reseteada a 123456.");
+    } catch {
+      toast.error("No se pudo resetear la contraseña.");
+    }
+  };
+
 
   const ascenderAAdmin = async (id: number) => {
     if (rolActual !== "ADMIN") {
@@ -134,31 +149,31 @@ const AdminDashboard = () => {
     fetchUsuarios();
   }, []);
 
- return (
-  <Box
-    sx={{
-      minHeight: "100dvh",
-      bgcolor: "#ffffff",
-      fontFamily: "'Inter', system-ui, sans-serif",
-      px: { xs: 2, md: 4 },
-      py: 4,
-      position: "relative"
-    }}
-  >
-    <Button
-      onClick={handleLogout}
-      endIcon={<LogoutIcon />}
+  return (
+    <Box
       sx={{
-        position: "absolute",
-        top: 16,
-        right: 16,
-        color: "#e74c3c",
-        textTransform: "none",
-        fontWeight: 600
+        minHeight: "100dvh",
+        bgcolor: "#ffffff",
+        fontFamily: "'Inter', system-ui, sans-serif",
+        px: { xs: 2, md: 4 },
+        py: 4,
+        position: "relative"
       }}
     >
-      Cerrar Sesión
-    </Button>
+      <Button
+        onClick={handleLogout}
+        endIcon={<LogoutIcon />}
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          color: "#e74c3c",
+          textTransform: "none",
+          fontWeight: 600
+        }}
+      >
+        Cerrar Sesión
+      </Button>
 
       <Typography
         variant="h3"
@@ -222,6 +237,7 @@ const AdminDashboard = () => {
                     >
                       Eliminar
                     </Button>
+
                     {rolActual === "ADMIN" && u.rol !== "ADMIN" && (
                       <Button
                         variant="contained"
@@ -232,6 +248,18 @@ const AdminDashboard = () => {
                         Ascender a ADMIN
                       </Button>
                     )}
+
+                    {rolActual === "ADMIN" && u.rol !== "ADMIN" && (
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        onClick={() => setUsuarioAResetear(u)}
+                      >
+                        Reset Password
+                      </Button>
+                    )}
+
                   </Stack>
                 </TableCell>
               </TableRow>
@@ -252,6 +280,20 @@ const AdminDashboard = () => {
             ascenderAAdmin(usuarioAAscender.id);
             setShowModal(false);
             setUsuarioAAscender(null);
+          }}
+        />
+      )}
+
+      {usuarioAResetear && (
+        <ConfirmModalResetPassword
+          open={!!usuarioAResetear}
+          nombre={obtenerNombre(usuarioAResetear)}
+          onCancel={() => setUsuarioAResetear(null)}
+          onConfirm={() => {
+            if (usuarioAResetear) {
+              resetearPassword(usuarioAResetear.id);
+              setUsuarioAResetear(null);
+            }
           }}
         />
       )}

@@ -239,23 +239,49 @@ const Login = () => {
         </Box>
       </Fade>
 
-      <Fade in timeout={1500}>
-        <Typography mt={4} fontSize="0.95rem">
-          ¿No tienes una cuenta?
-          <Button
-            onClick={() => navigate("/registro")}
-            sx={{
-              ml: 1,
-              textTransform: "none",
-              fontWeight: 600,
-              color: "#0d47a1",
-              "&:hover": { textDecoration: "underline" },
-            }}
-          >
-            Regístrate aquí
-          </Button>
-        </Typography>
-      </Fade>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center" 
+        textAlign="center"
+        mt={4}
+      >
+        <Fade in timeout={1500}>
+          <Typography fontSize="0.95rem">
+            ¿No tienes una cuenta?
+            <Button
+              onClick={() => navigate("/registro")}
+              sx={{
+                ml: 1,
+                textTransform: "none",
+                fontWeight: 600,
+                color: "#0d47a1",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              Regístrate aquí
+            </Button>
+            .
+            <br />
+            Al registrarte, aceptas nuestra{" "}
+            <Button
+              onClick={() => navigate("/politica-privacidad")}
+              sx={{
+                textTransform: "none",
+                fontWeight: 600,
+                color: "#0d47a1",
+                p: 0,
+                minWidth: "auto",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              Política de Privacidad
+            </Button>
+            .
+          </Typography>
+        </Fade>
+      </Box>
 
       <Snackbar
         open={snackbarOpen}

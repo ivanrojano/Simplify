@@ -150,7 +150,6 @@ const EmpresaDashboard = () => {
               <Tab label="Solicitudes" />
               <Tab label="Tus Servicios" />
               <Tab label="Mensajes" />
-
             </Tabs>
           </Box>
         </Box>
@@ -178,7 +177,6 @@ const EmpresaDashboard = () => {
           {tabValue === 4 && (<TusServiciosEmpresa />)}
 
           {tabValue === 5 && (<MensajesEmpresa />)}
-
         </Box>
 
         {/* Botón cerrar sesión (mobile) */}
