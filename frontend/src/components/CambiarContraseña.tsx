@@ -148,17 +148,35 @@ const CambiarPassword = ({ id, tipo }: CambiarPasswordProps) => {
           <Stack direction="row" spacing={2}>
             <Button
               variant="contained"
-              sx={{ backgroundColor: "#0d47a1" }}
               onClick={manejarCambioPassword}
+              sx={{
+                px: 5,
+                py: 1,
+                bgcolor: "#0d47a1",
+                fontWeight: 500,
+                fontSize: "0.95rem",
+                borderRadius: 2,
+                textTransform: "none",
+                "&:hover": { bgcolor: "#1565c0" },
+              }}
             >
-              Guardar Contraseña
+              Guardar contraseña
             </Button>
+
             <Button
               variant="text"
               onClick={() => {
                 setPasswordActual("");
                 setNuevaPassword("");
                 setConfirmarPassword("");
+              }}
+              sx={{
+                px: 3,
+                py: 1,
+                fontWeight: 500,
+                fontSize: "0.95rem",
+                borderRadius: 2,
+                textTransform: "none",
               }}
             >
               Cancelar

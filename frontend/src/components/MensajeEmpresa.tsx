@@ -32,6 +32,11 @@ interface Solicitud {
   fechaCreacion: string;
   cliente: {
     nombre: string;
+    email?: string;
+    telefono?: string;
+    direccion?: string;
+    ciudad?: string;
+    fotoUrl?: string;
   };
   servicio: {
     nombre: string;
@@ -122,17 +127,17 @@ const MensajesEmpresa = () => {
         chats.map((chat) => (
           <Paper
             key={chat.id}
-            elevation={4}
+            elevation={5}
             sx={{
               p: 3,
-              mb: 3,
-              borderRadius: 4,
+              mb: 4,
+              borderRadius: 3,
               border: "1px solid #e0e0e0",
             }}
           >
             <Stack spacing={1.5}>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography fontWeight={800} fontSize="1.1rem" color="#0d47a1">
+                <Typography fontWeight={900} fontSize="1.1rem">
                   Chat #{chat.id.toString().padStart(4, "0")}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -140,16 +145,40 @@ const MensajesEmpresa = () => {
                 </Typography>
               </Stack>
 
-              <Typography fontWeight={600} fontSize="1rem" color="text.primary">
-                Cliente:{" "}
-                <Typography component="span" color="#0d47a1" fontWeight={700}>
-                  {chat.cliente.nombre}
+              <Stack spacing={0.5}>
+                <Typography fontWeight={700} fontSize="1rem" color="text.primary">
+                  Cliente:{" "}
+                  <Typography component="span" fontWeight={700}>
+                    {chat.cliente.nombre}
+                  </Typography>
                 </Typography>
-              </Typography>
 
-              <Typography fontWeight={700} fontSize="0.95rem" color="text.secondary">
-                SERV-{new Date(chat.fechaCreacion).getFullYear()}-{chat.id.toString().padStart(3, "0")}
-              </Typography>
+                {chat.cliente.email && (
+                  <Typography variant="body2" color="text.secondary" component="div">
+                    <strong>Email:</strong> {chat.cliente.email}
+                  </Typography>
+                )}
+
+                {chat.cliente.telefono && (
+                  <Typography variant="body2" color="text.secondary" component="div">
+                    <strong>Teléfono:</strong> {chat.cliente.telefono}
+                  </Typography>
+                )}
+
+                {(chat.cliente.direccion || chat.cliente.ciudad) && (
+                  <Typography variant="body2" color="text.secondary" component="div">
+                    <strong>Dirección:</strong>{" "}
+                    {[chat.cliente.direccion, chat.cliente.ciudad].filter(Boolean).join(", ")}
+                  </Typography>
+                )}
+
+                <Typography fontWeight={700} fontSize="1rem" color="text.primary">
+                  Servicio requerido:{" "}
+                  <Typography component="span" fontWeight={700}>
+                    {chat.servicio.nombre}
+                  </Typography>
+                </Typography>
+              </Stack>
 
               {chat.ultimoMensaje ? (
                 <Typography
@@ -158,10 +187,10 @@ const MensajesEmpresa = () => {
                     mt: 0.5,
                     fontStyle: "italic",
                     color: "#444",
-                    px: 1,
-                    py: 1,
+                    px: 2,
+                    py: 2,
                     bgcolor: "#e3f2fd",
-                    borderRadius: 2,
+                    borderRadius: 3,
                   }}
                 >
                   Último mensaje: {chat.ultimoMensaje.contenido.slice(0, 80)}...
@@ -176,20 +205,21 @@ const MensajesEmpresa = () => {
                 variant="contained"
                 onClick={() => navigate(`/empresa/solicitud/${chat.id}/mensajes`)}
                 sx={{
-                  backgroundColor: "#0d47a1",
-                  color: "#fff",
-                  fontWeight: 600,
-                  py: 0.45,
-                  fontSize: "1rem",
-                  borderRadius: 3,
-                  alignSelf: "flex-end",
-                  "&:hover": {
-                    backgroundColor: "#1565c0",
-                  },
+                  mt: 5,
+                  px: 5,
+                  py: 1,
+                  bgcolor: "#0d47a1",
+                  fontWeight: 500,
+                  fontSize: "0.95rem",
+                  borderRadius: 2,
+                  alignSelf: "flex-start",
+                  textTransform: "none",
+                  "&:hover": { bgcolor: "#1565c0" },
                 }}
               >
                 {chat.ultimoMensaje ? "Ver conversación" : "Iniciar conversación"}
               </Button>
+
             </Stack>
           </Paper>
         ))

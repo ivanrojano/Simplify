@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import {
   Avatar,
   Box,
@@ -11,23 +10,22 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import {
+  Email as EmailIcon,
+  LocationOn as LocationOnIcon,
+  Phone as PhoneIcon,
+  LocationCity as LocationCityIcon,
+  Home as HomeIcon,
+  Edit as EditIcon,
+  Apartment as ApartmentIcon,
+  Public as PublicIcon,
+  Badge as BadgeIcon,
+  Work as WorkIcon,
+  PeopleAlt as PeopleAltIcon,
+  AccessTime as AccessTimeIcon,
+  Language as LanguageIcon,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import EmailIcon from "@mui/icons-material/Email";
-import FingerprintIcon from "@mui/icons-material/Fingerprint";
-import PhoneIcon from "@mui/icons-material/Phone";
-import LanguageIcon from "@mui/icons-material/Language";
-import LocationCityIcon from "@mui/icons-material/LocationCity";
-import HomeIcon from "@mui/icons-material/Home";
-import ApartmentIcon from "@mui/icons-material/Apartment";
-import WorkIcon from "@mui/icons-material/Work";
-import BadgeIcon from "@mui/icons-material/Badge";
-import EditIcon from "@mui/icons-material/Edit";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import PublicIcon from "@mui/icons-material/Public";
-
 import CambiarContraseña from "./CambiarContraseña";
 
 interface PerfilEmpresaProps {
@@ -50,7 +48,7 @@ interface PerfilEmpresaProps {
   fechaRegistro?: string | null;
 }
 
-const PerfilEmpresa: FC<PerfilEmpresaProps> = ({
+const PerfilEmpresa = ({
   id,
   nombreEmpresa,
   descripcion,
@@ -68,28 +66,8 @@ const PerfilEmpresa: FC<PerfilEmpresaProps> = ({
   numeroEmpleados,
   tipoEmpresa,
   fechaRegistro,
-}) => {
+}: PerfilEmpresaProps) => {
   const navigate = useNavigate();
-
-  const InfoRow = ({
-    icon,
-    label,
-    value,
-  }: {
-    icon: React.ReactNode;
-    label: string;
-    value?: string | number | null;
-  }) => (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1, py: 0.5 }}>
-      <Box sx={{ color: "#0d47a1", display: "flex", alignItems: "center" }}>{icon}</Box>
-      <Typography component="span" fontWeight={600}>
-        {label}:
-      </Typography>
-      <Typography component="span">
-        {value && String(value).trim() !== "" ? value : "Rellena este campo"}
-      </Typography>
-    </Box>
-  );
 
   const campoIncompleto =
     !nombreEmpresa?.trim() ||
@@ -108,13 +86,20 @@ const PerfilEmpresa: FC<PerfilEmpresaProps> = ({
     !tipoEmpresa?.trim() ||
     !fechaRegistro;
 
+  const infoRow = (icon: React.ReactNode, label: string, value?: string | number | null) => (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      {icon}
+      <strong>{label}:</strong> {value && String(value).trim() !== "" ? value : "Sin datos"}
+    </Box>
+  );
+
   return (
     <Paper elevation={4} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: "#fafafa" }}>
       <Typography variant="h6" fontWeight={900} mb={1}>
         Perfil de Empresa
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>
-        Información general y de contacto de tu empresa
+        Información general y datos de la empresa
       </Typography>
 
       <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems="center" mb={3}>
@@ -133,12 +118,11 @@ const PerfilEmpresa: FC<PerfilEmpresaProps> = ({
           {!fotoUrl ? nombreEmpresa.charAt(0).toUpperCase() : null}
         </Avatar>
         <Box>
-          <Typography variant="h5" fontWeight={800} color="#0d47a1">
+          <Typography variant="h5" fontWeight={900}>
             {nombreEmpresa || "Sin datos"}
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" mt={1}>
-            Registrada desde:{" "}
-            {fechaRegistro ? new Date(fechaRegistro).toLocaleDateString() : "Rellena este campo"}
+            Registrada desde: {fechaRegistro ? new Date(fechaRegistro).toLocaleDateString() : "Sin datos"}
           </Typography>
         </Box>
       </Stack>
@@ -149,82 +133,105 @@ const PerfilEmpresa: FC<PerfilEmpresaProps> = ({
         </MuiAlert>
       )}
 
-      <Divider sx={{ my: 3 }} />
+      {/* Datos de Contacto */}
+      <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
+        <CardContent sx={{ p: 0 }}>
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            Datos de Contacto
+          </Typography>
+          <Stack spacing={1.5}>
+            {infoRow(<EmailIcon sx={{ color: "#0d47a1" }} />, "Email", email)}
+            {infoRow(<PhoneIcon sx={{ color: "#0d47a1" }} />, "Teléfono", telefono)}
+          </Stack>
+        </CardContent>
+      </Card>
 
-      <Stack spacing={3}>
-        {[
-          {
-            title: "Datos de Contacto",
-            items: [
-              { icon: <EmailIcon />, label: "Email", value: email },
-              { icon: <PhoneIcon />, label: "Teléfono", value: telefono },
-              { icon: <FingerprintIcon />, label: "ID Empresa", value: `#${id.toString().padStart(6, "0")}` },
-            ],
-          },
-          {
-            title: "Dirección",
-            items: [
-              { icon: <LocationOnIcon />, label: "Dirección", value: direccion },
-              { icon: <HomeIcon />, label: "Código Postal", value: codigoPostal },
-              { icon: <LocationCityIcon />, label: "Ciudad", value: ciudad },
-              { icon: <ApartmentIcon />, label: "Provincia", value: provincia },
-              { icon: <PublicIcon />, label: "País", value: pais },
-            ],
-          },
-          {
-            title: "Información Fiscal",
-            items: [{ icon: <BadgeIcon />, label: "NIF", value: nif }],
-          },
-          {
-            title: "Empresa",
-            items: [
-              { icon: <WorkIcon />, label: "Tipo", value: tipoEmpresa },
-              { icon: <PeopleAltIcon />, label: "Número de Empleados", value: numeroEmpleados?.toString() },
-              { icon: <AccessTimeIcon />, label: "Horario de Atención", value: horarioAtencion },
-            ],
-          },
-          {
-            title: "Presencia Online",
-            items: [{ icon: <LanguageIcon />, label: "Sitio Web", value: sitioWeb }],
-          },
-        ].map(({ title, items }) => (
-          <Card key={title} elevation={8} sx={{ p: 2, borderRadius: 2, bgcolor: "#ffffff" }}>
-            <CardContent sx={{ p: 0 }}>
-              <Typography variant="subtitle1" fontWeight={700} mb={1}>
-                {title}
-              </Typography>
-              <Stack spacing={1}>
-                {items.map((item, i) => (
-                  <InfoRow key={i} icon={item.icon} label={item.label} value={item.value} />
-                ))}
-              </Stack>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Dirección */}
+      <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
+        <CardContent sx={{ p: 0 }}>
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            Dirección
+          </Typography>
+          <Stack spacing={1.5}>
+            {infoRow(<LocationOnIcon sx={{ color: "#0d47a1" }} />, "Dirección", direccion)}
+            {infoRow(<LocationCityIcon sx={{ color: "#0d47a1" }} />, "Ciudad", ciudad)}
+            {infoRow(<HomeIcon sx={{ color: "#0d47a1" }} />, "Código Postal", codigoPostal)}
+            {infoRow(<ApartmentIcon sx={{ color: "#0d47a1" }} />, "Provincia", provincia)}
+            {infoRow(<PublicIcon sx={{ color: "#0d47a1" }} />, "País", pais)}
+          </Stack>
+        </CardContent>
+      </Card>
 
-        <Card elevation={8} sx={{ p: 2, borderRadius: 2, bgcolor: "#ffffff" }}>
-          <CardContent sx={{ p: 0 }}>
-            <Typography variant="subtitle1" fontWeight={700} mb={1}>
-              Descripción
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {descripcion?.trim() || "Rellena este campo"}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Stack>
+      {/* Identificación Fiscal */}
+      <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
+        <CardContent sx={{ p: 0 }}>
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            Información Fiscal
+          </Typography>
+          {infoRow(<BadgeIcon sx={{ color: "#0d47a1" }} />, "NIF", nif)}
+        </CardContent>
+      </Card>
+
+      {/* Empresa */}
+      <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
+        <CardContent sx={{ p: 0 }}>
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            Empresa
+          </Typography>
+          <Stack spacing={1.5}>
+            {infoRow(<WorkIcon sx={{ color: "#0d47a1" }} />, "Tipo", tipoEmpresa)}
+            {infoRow(<PeopleAltIcon sx={{ color: "#0d47a1" }} />, "Número de empleados", numeroEmpleados?.toString())}
+            {infoRow(<AccessTimeIcon sx={{ color: "#0d47a1" }} />, "Horario de atención", horarioAtencion)}
+          </Stack>
+        </CardContent>
+      </Card>
+
+      {/* Sitio Web */}
+      <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
+        <CardContent sx={{ p: 0 }}>
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            Presencia Online
+          </Typography>
+          {infoRow(<LanguageIcon sx={{ color: "#0d47a1" }} />, "Sitio Web", sitioWeb)}
+        </CardContent>
+      </Card>
+
+      {/* Descripción */}
+      <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
+        <CardContent sx={{ p: 0 }}>
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            Descripción
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {descripcion?.trim() || "Sin datos"}
+          </Typography>
+        </CardContent>
+      </Card>
 
       <Button
-        fullWidth
         startIcon={<EditIcon />}
         variant="contained"
         onClick={() => navigate("/empresa/editar")}
-        sx={{ mt: 4, backgroundColor: "#0d47a1", fontWeight: 600, "&:hover": { backgroundColor: "#1565c0" } }}
+        sx={{
+          mt: 2,
+          px: 5,
+          py: 1,
+          bgcolor: "#0d47a1",
+          fontWeight: 500,
+          fontSize: "0.95rem",
+          borderRadius: 2,
+          textTransform: "none",
+          mb: 5,
+          alignSelf: "flex-start",
+          "&:hover": {
+            bgcolor: "#1565c0",
+          },
+        }}
       >
-        Editar Perfil
+        Editar perfil
       </Button>
 
-      <Divider sx={{ my: 6 }} />
+      <Divider sx={{ my: 4 }} />
 
       <Typography variant="h6" fontWeight={900} mb={1}>
         Seguridad

@@ -9,10 +9,7 @@ import PanelAdmin from "../pages/AdminDashboard";
 import { InicioRegistro } from "../pages/InicioRegistro";
 import { Index } from "../pages/Index";
 import EditarEmpresa from "../components/EditarEmpresa";
-import CrearServicio from "../pages/CrearServicio";
-import EditarServicio from "../pages/EditarServicio";
 import EditarCliente from "../pages/EditarCliente";
-import ServiciosDisponibles from "../pages/ServiciosDisponibles";
 import SolicitudesCliente from "../pages/SolicitudesCliente";
 import SolicitudesEmpresa from "../pages/SolicitudesEmpresa";
 import MensajesEmpresa from "../pages/MensajesEmpresa";
@@ -35,10 +32,7 @@ const AppRouter = () => {
         <Route path="/empresa" element={<PanelEmpresa />} />
         <Route path="/admin" element={<PanelAdmin />} />
         <Route path="/empresa/editar" element={<EditarEmpresa />} />
-        <Route path="/empresa/crear-servicio" element={<CrearServicio />} />
-        <Route path="/empresa/servicio/editar/:id" element={<EditarServicio />} />
         <Route path="/cliente/editar" element={<EditarCliente />} />
-        <Route path="/cliente/servicios" element={<ServiciosDisponibles />} />
         <Route path="/cliente/solicitudes" element={<SolicitudesCliente />} />
         <Route path="/empresa/solicitudes" element={<SolicitudesEmpresa />} />
         <Route path="/empresa/solicitud/:solicitudId/mensajes" element={<MensajesEmpresa />} />

@@ -19,18 +19,53 @@ const CrearServicio = () => {
     const [snackbarMessage, setSnackbarMessage] = useState("")
     const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success")
 
+    // Errores específicos por campo
+    const [nombreError, setNombreError] = useState("")
+    const [descripcionError, setDescripcionError] = useState("")
+    const [precioError, setPrecioError] = useState("")
+
     const token = localStorage.getItem("token")
     const empresaId = localStorage.getItem("empresaId")
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!nombre.trim() || !descripcion.trim() || !precio.trim()) {
-            setSnackbarMessage("Por favor, completa todos los campos.")
-            setSnackbarSeverity("error")
-            setSnackbarOpen(true)
-            return
+        // Reset errores
+        setNombreError("")
+        setDescripcionError("")
+        setPrecioError("")
+
+        let hasError = false
+
+        if (!nombre.trim()) {
+            setNombreError("Este campo es obligatorio.")
+            hasError = true
+        } else if (nombre.length > 50) {
+            setNombreError("Máximo 50 caracteres.")
+            hasError = true
         }
+
+        if (!descripcion.trim()) {
+            setDescripcionError("Este campo es obligatorio.")
+            hasError = true
+        } else if (descripcion.length < 5) {
+            setDescripcionError("Mínimo 5 caracteres.")
+            hasError = true
+        } else if (descripcion.length > 500) {
+            setDescripcionError("Máximo 500 caracteres.")
+            hasError = true
+        }
+
+        const precioNumber = parseFloat(precio)
+        if (!precio.trim()) {
+            setPrecioError("Este campo es obligatorio.")
+            hasError = true
+        } else if (isNaN(precioNumber) || precioNumber < 0) {
+            setPrecioError("El precio debe ser un número positivo.")
+            hasError = true
+        }
+
+        if (hasError) return
 
         try {
             await axios.post(
@@ -38,7 +73,7 @@ const CrearServicio = () => {
                 {
                     nombre,
                     descripcion,
-                    precio: parseFloat(precio),
+                    precio: precioNumber,
                 },
                 {
                     headers: {
@@ -90,6 +125,8 @@ const CrearServicio = () => {
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
                     fullWidth
+                    error={!!nombreError}
+                    helperText={nombreError}
                 />
                 <TextField
                     label="Descripción"
@@ -98,13 +135,18 @@ const CrearServicio = () => {
                     multiline
                     rows={3}
                     fullWidth
+                    error={!!descripcionError}
+                    helperText={descripcionError}
                 />
                 <TextField
-                    label="Precio (€)"
+                    label="Precio Estimado (€)"
                     type="number"
                     value={precio}
                     onChange={(e) => setPrecio(e.target.value)}
+                    inputProps={{ min: 0, step: "0.01" }}
                     fullWidth
+                    error={!!precioError}
+                    helperText={precioError}
                 />
 
                 <Button
@@ -112,15 +154,18 @@ const CrearServicio = () => {
                     variant="contained"
                     sx={{
                         mt: 2,
-                        py: 1.2,
+                        px: 5,
+                        py: 1,
                         bgcolor: "#0d47a1",
-                        fontWeight: 600,
-                        fontSize: "1rem",
+                        fontWeight: 500,
+                        fontSize: "0.95rem",
                         borderRadius: 2,
+                        alignSelf: "flex-start",
+                        textTransform: "none",
                         "&:hover": { bgcolor: "#1565c0" },
                     }}
                 >
-                    Crear Servicio
+                    Crear servicio
                 </Button>
             </Box>
 

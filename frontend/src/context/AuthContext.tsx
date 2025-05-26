@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (token) {
       try {
         const decoded = jwtDecode<JwtPayload>(token);
-        setRole(decoded.rol); // ← ✅ aquí lo leemos del JWT
+        setRole(decoded.rol); 
       } catch (err) {
         console.error("Error al decodificar token:", err);
         setRole(null);

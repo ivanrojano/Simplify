@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -12,58 +12,60 @@ import {
   Snackbar,
   Alert,
   keyframes,
-} from "@mui/material"
+  InputAdornment,
+  Tooltip,
+} from "@mui/material";
 
-import ConfirmModalLogout from "../components/ConfirmModalLogout"
+import ConfirmModalLogout from "./ConfirmModalLogout";
 
-import BusinessIcon from "@mui/icons-material/Business"
-import DescriptionIcon from "@mui/icons-material/Description"
-import LocationOnIcon from "@mui/icons-material/LocationOn"
-import ImageIcon from "@mui/icons-material/Image"
-import InputAdornment from "@mui/material/InputAdornment"
-import Tooltip from "@mui/material/Tooltip"
-import LogoutIcon from "@mui/icons-material/Logout"
-import ArrowBackIcon from "@mui/icons-material/ArrowBack"
-import FingerprintIcon from "@mui/icons-material/Fingerprint"
-import PhoneIcon from "@mui/icons-material/Phone"
-import AccessTimeIcon from "@mui/icons-material/AccessTime"
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt"
-import ApartmentIcon from "@mui/icons-material/Apartment"
-import HomeIcon from "@mui/icons-material/Home"
-import LocationCityIcon from "@mui/icons-material/LocationCity"
-import MapIcon from "@mui/icons-material/Map"
-import PublicIcon from "@mui/icons-material/Public"
-import LanguageIcon from "@mui/icons-material/Language"
-
+import BusinessIcon from "@mui/icons-material/Business";
+import DescriptionIcon from "@mui/icons-material/Description";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import ImageIcon from "@mui/icons-material/Image";
+import LogoutIcon from "@mui/icons-material/Logout";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import FingerprintIcon from "@mui/icons-material/Fingerprint";
+import PhoneIcon from "@mui/icons-material/Phone";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import HomeIcon from "@mui/icons-material/Home";
+import LocationCityIcon from "@mui/icons-material/LocationCity";
+import MapIcon from "@mui/icons-material/Map";
+import PublicIcon from "@mui/icons-material/Public";
+import LanguageIcon from "@mui/icons-material/Language";
+import EmailIcon from "@mui/icons-material/Email";
 
 type Empresa = {
-  nombreEmpresa: string
-  descripcion: string
-  direccion: string
-  fotoUrl?: string | null
-  nif?: string
-  telefono?: string
-  horarioAtencion?: string
-  numeroEmpleados?: number
-  tipoEmpresa?: string
-  codigoPostal?: string
-  ciudad?: string
-  provincia?: string
-  pais?: string
-  sitioWeb?: string
-}
+  nombreEmpresa: string;
+  descripcion: string;
+  direccion: string;
+  email: string;
+  fotoUrl?: string | null;
+  nif?: string;
+  telefono?: string;
+  horarioAtencion?: string;
+  numeroEmpleados?: number;
+  tipoEmpresa?: string;
+  codigoPostal?: string;
+  ciudad?: string;
+  provincia?: string;
+  pais?: string;
+  sitioWeb?: string;
+};
 
 const pulse = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.12); }
   100% { transform: scale(1); }
-`
+`;
 
 const EditarEmpresa = () => {
   const [form, setForm] = useState<Empresa>({
     nombreEmpresa: "",
     descripcion: "",
     direccion: "",
+    email: "",
     fotoUrl: "",
     nif: "",
     telefono: "",
@@ -75,77 +77,88 @@ const EditarEmpresa = () => {
     provincia: "",
     pais: "",
     sitioWeb: "",
-  })
+  });
 
-  const [loading, setLoading] = useState(true)
-  const [logoutConfirm, setLogoutConfirm] = useState(false)
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" })
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(true);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-  const navigate = useNavigate()
-  const token = localStorage.getItem("token")
-  const empresaId = localStorage.getItem("empresaId")
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const empresaId = localStorage.getItem("empresaId");
 
   useEffect(() => {
     if (!token || !empresaId) {
-      navigate("/login")
-      return
+      navigate("/login");
+      return;
     }
 
-    const headers = { headers: { Authorization: `Bearer ${token}` } }
+    const headers = { headers: { Authorization: `Bearer ${token}` } };
 
     axios
       .get<Empresa>(`http://localhost:8080/api/empresas/${empresaId}`, headers)
       .then((res) => {
-        setForm(res.data)
-        setLoading(false)
+        setForm(res.data);
+        setLoading(false);
       })
-      .catch((err) => {
-        console.error("Error al cargar empresa:", err)
-        setSnackbar({ open: true, message: "Error al cargar el perfil", severity: "error" })
-        navigate("/empresa")
-      })
-  }, [token, empresaId, navigate])
+      .catch(() => {
+        setSnackbar({ open: true, message: "Error al cargar el perfil", severity: "error" });
+        navigate("/empresa");
+      });
+  }, [token, empresaId, navigate]);
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!form.nombreEmpresa.trim()) newErrors.nombreEmpresa = "El nombre es obligatorio";
+    if (!form.descripcion.trim()) newErrors.descripcion = "La descripción es obligatoria";
+    if (!form.email.trim() || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(form.email))
+      newErrors.email = "Email inválido o vacío";
+
+    return newErrors;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target
-    setForm({ ...form, [name]: name === "numeroEmpleados" ? parseInt(value) || 0 : value })
-  }
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: name === "numeroEmpleados" ? parseInt(value) || 0 : value });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const headers = { headers: { Authorization: `Bearer ${token}` } }
-
-    const dataToSend = {
-      ...form,
-      fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl,
+    e.preventDefault();
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
     }
+
+    const headers = { headers: { Authorization: `Bearer ${token}` } };
+    const dataToSend = { ...form, fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl };
 
     axios
       .put(`http://localhost:8080/api/empresas/${empresaId}`, dataToSend, headers)
       .then(() => {
-        setSnackbar({ open: true, message: "Perfil actualizado correctamente", severity: "success" })
-        setTimeout(() => navigate("/empresa"), 2000)
+        setSnackbar({ open: true, message: "Perfil actualizado correctamente", severity: "success" });
+        setTimeout(() => navigate("/empresa"), 2000);
       })
-      .catch((err) => {
-        console.error("Error al actualizar empresa:", err)
-        setSnackbar({ open: true, message: "Error al guardar los cambios", severity: "error" })
-      })
-  }
+      .catch(() => {
+        setSnackbar({ open: true, message: "Error al guardar los cambios", severity: "error" });
+      });
+  };
 
   const confirmLogout = () => {
-    localStorage.clear()
-    navigate("/")
-  }
+    localStorage.clear();
+    navigate("/");
+  };
 
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
         <CircularProgress color="primary" />
       </Box>
-    )
+    );
   }
 
   return (
@@ -227,6 +240,7 @@ const EditarEmpresa = () => {
             { label: "Nombre de la Empresa", name: "nombreEmpresa", icon: <BusinessIcon /> },
             { label: "Descripción", name: "descripcion", icon: <DescriptionIcon />, multiline: true },
             { label: "Dirección", name: "direccion", icon: <LocationOnIcon /> },
+            { label: "Email", name: "email", icon: <EmailIcon /> },
             { label: "Foto de Perfil (URL)", name: "fotoUrl", icon: <ImageIcon /> },
             { label: "NIF", name: "nif", icon: <FingerprintIcon /> },
             { label: "Teléfono", name: "telefono", icon: <PhoneIcon /> },
@@ -248,6 +262,8 @@ const EditarEmpresa = () => {
               fullWidth
               multiline={multiline}
               type={type || "text"}
+              error={Boolean(errors[name])}
+              helperText={errors[name] || ""}
               InputProps={{
                 startAdornment: icon ? (
                   <InputAdornment position="start">
@@ -257,18 +273,22 @@ const EditarEmpresa = () => {
               }}
             />
           ))}
-
           <Button
             variant="contained"
             type="submit"
-            size="large"
+            fullWidth
             sx={{
-              py: 1.5,
-              fontWeight: 600,
-              fontSize: "1rem",
-              backgroundColor: "#0d47a1",
-              "&:hover": { backgroundColor: "#08306b" },
-              transition: "all 0.3s ease-in-out",
+              mt: 2,
+              px: 2,
+              py: 1,
+              bgcolor: "#0d47a1",
+              fontWeight: 500,
+              fontSize: "0.95rem",
+              borderRadius: 2,
+              textTransform: "none",
+              "&:hover": {
+                bgcolor: "#1565c0",
+              },
             }}
           >
             Guardar cambios
@@ -276,7 +296,6 @@ const EditarEmpresa = () => {
         </Box>
       </Fade>
 
-      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -297,13 +316,13 @@ const EditarEmpresa = () => {
         <ConfirmModalLogout
           onCancel={() => setLogoutConfirm(false)}
           onConfirm={() => {
-            confirmLogout()
-            setLogoutConfirm(false)
+            confirmLogout();
+            setLogoutConfirm(false);
           }}
         />
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default EditarEmpresa
+export default EditarEmpresa;

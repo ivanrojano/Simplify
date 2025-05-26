@@ -8,14 +8,19 @@ import {
   IconButton,
   Snackbar,
   CircularProgress,
+  Tooltip,
+  TextField,
 } from "@mui/material"
+
 import MuiAlert from "@mui/material/Alert";
+
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
-import { useNavigate } from "react-router-dom"
-import ConfirmModalEliminar from "../components/ConfirmModalEliminar"
+import ConfirmModalEliminar from "./ConfirmModalEliminar"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import ServicioForm from "./ServicioFormulario" 
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 interface Servicio {
   id: number
@@ -33,10 +38,13 @@ const ListaServicios = () => {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(null)
+  const [editandoId, setEditandoId] = useState<number | null>(null)
+
+  const [busqueda, setBusqueda] = useState("")
+  const [rotating, setRotating] = useState(false)
 
   const empresaId = localStorage.getItem("empresaId")
   const token = localStorage.getItem("token")
-  const navigate = useNavigate()
 
   const fetchServicios = async () => {
     try {
@@ -73,80 +81,150 @@ const ListaServicios = () => {
     }
   }
 
+  const actualizarServicio = (servicioActualizado: Servicio) => {
+    setServicios(prev => prev.map(s =>
+      s.id === servicioActualizado.id ? servicioActualizado : s
+    ))
+    setEditandoId(null)
+    setSnackbarMessage("Servicio actualizado correctamente")
+    setSnackbarSeverity("success")
+    setSnackbarOpen(true)
+  }
+
+  const limpiarBusqueda = () => {
+    setBusqueda("")
+    setRotating(true)
+    setTimeout(() => setRotating(false), 600)
+  }
+
   useEffect(() => {
     fetchServicios()
   }, [])
+
+  const serviciosFiltrados = servicios.filter(servicio =>
+    servicio.nombre.toLowerCase().includes(busqueda.toLowerCase())
+  )
 
   return (
     <Box
       sx={{
         width: "100%",
         border: "1px solid #e0e0e0",
-        borderRadius: 5,
-        p: { xs: 2, sm: 3 },
-        boxShadow: 4,
+        borderRadius: 3,
+        p: 2,
+        boxShadow: 5,
         bgcolor: "#fafafa",
-        mt: 4,
+        mt: 2,
       }}
     >
-      <Typography variant="h6" fontWeight={900} mb={1}>
+      <Typography variant="h6" fontWeight={900} mb={0.5}>
         Servicios Registrados
       </Typography>
-      <Typography variant="body2" color="text.secondary" mb={3}>
+      <Typography variant="body2" color="text.secondary" mb={2}>
         Aquí puedes ver todos tus servicios registrados. Revisa la información, edítalos o elimina los que ya no estén activos.
       </Typography>
 
+      {/* Barra de búsqueda */}
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        mb={3}
+        width="100%"
+        alignItems="center"
+      >
+        <TextField
+          fullWidth
+          label="Buscar servicio por nombre"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+
+        <Tooltip title="Limpiar búsqueda">
+          <IconButton
+            onClick={limpiarBusqueda}
+            sx={{
+              backgroundColor: "#0d47a1",
+              color: "#fff",
+              borderRadius: "10px",
+              p: 1.2,
+              ml: { xs: 0, sm: 1 },
+              mt: { xs: 1, sm: 0 },
+              transition: "transform 0.6s ease",
+              transform: rotating ? "rotate(360deg)" : "none",
+              "&:hover": {
+                backgroundColor: "#08306b",
+              },
+              fontSize: 22,
+            }}
+          >
+            <RefreshIcon></RefreshIcon>
+          </IconButton>
+        </Tooltip>
+      </Stack>
+
       {loading ? (
-        <Box display="flex" justifyContent="center" mt={4}>
-          <CircularProgress />
+        <Box display="flex" justifyContent="center" mt={3}>
+          <CircularProgress color="primary" />
         </Box>
-      ) : servicios.length === 0 ? (
-        <Typography textAlign="center" color="text.secondary" mt={4}>
-          No tienes servicios registrados actualmente.
+      ) : serviciosFiltrados.length === 0 ? (
+        <Typography textAlign="center" color="text.secondary" mt={3}>
+          No se encontraron servicios con ese nombre.
         </Typography>
       ) : (
-        <Stack spacing={2}>
-          {servicios.map((servicio) => (
+        <Stack spacing={2} width="100%">
+          {serviciosFiltrados.map((servicio) => (
             <Paper
               key={servicio.id}
-              sx={{ p: 2, borderRadius: 3, position: "relative" }}
-              elevation={3}
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                boxShadow: 5,
+              }}
+              elevation={2}
             >
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Box>
-                  <Typography variant="subtitle1" fontWeight={700}>
-                    {servicio.nombre}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" mt={0.5}>
-                    {servicio.descripcion}
-                  </Typography>
-                  <Typography variant="body2" fontWeight={600} mt={1}>
-                    Precio:{" "}
-                    {new Intl.NumberFormat("es-ES", {
-                      style: "currency",
-                      currency: "EUR",
-                    }).format(servicio.precio)}
-                  </Typography>
-                </Box>
+              {editandoId === servicio.id ? (
+                <ServicioForm
+                  servicio={servicio}
+                  onCancel={() => setEditandoId(null)}
+                  onSave={actualizarServicio}
+                />
+              ) : (
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight={900}>
+                      {servicio.nombre}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" mt={0.5}>
+                      {servicio.descripcion}
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600} mt={1}>
+                      Precio Estimado: {new Intl.NumberFormat("es-ES", {
+                        style: "currency",
+                        currency: "EUR",
+                      }).format(servicio.precio)}
+                    </Typography>
+                  </Box>
 
-                <Stack direction="row" spacing={1}>
-                  <IconButton
-                    color="primary"
-                    onClick={() => navigate(`/empresa/servicio/editar/${servicio.id}`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => {
-                      setServicioSeleccionado(servicio)
-                      setModalOpen(true)
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              </Box>
+                  <Stack direction="row" spacing={1}>
+                    <Tooltip title="Editar servicio">
+                      <IconButton color="primary" onClick={() => setEditandoId(servicio.id)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Eliminar servicio">
+                      <IconButton
+                        color="error"
+                        onClick={() => {
+                          setServicioSeleccionado(servicio)
+                          setModalOpen(true)
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Box>
+              )}
             </Paper>
           ))}
         </Stack>

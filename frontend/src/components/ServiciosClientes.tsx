@@ -10,8 +10,8 @@ import {
   Divider,
   CircularProgress,
   Snackbar,
+  TextField,
 } from "@mui/material"
-import { useNavigate } from "react-router-dom"
 
 import BusinessIcon from "@mui/icons-material/Business"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
@@ -55,13 +55,14 @@ const ServiciosCliente = () => {
   const [loading, setLoading] = useState(true)
   const [enviandoSolicitudId, setEnviandoSolicitudId] = useState<number | null>(null)
 
+  const [filtro, setFiltro] = useState("")
+
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("success")
 
   const token = localStorage.getItem("token")
   const clienteId = localStorage.getItem("clienteId")
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (!token || !clienteId) return
@@ -123,6 +124,13 @@ const ServiciosCliente = () => {
     setSnackbarOpen(true)
   }
 
+  const serviciosFiltrados = servicios.filter((s) =>
+    s.nombre.toLowerCase().includes(filtro.toLowerCase()) ||
+    s.empresa.nombreEmpresa.toLowerCase().includes(filtro.toLowerCase()) ||
+    s.empresa.direccion.toLowerCase().includes(filtro.toLowerCase()) ||
+    s.descripcion.toLowerCase().includes(filtro.toLowerCase())
+  )
+
   return (
     <Box
       sx={{
@@ -140,13 +148,21 @@ const ServiciosCliente = () => {
         Explora y selecciona los servicios que necesitas
       </Typography>
 
+      <TextField
+        fullWidth
+        label="Buscar por servicio, empresa o dirección"
+        value={filtro}
+        onChange={(e) => setFiltro(e.target.value)}
+        sx={{ mb: 4 }}
+      />
+
       {loading ? (
         <Box display="flex" justifyContent="center" my={6}>
           <CircularProgress />
         </Box>
-      ) : servicios.length === 0 ? (
+      ) : serviciosFiltrados.length === 0 ? (
         <Typography textAlign="center" color="text.secondary" my={5}>
-          Todavía no hay ningún servicio disponible.
+          No se encontraron servicios.
         </Typography>
       ) : (
         <>
@@ -157,7 +173,7 @@ const ServiciosCliente = () => {
               gap: 3,
             }}
           >
-            {servicios.slice(0, 6).map((servicio) => {
+            {serviciosFiltrados.slice(0, 6).map((servicio) => {
               const empresa = servicio.empresa
               const hasFoto = empresa.fotoUrl?.trim()
               const isSolicitado = yaSolicitado(servicio.id)
@@ -192,8 +208,7 @@ const ServiciosCliente = () => {
                         {servicio.descripcion}
                       </Typography>
                       <Typography variant="body1" fontWeight={600}>
-                        Precio:{" "}
-                        {new Intl.NumberFormat("es-ES", {
+                        Precio: {new Intl.NumberFormat("es-ES", {
                           style: "currency",
                           currency: "EUR",
                         }).format(servicio.precio)}
@@ -224,41 +239,29 @@ const ServiciosCliente = () => {
 
                   <Button
                     variant="contained"
-                    fullWidth
                     onClick={() => solicitarServicio(servicio.id)}
                     disabled={isSolicitado || isEnviando}
-                    sx={{ borderRadius: 3 }}
+                    sx={{
+                      px: 5,
+                      py: 1,
+                      bgcolor: "#0d47a1",
+                      fontWeight: 500,
+                      fontSize: "0.95rem",
+                      borderRadius: 2,
+                      textTransform: "none",
+                      alignSelf: "flex-start",
+                      "&:hover": { bgcolor: "#1565c0" },
+                    }}
                   >
                     {isSolicitado
                       ? "Ya solicitaste este servicio"
                       : isEnviando
-                        ? "Enviando..."
-                        : "Solicitar Servicio"}
+                      ? "Enviando..."
+                      : "Solicitar servicio"}
                   </Button>
                 </Paper>
               )
             })}
-          </Box>
-
-          <Box mt={4} width="100%">
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={() => navigate("/cliente/servicios")}
-              sx={{
-                backgroundColor: "#0d47a1",
-                color: "#fff",
-                fontWeight: 600,
-                py: 0.75,
-                fontSize: "1rem",
-                borderRadius: 3,
-                "&:hover": {
-                  backgroundColor: "#1565c0",
-                },
-              }}
-            >
-              Ver todos los servicios
-            </Button>
           </Box>
         </>
       )}

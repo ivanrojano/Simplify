@@ -112,8 +112,8 @@ const EmpresaDashboard = () => {
           >
             <Avatar
               sx={{
-                width: 90,
-                height: 90,
+                width: 110,
+                height: 110,
                 bgcolor: empresa.fotoUrl ? "transparent" : "#0d47a1",
                 border: "2px solid #0d47a1",
                 fontWeight: 700,

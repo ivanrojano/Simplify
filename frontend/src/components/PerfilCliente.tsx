@@ -70,7 +70,7 @@ const PerfilCliente = ({
       </Typography>
 
       {/* Avatar e Identidad */}
-      <Stack direction={{ xs: "column", sm: "row" }} sx={{ p: 3, mb: 2}} spacing={3} alignItems="center">
+      <Stack direction={{ xs: "column", sm: "row" }} sx={{ p: 3, mb: 2 }} spacing={3} alignItems="center">
         <Avatar
           sx={{
             width: 100,
@@ -86,7 +86,7 @@ const PerfilCliente = ({
           {!fotoUrl ? nombre.charAt(0).toUpperCase() : null}
         </Avatar>
         <Box>
-          <Typography variant="h5" fontWeight={800} color="#0d47a1">
+          <Typography variant="h5" fontWeight={900}>
             {nombre || "Sin datos"}
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" mt={1}>
@@ -159,21 +159,30 @@ const PerfilCliente = ({
         </CardContent>
       </Card>
 
-      {/* Botón Editar */}
       <Button
-        fullWidth
         startIcon={<EditIcon />}
         variant="contained"
         onClick={() => navigate("/cliente/editar")}
         sx={{
-          backgroundColor: "#0d47a1",
-          fontWeight: 600,
-          "&:hover": { backgroundColor: "#1565c0" },
+          mt: 2,
+          px: 5,
+          py: 1,
+          bgcolor: "#0d47a1",
+          fontWeight: 500,
+          fontSize: "0.95rem",
+          borderRadius: 2,
+          textTransform: "none",
           mb: 5,
+          alignSelf: "flex-start",
+          "&:hover": {
+            bgcolor: "#1565c0",
+          },
         }}
       >
-        Editar Perfil
+        Editar perfil
       </Button>
+
+
 
       <Divider sx={{ my: 4 }} />
 
