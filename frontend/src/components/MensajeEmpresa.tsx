@@ -57,7 +57,7 @@ const MensajesEmpresa = () => {
 
       try {
         const res = await axios.get<Solicitud[]>(
-          `http://localhost:8080/api/solicitudes/empresa/${empresaId}`,
+          `${import.meta.env.VITE_API_URL}/api/solicitudes/empresa/${empresaId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -71,7 +71,7 @@ const MensajesEmpresa = () => {
           solicitudesAceptadas.map(async (solicitud) => {
             try {
               const mensajesRes = await axios.get<Mensaje[]>(
-                `http://localhost:8080/api/mensajes/por-solicitud?solicitudId=${solicitud.id}`,
+                `${import.meta.env.VITE_API_URL}/api/mensajes/por-solicitud?solicitudId=${solicitud.id}`,
                 { headers: { Authorization: `Bearer ${token}` } }
               );
 

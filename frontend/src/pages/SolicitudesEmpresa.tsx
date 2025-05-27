@@ -57,7 +57,7 @@ const SolicitudesEmpresa = () => {
     }
 
     axios
-      .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/empresa/${empresaId}`, {
+      .get<Solicitud[]>(`${import.meta.env.VITE_API_URL}/api/solicitudes/empresa/${empresaId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSolicitudes(res.data))
@@ -67,7 +67,7 @@ const SolicitudesEmpresa = () => {
   const cambiarEstado = async (id: number, nuevoEstado: string) => {
     try {
       await axios.put(
-        `http://localhost:8080/api/solicitudes/${id}/estado`,
+        `${import.meta.env.VITE_API_URL}/api/solicitudes/${id}/estado`,
         { estado: nuevoEstado },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,7 +83,7 @@ const SolicitudesEmpresa = () => {
   const finalizarSolicitud = async (id: number) => {
     try {
       await axios.put(
-        `http://localhost:8080/api/solicitudes/${id}/finalizar`,
+        `${import.meta.env.VITE_API_URL}/api/solicitudes/${id}/finalizar`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -104,7 +104,7 @@ const SolicitudesEmpresa = () => {
   const confirmarEliminacion = async () => {
     if (!solicitudAEliminar) return;
     try {
-      await axios.delete(`http://localhost:8080/api/solicitudes/${solicitudAEliminar}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/solicitudes/${solicitudAEliminar}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Solicitud eliminada");

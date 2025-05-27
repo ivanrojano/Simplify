@@ -97,7 +97,7 @@ const EditarEmpresa = () => {
     const headers = { headers: { Authorization: `Bearer ${token}` } };
 
     axios
-      .get<Empresa>(`http://localhost:8080/api/empresas/${empresaId}`, headers)
+      .get<Empresa>(`${import.meta.env.VITE_API_URL}/api/empresas/${empresaId}`, headers)
       .then((res) => {
         setForm(res.data);
         setLoading(false);
@@ -138,7 +138,7 @@ const EditarEmpresa = () => {
     const dataToSend = { ...form, fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl };
 
     axios
-      .put(`http://localhost:8080/api/empresas/${empresaId}`, dataToSend, headers)
+      .put(`${import.meta.env.VITE_API_URL}/api/empresas/${empresaId}`, dataToSend, headers)
       .then(() => {
         setSnackbar({ open: true, message: "Perfil actualizado correctamente", severity: "success" });
         setTimeout(() => navigate("/empresa"), 2000);

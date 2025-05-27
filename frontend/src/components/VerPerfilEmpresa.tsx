@@ -61,8 +61,8 @@ const VerPerfilEmpresa = () => {
         }
 
         const [empresaRes, valoracionesRes] = await Promise.all([
-          axios.get<Empresa>(`http://localhost:8080/api/empresas/${empresaId}`, headers),
-          axios.get<ValoracionDTO[]>(`http://localhost:8080/api/valoraciones/empresa/${empresaId}`, headers),
+          axios.get<Empresa>(`${import.meta.env.VITE_API_URL}/api/empresas/${empresaId}`, headers),
+          axios.get<ValoracionDTO[]>(`${import.meta.env.VITE_API_URL}/api/valoraciones/empresa/${empresaId}`, headers),
         ])
 
         setEmpresa(empresaRes.data)

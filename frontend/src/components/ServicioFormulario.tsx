@@ -77,7 +77,7 @@ const ServicioForm = ({ servicio, onSave, onCancel }: ServicioFormProps) => {
 
     try {
       const res = await axios.put<Servicio>(
-        `http://localhost:8080/api/servicios/${servicio.id}`,
+        `${import.meta.env.VITE_API_URL}/api/servicios/${servicio.id}`,
         {
           nombre,
           descripcion,

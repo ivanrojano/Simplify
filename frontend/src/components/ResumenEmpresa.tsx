@@ -101,7 +101,7 @@ const ResumenEmpresa: FC = () => {
     }
 
     axios
-      .get<EmpresaProps>(`http://localhost:8080/api/empresas/${empresaId}`, headers)
+      .get<EmpresaProps>(`${import.meta.env.VITE_API_URL}/api/empresas/${empresaId}`, headers)
       .then((res) => {
         setEmpresa(res.data)
         setLoading(false)
@@ -112,7 +112,7 @@ const ResumenEmpresa: FC = () => {
       })
 
     axios
-      .get<Servicio[]>(`http://localhost:8080/api/servicios/empresa/${empresaId}`, headers)
+      .get<Servicio[]>(`${import.meta.env.VITE_API_URL}/api/servicios/empresa/${empresaId}`, headers)
       .then((res) => {
         setServicios(res.data)
       })
@@ -121,7 +121,7 @@ const ResumenEmpresa: FC = () => {
       })
 
     axios
-      .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/empresa/${empresaId}`, headers)
+      .get<Solicitud[]>(`${import.meta.env.VITE_API_URL}/api/solicitudes/empresa/${empresaId}`, headers)
       .then((res) => {
         setSolicitudes(res.data)
       })
@@ -130,7 +130,7 @@ const ResumenEmpresa: FC = () => {
       })
 
     axios
-      .get<Valoracion[]>(`http://localhost:8080/api/valoraciones/empresa/${empresaId}`, headers)
+      .get<Valoracion[]>(`${import.meta.env.VITE_API_URL}/api/valoraciones/empresa/${empresaId}`, headers)
       .then((res) => {
         const recientes = res.data
           .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())

@@ -67,7 +67,7 @@ const CambiarPassword = ({ id, tipo }: CambiarPasswordProps) => {
         return;
       }
 
-      const endpoint = `http://localhost:8080/api/${tipo}s/${id}/cambiar-password`;
+      const endpoint = `${import.meta.env.VITE_API_URL}/${tipo}s/${id}/cambiar-password`
 
       await axios.put(
         endpoint,

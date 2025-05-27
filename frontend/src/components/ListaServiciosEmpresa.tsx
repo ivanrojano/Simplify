@@ -58,7 +58,7 @@ const ListaServicios = () => {
   const fetchServicios = async () => {
     try {
       const res = await axios.get<Servicio[]>(
-        `http://localhost:8080/api/servicios/empresa/${empresaId}`,
+        `${import.meta.env.VITE_API_URL}/api/servicios/empresa/${empresaId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       setServicios(res.data)
@@ -75,7 +75,7 @@ const ListaServicios = () => {
     if (!servicioSeleccionado) return
     try {
       await axios.delete(
-        `http://localhost:8080/api/servicios/${servicioSeleccionado.id}`,
+        `${import.meta.env.VITE_API_URL}/api/servicios/${servicioSeleccionado.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       setServicios((prev) => prev.filter((s) => s.id !== servicioSeleccionado.id))

@@ -65,7 +65,7 @@ export default function RegistroEmpresa() {
     }
 
     try {
-      await axios.post("http://localhost:8080/api/auth/registro/empresa", form);
+      await axios.post("${import.meta.env.VITE_API_URL}/api/auth/registro/empresa", form);
       toast.success("Empresa registrada correctamente");
       setTimeout(() => navigate("/"), 3000);
       setForm({

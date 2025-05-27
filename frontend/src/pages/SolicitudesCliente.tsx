@@ -51,7 +51,7 @@ const SolicitudesCliente = () => {
     }
 
     axios
-      .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/cliente/${clienteId}`, {
+      .get<Solicitud[]>(`${import.meta.env.VITE_API_URL}/api/solicitudes/cliente/${clienteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSolicitudes(res.data))
