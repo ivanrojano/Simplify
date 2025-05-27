@@ -45,8 +45,8 @@ const AdminDashboard = () => {
   const [mostrarLogoutModal, setMostrarLogoutModal] = useState(false);
   const { token, logout } = useContext(AuthContext);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [] = useState<string | null>(null);
+  const [, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [usuarioAAscender, setUsuarioAAscender] = useState<Usuario | null>(null);
   const [usuarioAEliminar, setUsuarioAEliminar] = useState<Usuario | null>(null);
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
       });
       setUsuarios(res.data);
     } catch (err: any) {
-      setError("Error al obtener usuarios.");
+      //setError("Error al obtener usuarios.");
     } finally {
       setLoading(false);
     }

@@ -6,8 +6,6 @@ import {
   Typography,
   Paper,
   Divider,
-  useMediaQuery,
-  useTheme,
   Alert as MuiAlert,
   Card,
   CardContent,
@@ -48,8 +46,6 @@ const PerfilCliente = ({
   fechaRegistro,
 }: Props) => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const campoIncompleto = !telefono || !ciudad || !codigoPostal;
 

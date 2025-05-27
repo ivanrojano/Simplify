@@ -187,7 +187,7 @@ const ListaServicios = () => {
                 <ServicioForm
                   servicio={servicio}
                   onCancel={() => setEditandoId(null)}
-                  onSave={actualizarServicio}
+                  onSave={actualizarServicio as unknown as (servicioActualizado: any) => void}
                 />
               ) : (
                 <Box display="flex" justifyContent="space-between" alignItems="center">
