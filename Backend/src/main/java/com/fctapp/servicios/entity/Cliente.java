@@ -11,19 +11,27 @@ import jakarta.persistence.Entity;
 public class Cliente extends Usuario {
 
 	private String nombre;
+	
 	private String direccion;
+	
 	private String fotoUrl;
+	
 	private String telefono;
+	
 	private String codigoPostal;
+	
 	private String ciudad;
+
 	private LocalDateTime fechaRegistro;
+
 
 	public Cliente() {
 		super();
 		this.fechaRegistro = LocalDateTime.now();
 	}
 
-	public Cliente(String nombre, String direccion, String fotoUrl, String telefono, String codigoPostal, String ciudad) {
+	public Cliente(String nombre, String direccion, String fotoUrl, String telefono, String codigoPostal,
+			String ciudad) {
 		super();
 		this.nombre = nombre;
 		this.direccion = direccion;

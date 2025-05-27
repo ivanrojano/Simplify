@@ -30,11 +30,11 @@ public class AdminController {
     private final PasswordEncoder passwordEncoder;
 
     public AdminController(UsuarioRepository usuarioRepo,
-                           ClienteRepository clienteRepo,
-                           EmpresaRepository empresaRepo,
-                           SolicitudServicioRepository solicitudRepo,
-                           MensajeRepository mensajeRepo,
-                           PasswordEncoder passwordEncoder) {
+            ClienteRepository clienteRepo,
+            EmpresaRepository empresaRepo,
+            SolicitudServicioRepository solicitudRepo,
+            MensajeRepository mensajeRepo,
+            PasswordEncoder passwordEncoder) {
         this.usuarioRepo = usuarioRepo;
         this.clienteRepo = clienteRepo;
         this.empresaRepo = empresaRepo;
@@ -50,7 +50,7 @@ public class AdminController {
 
     @PutMapping("/usuarios/{id}/rol")
     public ResponseEntity<Usuario> cambiarRol(@PathVariable("id") Long id,
-                                              @RequestParam("nuevoRol") Rol nuevoRol) {
+            @RequestParam("nuevoRol") Rol nuevoRol) {
         return usuarioRepo.findById(id)
                 .map(user -> {
                     user.setRol(nuevoRol);
@@ -85,5 +85,23 @@ public class AdminController {
     @GetMapping("/mensajes")
     public List<Mensaje> listarMensajes() {
         return mensajeRepo.findAll();
+    }
+
+    @PutMapping("/usuarios/{id}/estado")
+    public ResponseEntity<?> cambiarEstadoUsuario(@PathVariable Long id, @RequestParam boolean activo) {
+        return usuarioRepo.findById(id).map(u -> {
+            u.setActivo(activo);
+            usuarioRepo.save(u);
+            return ResponseEntity.ok("Estado del usuario actualizado.");
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/empresas/{id}/estado")
+    public ResponseEntity<?> cambiarEstadoEmpresa(@PathVariable Long id, @RequestParam boolean aprobada) {
+        return empresaRepo.findById(id).map(e -> {
+            e.setAprobada(aprobada);
+            empresaRepo.save(e);
+            return ResponseEntity.ok("Estado de la empresa actualizado.");
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

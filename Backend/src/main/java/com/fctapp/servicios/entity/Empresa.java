@@ -2,6 +2,7 @@ package com.fctapp.servicios.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@JsonIgnoreProperties({"servicios"}) 
+@JsonIgnoreProperties({ "servicios" })
 public class Empresa extends Usuario {
 
 	private String nombreEmpresa;
@@ -39,8 +40,11 @@ public class Empresa extends Usuario {
 	private String pais;
 
 	private String sitioWeb;
-	
+
 	private String telefono;
+
+	@Column(nullable = false)
+	private boolean aprobada = false;
 
 	@OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Servicio> servicios = new ArrayList<>();
@@ -185,4 +189,13 @@ public class Empresa extends Usuario {
 	public void setTelefono(String telefono) {
 		this.telefono = telefono;
 	}
+
+	public boolean isAprobada() {
+		return aprobada;
+	}
+
+	public void setAprobada(boolean aprobada) {
+		this.aprobada = aprobada;
+	}
+
 }

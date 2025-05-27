@@ -14,18 +14,21 @@ import jakarta.persistence.InheritanceType;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+	@Column(unique = true, nullable = false)
+	private String email;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @Enumerated(EnumType.STRING)
-    private Rol rol;
+	@Enumerated(EnumType.STRING)
+	private Rol rol;
+
+	@Column(nullable = false)
+	private boolean activo = true;
 
 	public Usuario() {
 		super();
@@ -70,4 +73,13 @@ public abstract class Usuario {
 	public void setRol(Rol rol) {
 		this.rol = rol;
 	}
+	
+	public boolean isActivo() {
+    return activo;
+}
+
+public void setActivo(boolean activo) {
+    this.activo = activo;
+}
+
 }
