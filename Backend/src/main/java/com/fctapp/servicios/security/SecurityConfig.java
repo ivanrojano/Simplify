@@ -21,18 +21,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtFiltro jwtFiltro) throws Exception {
         http.csrf(csrf -> csrf.disable())
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/clientes/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 👈 CORS aquí
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(
-                (request, response, authException) ->
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
-            ));
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/clientes/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 👈 CORS aquí
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                                "Unauthorized")));
 
         http.addFilterBefore(jwtFiltro, UsernamePasswordAuthenticationFilter.class);
 
@@ -53,17 +51,17 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔓 CORS configurado para desarrollo
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://simplify-frotend.onrender.com"));
+        config.setAllowedOrigins(List.of("https://simplify-frotend.onrender.com")); // dominio correcto del frontend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false); // ← ⚠️ Usas JWT, no necesitas cookies/sesión
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration("/**", config); // aplicar a todas las rutas
         return source;
     }
+
 }
