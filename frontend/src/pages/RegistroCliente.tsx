@@ -61,7 +61,7 @@ export default function RegistroCliente() {
     }
 
     try {
-      await axios.post("${import.meta.env.VITE_API_URL}/api/auth/registro/cliente", form);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/registro/cliente`, form);
       toast.success("Cliente registrado correctamente");
       setTimeout(() => {
         navigate("/");
