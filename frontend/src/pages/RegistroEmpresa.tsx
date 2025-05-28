@@ -59,15 +59,28 @@ export default function RegistroEmpresa() {
     e.preventDefault();
 
     const { email, password, nombreEmpresa, descripcion, direccion } = form;
+
+    console.log("Datos del formulario enviados al backend:");
+    console.table(form);
+
     if (!email || !password || !nombreEmpresa || !descripcion || !direccion) {
       toast.warn("Todos los campos son obligatorios.");
       return;
     }
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/registro/empresa`, form);
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/auth/registro/empresa`;
+      console.log("URL de la API:", apiUrl);
+
+      const response = await axios.post(apiUrl, form);
+
+      console.log("Respuesta del backend:");
+      console.log(response.data);
+
       toast.success("Empresa registrada correctamente");
+
       setTimeout(() => navigate("/"), 3000);
+
       setForm({
         email: "",
         password: "",
@@ -75,18 +88,15 @@ export default function RegistroEmpresa() {
         descripcion: "",
         direccion: "",
       });
-    } catch (err) {
-      const status = (err as any)?.response?.status;
-      if (status === 409 || status === 401) {
-        toast.error("Ya existe una empresa con ese correo o nombre.");
-      } else if (status === 400) {
-        toast.error("Datos inválidos. Revisa el formulario.");
-      } else {
-        toast.error("Error al registrar empresa.");
-      }
-      console.error(err);
+    } catch (err: any) {
+      console.error("Error al registrar empresa:");
+      console.log("Mensaje:", err.message);
+      console.log("Status:", err.response?.status);
+      console.log("Respuesta completa:", err.response);
+      toast.error("Error al registrar empresa.");
     }
   };
+
 
   return (
     <Box
