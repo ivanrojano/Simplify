@@ -72,7 +72,7 @@ const ServiciosCliente = () => {
     const headers = { headers: { Authorization: `Bearer ${token}` } }
 
     axios
-      .get<Servicio[]>("${import.meta.env.VITE_API_URL}/api/servicios", headers)
+      .get<Servicio[]>(`${import.meta.env.VITE_API_URL}/api/servicios`, headers)
       .then((res) => {
         setServicios(res.data)
         setLoading(false)
@@ -101,7 +101,7 @@ const ServiciosCliente = () => {
 
     try {
       await axios.post(
-        "${import.meta.env.VITE_API_URL}/api/solicitudes/crear",
+        `${import.meta.env.VITE_API_URL}/api/solicitudes/crear`,
         { clienteId: Number(clienteId), servicioId },
         { headers: { Authorization: `Bearer ${token}` } }
       )
