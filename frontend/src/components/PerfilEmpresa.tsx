@@ -9,7 +9,6 @@ import {
   Divider,
   Card,
   CardContent,
-  CircularProgress,
 } from "@mui/material";
 import {
   Email as EmailIcon,
@@ -27,40 +26,65 @@ import {
   Language as LanguageIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import CambiarContraseña from "./CambiarContraseña";
 
-const PerfilEmpresa = () => {
+interface EmpresaProps {
+  id: number;
+  nombreEmpresa: string;
+  descripcion: string;
+  direccion: string;
+  email: string;
+  fotoUrl?: string;
+  telefono?: string;
+  codigoPostal?: string;
+  ciudad?: string;
+  provincia?: string;
+  pais?: string;
+  sitioWeb?: string;
+  nif?: string;
+  horarioAtencion?: string;
+  numeroEmpleados?: number;
+  tipoEmpresa?: string;
+  fechaRegistro?: string;
+}
+
+const PerfilEmpresa = ({
+  id,
+  nombreEmpresa,
+  descripcion,
+  direccion,
+  email,
+  fotoUrl,
+  telefono,
+  codigoPostal,
+  ciudad,
+  provincia,
+  pais,
+  sitioWeb,
+  nif,
+  horarioAtencion,
+  numeroEmpleados,
+  tipoEmpresa,
+  fechaRegistro,
+}: EmpresaProps) => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const empresaId = localStorage.getItem("empresaId");
 
-  const [empresa, setEmpresa] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!token || !empresaId) {
-      navigate("/login");
-      return;
-    }
-
-    const fetchEmpresa = async () => {
-      try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/empresas/${empresaId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setEmpresa(res.data);
-      } catch {
-        navigate("/empresa/editar");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmpresa();
-  }, []);
-
+  const campoIncompleto =
+    !nombreEmpresa?.trim() ||
+    !descripcion?.trim() ||
+    !direccion?.trim() ||
+    !email?.trim() ||
+    !telefono?.trim() ||
+    !codigoPostal?.trim() ||
+    !ciudad?.trim() ||
+    !provincia?.trim() ||
+    !pais?.trim() ||
+    !sitioWeb?.trim() ||
+    !nif?.trim() ||
+    !horarioAtencion?.trim() ||
+    !numeroEmpleados ||
+    !tipoEmpresa?.trim() ||
+    !fechaRegistro;
 
   const infoRow = (icon: React.ReactNode, label: string, value?: string | number | null) => (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -68,34 +92,6 @@ const PerfilEmpresa = () => {
       <strong>{label}:</strong> {value && String(value).trim() !== "" ? value : "Sin datos"}
     </Box>
   );
-
-  const campoIncompleto = empresa && (
-    !empresa.nombreEmpresa?.trim() ||
-    !empresa.descripcion?.trim() ||
-    !empresa.direccion?.trim() ||
-    !empresa.email?.trim() ||
-    !empresa.telefono?.trim() ||
-    !empresa.codigoPostal?.trim() ||
-    !empresa.ciudad?.trim() ||
-    !empresa.provincia?.trim() ||
-    !empresa.pais?.trim() ||
-    !empresa.sitioWeb?.trim() ||
-    !empresa.nif?.trim() ||
-    !empresa.horarioAtencion?.trim() ||
-    !empresa.numeroEmpleados ||
-    !empresa.tipoEmpresa?.trim() ||
-    !empresa.fechaRegistro
-  );
-
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
-        <CircularProgress color="primary" />
-      </Box>
-    );
-  }
-
-  if (!empresa) return null;
 
   return (
     <Paper elevation={4} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: "#fafafa" }}>
@@ -111,22 +107,22 @@ const PerfilEmpresa = () => {
           sx={{
             width: 100,
             height: 100,
-            bgcolor: empresa.fotoUrl ? "transparent" : "#0d47a1",
+            bgcolor: fotoUrl ? "transparent" : "#0d47a1",
             border: "2px solid #0d47a1",
             fontWeight: 700,
             fontSize: 36,
             color: "#fff",
           }}
-          src={empresa.fotoUrl || undefined}
+          src={fotoUrl || undefined}
         >
-          {!empresa.fotoUrl ? empresa.nombreEmpresa.charAt(0).toUpperCase() : null}
+          {!fotoUrl ? nombreEmpresa.charAt(0).toUpperCase() : null}
         </Avatar>
         <Box>
           <Typography variant="h5" fontWeight={900}>
-            {empresa.nombreEmpresa}
+            {nombreEmpresa}
           </Typography>
           <Typography variant="subtitle2" color="text.secondary" mt={1}>
-            Registrada desde: {new Date(empresa.fechaRegistro).toLocaleDateString()}
+            Registrada desde: {fechaRegistro ? new Date(fechaRegistro).toLocaleDateString() : "Sin datos"}
           </Typography>
         </Box>
       </Stack>
@@ -141,8 +137,8 @@ const PerfilEmpresa = () => {
         <CardContent sx={{ p: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} mb={2}>Datos de Contacto</Typography>
           <Stack spacing={1.5}>
-            {infoRow(<EmailIcon sx={{ color: "#0d47a1" }} />, "Email", empresa.email)}
-            {infoRow(<PhoneIcon sx={{ color: "#0d47a1" }} />, "Teléfono", empresa.telefono)}
+            {infoRow(<EmailIcon sx={{ color: "#0d47a1" }} />, "Email", email)}
+            {infoRow(<PhoneIcon sx={{ color: "#0d47a1" }} />, "Teléfono", telefono)}
           </Stack>
         </CardContent>
       </Card>
@@ -151,11 +147,11 @@ const PerfilEmpresa = () => {
         <CardContent sx={{ p: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} mb={2}>Dirección</Typography>
           <Stack spacing={1.5}>
-            {infoRow(<LocationOnIcon sx={{ color: "#0d47a1" }} />, "Dirección", empresa.direccion)}
-            {infoRow(<LocationCityIcon sx={{ color: "#0d47a1" }} />, "Ciudad", empresa.ciudad)}
-            {infoRow(<HomeIcon sx={{ color: "#0d47a1" }} />, "Código Postal", empresa.codigoPostal)}
-            {infoRow(<ApartmentIcon sx={{ color: "#0d47a1" }} />, "Provincia", empresa.provincia)}
-            {infoRow(<PublicIcon sx={{ color: "#0d47a1" }} />, "País", empresa.pais)}
+            {infoRow(<LocationOnIcon sx={{ color: "#0d47a1" }} />, "Dirección", direccion)}
+            {infoRow(<LocationCityIcon sx={{ color: "#0d47a1" }} />, "Ciudad", ciudad)}
+            {infoRow(<HomeIcon sx={{ color: "#0d47a1" }} />, "Código Postal", codigoPostal)}
+            {infoRow(<ApartmentIcon sx={{ color: "#0d47a1" }} />, "Provincia", provincia)}
+            {infoRow(<PublicIcon sx={{ color: "#0d47a1" }} />, "País", pais)}
           </Stack>
         </CardContent>
       </Card>
@@ -163,7 +159,7 @@ const PerfilEmpresa = () => {
       <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
         <CardContent sx={{ p: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} mb={2}>Información Fiscal</Typography>
-          {infoRow(<BadgeIcon sx={{ color: "#0d47a1" }} />, "NIF", empresa.nif)}
+          {infoRow(<BadgeIcon sx={{ color: "#0d47a1" }} />, "NIF", nif)}
         </CardContent>
       </Card>
 
@@ -171,9 +167,9 @@ const PerfilEmpresa = () => {
         <CardContent sx={{ p: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} mb={2}>Empresa</Typography>
           <Stack spacing={1.5}>
-            {infoRow(<WorkIcon sx={{ color: "#0d47a1" }} />, "Tipo", empresa.tipoEmpresa)}
-            {infoRow(<PeopleAltIcon sx={{ color: "#0d47a1" }} />, "Número de empleados", empresa.numeroEmpleados)}
-            {infoRow(<AccessTimeIcon sx={{ color: "#0d47a1" }} />, "Horario de atención", empresa.horarioAtencion)}
+            {infoRow(<WorkIcon sx={{ color: "#0d47a1" }} />, "Tipo", tipoEmpresa)}
+            {infoRow(<PeopleAltIcon sx={{ color: "#0d47a1" }} />, "Número de empleados", numeroEmpleados)}
+            {infoRow(<AccessTimeIcon sx={{ color: "#0d47a1" }} />, "Horario de atención", horarioAtencion)}
           </Stack>
         </CardContent>
       </Card>
@@ -181,7 +177,7 @@ const PerfilEmpresa = () => {
       <Card elevation={8} sx={{ p: 3, mb: 4, bgcolor: "#fff" }}>
         <CardContent sx={{ p: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} mb={2}>Presencia Online</Typography>
-          {infoRow(<LanguageIcon sx={{ color: "#0d47a1" }} />, "Sitio Web", empresa.sitioWeb)}
+          {infoRow(<LanguageIcon sx={{ color: "#0d47a1" }} />, "Sitio Web", sitioWeb)}
         </CardContent>
       </Card>
 
@@ -189,7 +185,7 @@ const PerfilEmpresa = () => {
         <CardContent sx={{ p: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} mb={2}>Descripción</Typography>
           <Typography variant="body2" color="text.secondary">
-            {empresa.descripcion?.trim() || "Sin datos"}
+            {descripcion?.trim() || "Sin datos"}
           </Typography>
         </CardContent>
       </Card>
@@ -226,7 +222,7 @@ const PerfilEmpresa = () => {
         Puedes actualizar la contraseña de tu empresa aquí.
       </Typography>
 
-      <CambiarContraseña id={empresa.id} tipo="empresa" />
+      <CambiarContraseña id={id} tipo="empresa" />
     </Paper>
   );
 };
