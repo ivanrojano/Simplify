@@ -87,16 +87,29 @@ const EditarCliente = () => {
   };
 
   const validateForm = () => {
-    if (!form.nombre.trim()) return toast.error("El nombre es obligatorio.");
-    if (form.nombre.length > 20)
-      return toast.error("El nombre no puede tener más de 20 caracteres.");
-    if (!form.direccion.trim() || form.direccion.length < 5)
-      return toast.error("La dirección debe tener al menos 5 caracteres.");
-    if (!form.email.includes("@")) return toast.error("Email inválido.");
-    if (form.telefono && form.telefono.length < 7)
-      return toast.error("El teléfono debe tener al menos 7 dígitos.");
+    if (!form.nombre.trim()) {
+      toast.error("El nombre es obligatorio.");
+      return false;
+    }
+    if (form.nombre.length > 20) {
+      toast.error("El nombre no puede tener más de 20 caracteres.");
+      return false;
+    }
+    if (!form.direccion.trim() || form.direccion.length < 5) {
+      toast.error("La dirección debe tener al menos 5 caracteres.");
+      return false;
+    }
+    if (!form.email.includes("@") || !form.email.includes(".")) {
+      toast.error("Email inválido.");
+      return false;
+    }
+    if (form.telefono && form.telefono.trim().length < 7) {
+      toast.error("El teléfono debe tener al menos 7 dígitos.");
+      return false;
+    }
     return true;
   };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

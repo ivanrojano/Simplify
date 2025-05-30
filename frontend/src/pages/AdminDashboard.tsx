@@ -232,11 +232,12 @@ const AdminDashboard = () => {
                       variant="outlined"
                       color="error"
                       size="small"
-                      disabled={u.email === emailActual || (u.rol === "ADMIN" && rolActual === "ADMIN")}
+                      disabled={u.email === emailActual}
                       onClick={() => confirmarEliminacion(u)}
                     >
                       Eliminar
                     </Button>
+
 
                     {rolActual === "ADMIN" && u.rol !== "ADMIN" && (
                       <Button

@@ -14,7 +14,6 @@ import SolicitudesCliente from "../pages/SolicitudesCliente";
 import SolicitudesEmpresa from "../pages/SolicitudesEmpresa";
 import MensajesEmpresa from "../pages/MensajesEmpresa";
 import MensajesCliente from "../pages/MensajesClienteDetalle";
-import { QueEsSimplify } from "../pages/QueEsSimplify";
 import VerPerfilEmpresa from "../components/VerPerfilEmpresa";
 import PoliticaPrivacidad from "../pages/PolitiicaPrivacidad";
 
@@ -25,7 +24,6 @@ const AppRouter = () => {
       <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Index />} />
-        <Route path="/simplify" element={<QueEsSimplify />} />
         <Route path="/registro" element={<InicioRegistro />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro/cliente" element={<RegistroCliente />} />
