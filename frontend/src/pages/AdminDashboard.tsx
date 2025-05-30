@@ -238,7 +238,6 @@ const AdminDashboard = () => {
                       Eliminar
                     </Button>
 
-
                     {rolActual === "ADMIN" && u.rol !== "ADMIN" && (
                       <Button
                         variant="contained"

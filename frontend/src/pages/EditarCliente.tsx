@@ -13,7 +13,6 @@ import {
   InputAdornment,
   Tooltip,
 } from "@mui/material";
-
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -86,38 +85,44 @@ const EditarCliente = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     if (!form.nombre.trim()) {
       toast.error("El nombre es obligatorio.");
       return false;
     }
-    if (form.nombre.length > 20) {
+
+    if (form.nombre.trim().length > 20) {
       toast.error("El nombre no puede tener más de 20 caracteres.");
       return false;
     }
+
     if (!form.direccion.trim() || form.direccion.length < 5) {
       toast.error("La dirección debe tener al menos 5 caracteres.");
       return false;
     }
-    if (!form.email.includes("@") || !form.email.includes(".")) {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email.trim())) {
       toast.error("Email inválido.");
       return false;
     }
+
     if (form.telefono && form.telefono.trim().length < 7) {
       toast.error("El teléfono debe tener al menos 7 dígitos.");
       return false;
     }
+
     return true;
   };
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validateForm()) return;
 
     const dataToSend = {
       ...form,
-      fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl,
+      fotoUrl: form.fotoUrl?.trim() === "" ? null : form.fotoUrl?.trim(),
     };
 
     axios
@@ -139,12 +144,13 @@ const EditarCliente = () => {
     navigate("/");
   };
 
-  if (loading)
+  if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
         <CircularProgress color="primary" />
       </Box>
     );
+  }
 
   return (
     <Box
@@ -220,123 +226,70 @@ const EditarCliente = () => {
             maxWidth: 450,
           }}
         >
-          <TextField
-            label="Nombre"
-            name="nombre"
-            value={form.nombre}
-            onChange={handleChange}
-            fullWidth
-            required
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Nombre">
-                    <PersonIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Dirección"
-            name="direccion"
-            value={form.direccion}
-            onChange={handleChange}
-            fullWidth
-            required
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Dirección">
-                    <LocationOnIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Email"
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            fullWidth
-            required
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Correo electrónico">
-                    <EmailIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Teléfono"
-            name="telefono"
-            value={form.telefono || ""}
-            onChange={handleChange}
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Teléfono">
-                    <PhoneIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Código Postal"
-            name="codigoPostal"
-            value={form.codigoPostal || ""}
-            onChange={handleChange}
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Código Postal">
-                    <HomeIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Ciudad"
-            name="ciudad"
-            value={form.ciudad || ""}
-            onChange={handleChange}
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Ciudad">
-                    <LocationCityIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Foto de Perfil (URL)"
-            name="fotoUrl"
-            value={form.fotoUrl || ""}
-            onChange={handleChange}
-            fullWidth
-            placeholder="https://ejemplo.com/foto.jpg"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="URL de la foto">
-                    <ImageIcon sx={{ color: "#0d47a1" }} />
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
+          {/* TextFields */}
+
+          {[
+            {
+              label: "Nombre",
+              name: "nombre",
+              icon: <PersonIcon />,
+              required: true,
+            },
+            {
+              label: "Dirección",
+              name: "direccion",
+              icon: <LocationOnIcon />,
+              required: true,
+            },
+            {
+              label: "Email",
+              name: "email",
+              icon: <EmailIcon />,
+              type: "email",
+              required: true,
+            },
+            {
+              label: "Teléfono",
+              name: "telefono",
+              icon: <PhoneIcon />,
+            },
+            {
+              label: "Código Postal",
+              name: "codigoPostal",
+              icon: <HomeIcon />,
+            },
+            {
+              label: "Ciudad",
+              name: "ciudad",
+              icon: <LocationCityIcon />,
+            },
+            {
+              label: "Foto de Perfil (URL)",
+              name: "fotoUrl",
+              icon: <ImageIcon />,
+              placeholder: "https://ejemplo.com/foto.jpg",
+            },
+          ].map(({ label, name, icon, type, required, placeholder }) => (
+            <TextField
+              key={name}
+              label={label}
+              name={name}
+              value={(form as any)[name] || ""}
+              onChange={handleChange}
+              fullWidth
+              required={required}
+              type={type || "text"}
+              placeholder={placeholder}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Tooltip title={label}>{icon}</Tooltip>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          ))}
+
           <Button
             variant="contained"
             type="submit"
