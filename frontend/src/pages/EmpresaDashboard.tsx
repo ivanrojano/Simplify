@@ -24,14 +24,26 @@ import MensajesEmpresa from "../components/MensajeEmpresa"
 
 
 interface Empresa {
-  id: number
-  email: string
-  nombreEmpresa: string
-  descripcion: string
-  direccion: string
-  rol: string
-  fotoUrl?: string
+  id: number;
+  email: string;
+  nombreEmpresa: string;
+  descripcion: string;
+  direccion: string;
+  rol: string;
+  fotoUrl?: string;
+  telefono?: string;
+  codigoPostal?: string;
+  ciudad?: string;
+  provincia?: string;
+  pais?: string;
+  sitioWeb?: string;
+  nif?: string;
+  horarioAtencion?: string;
+  numeroEmpleados?: number;
+  tipoEmpresa?: string;
+  fechaRegistro?: string;
 }
+
 
 const EmpresaDashboard = () => {
   const [empresa, setEmpresa] = useState<Empresa | null>(null)
@@ -156,7 +168,7 @@ const EmpresaDashboard = () => {
 
         {/* Contenido dinámico */}
         <Box>
-          {tabValue === 0 && (<ResumenEmpresa/>)}
+          {tabValue === 0 && (<ResumenEmpresa />)}
 
 
           {tabValue === 1 && (
@@ -167,6 +179,17 @@ const EmpresaDashboard = () => {
               direccion={empresa.direccion}
               email={empresa.email}
               fotoUrl={empresa.fotoUrl}
+              telefono={empresa.telefono}
+              codigoPostal={empresa.codigoPostal}
+              ciudad={empresa.ciudad}
+              provincia={empresa.provincia}
+              pais={empresa.pais}
+              sitioWeb={empresa.sitioWeb}
+              nif={empresa.nif}
+              horarioAtencion={empresa.horarioAtencion}
+              numeroEmpleados={empresa.numeroEmpleados}
+              tipoEmpresa={empresa.tipoEmpresa}
+              fechaRegistro={empresa.fechaRegistro}
             />
           )}
 
