@@ -141,12 +141,13 @@ const EditarEmpresa = () => {
       .put(`${import.meta.env.VITE_API_URL}/api/empresas/${empresaId}`, dataToSend, headers)
       .then(() => {
         setSnackbar({ open: true, message: "Perfil actualizado correctamente", severity: "success" });
-        setTimeout(() => navigate("/empresa"), 2000);
+        setTimeout(() => navigate("/empresa", { replace: true }), 1000); 
       })
       .catch(() => {
         setSnackbar({ open: true, message: "Error al guardar los cambios", severity: "error" });
       });
   };
+
 
   const confirmLogout = () => {
     localStorage.clear();
