@@ -3,7 +3,6 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import ConfirmModalAceptar from "../components/ConfirmModalAceptar";
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 import ConfirmModalEliminar from "../components/ConfirmModalEliminar";
@@ -45,7 +44,6 @@ const AdminDashboard = () => {
   const [mostrarLogoutModal, setMostrarLogoutModal] = useState(false);
   const { token, logout } = useContext(AuthContext);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [] = useState<string | null>(null);
   const [, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [usuarioAAscender, setUsuarioAAscender] = useState<Usuario | null>(null);
@@ -72,7 +70,6 @@ const AdminDashboard = () => {
       });
       setUsuarios(res.data);
     } catch (err: any) {
-      //setError("Error al obtener usuarios.");
     } finally {
       setLoading(false);
     }
@@ -84,10 +81,7 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsuarios((prev) => prev.filter((u) => u.id !== id));
-      toast.success("Usuario eliminado correctamente.");
-    } catch {
-      toast.warning("No se pudo eliminar el usuario.");
-    }
+    } catch {}
   };
 
   const resetearPassword = async (id: number) => {
@@ -97,31 +91,21 @@ const AdminDashboard = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Contraseña reseteada a 123456.");
-    } catch {
-      toast.error("No se pudo resetear la contraseña.");
-    }
+    } catch {}
   };
 
-
   const ascenderAAdmin = async (id: number) => {
-    if (rolActual !== "ADMIN") {
-      toast.warning("Solo un ADMIN puede ascender usuarios.");
-      return;
-    }
+    if (rolActual !== "ADMIN") return;
     try {
       await axios.put(
         `${import.meta.env.VITE_API_URL}/api/admin/usuarios/${id}/rol?nuevoRol=ADMIN`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Usuario ascendido a ADMIN.");
       setUsuarios((prev) =>
         prev.map((u) => (u.id === id ? { ...u, rol: "ADMIN" } : u))
       );
-    } catch {
-      toast.error("No se pudo ascender al usuario.");
-    }
+    } catch {}
   };
 
   const confirmarAscenso = (usuario: Usuario) => {
@@ -259,7 +243,6 @@ const AdminDashboard = () => {
                         Reset Password
                       </Button>
                     )}
-
                   </Stack>
                 </TableCell>
               </TableRow>
