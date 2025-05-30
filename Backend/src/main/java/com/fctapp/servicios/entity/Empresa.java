@@ -51,6 +51,8 @@ public class Empresa extends Usuario {
 
 	public Empresa() {
 		super();
+		this.fechaRegistro = LocalDateTime.now();
+
 	}
 
 	public Empresa(String nombreEmpresa, String descripcion, String direccion) {
@@ -58,6 +60,8 @@ public class Empresa extends Usuario {
 		this.nombreEmpresa = nombreEmpresa;
 		this.descripcion = descripcion;
 		this.direccion = direccion;
+		this.fechaRegistro = LocalDateTime.now();
+
 	}
 
 	// Getters y Setters
