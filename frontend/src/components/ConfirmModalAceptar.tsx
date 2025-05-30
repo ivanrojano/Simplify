@@ -1,5 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 type Props = {
   title: string;
@@ -47,43 +50,54 @@ const ConfirmModalAceptar: React.FC<Props> = ({ title, message, onConfirm, onCan
           exit={{ scale: 0.8, opacity: 0 }}
           transition={{ duration: 0.3 }}
           style={{
-            backgroundColor: "#fff",
-            color: "#1a1a1a",
-            padding: "2rem",
+            backgroundColor: "#fafafa",
+            padding: "2.5rem 2rem 2rem",
             borderRadius: "16px",
             width: "90%",
             maxWidth: "440px",
-            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
             fontFamily: "system-ui, sans-serif",
             position: "relative",
+            textAlign: "center",
           }}
         >
-          <button
+          <IconButton
             onClick={onCancel}
-            style={{
+            sx={{
               position: "absolute",
-              top: "1rem",
-              right: "1rem",
-              background: "none",
-              border: "none",
-              fontSize: "1.5rem",
-              cursor: "pointer",
+              top: 12,
+              right: 12,
               color: "#555",
             }}
             aria-label="Cerrar"
           >
-            &times;
-          </button>
+            <CloseIcon />
+          </IconButton>
 
-          <h2 style={{ margin: 0, fontSize: "1.7rem", fontWeight: 600 }}>{title}</h2>
-          <p style={{ marginTop: "1rem", lineHeight: 1.8, fontSize: "1.05rem" }}>{message}</p>
+          <WarningAmberIcon sx={{ fontSize: 50, color: "#f39c12", mb: 1 }} />
+
+          <h2 style={{ margin: 0, fontSize: "1.7rem", fontWeight: 900, color: "#0d47a1" }}>
+            {title}
+          </h2>
+
+          <p
+            style={{
+              marginTop: "1.2rem",
+              marginBottom: "2rem",
+              lineHeight: 1.7,
+              fontSize: "1.05rem",
+              color: "#333",
+            }}
+          >
+            {message}
+          </p>
 
           <div
             style={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "center",
               gap: "1rem",
-              marginTop: "2rem",
+              flexWrap: "wrap",
             }}
           >
             <button
@@ -92,7 +106,7 @@ const ConfirmModalAceptar: React.FC<Props> = ({ title, message, onConfirm, onCan
                 backgroundColor: "#e0e0e0",
                 color: "#333",
                 border: "none",
-                padding: "0.8em 1.6em",
+                padding: "0.75em 1.5em",
                 borderRadius: "10px",
                 cursor: "pointer",
                 fontWeight: 600,
@@ -104,17 +118,17 @@ const ConfirmModalAceptar: React.FC<Props> = ({ title, message, onConfirm, onCan
             <button
               onClick={onConfirm}
               style={{
-                backgroundColor: "#1976d2",
+                backgroundColor: "#0d47a1",
                 color: "white",
                 border: "none",
-                padding: "0.8em 1.6em",
+                padding: "0.75em 1.5em",
                 borderRadius: "10px",
                 cursor: "pointer",
                 fontWeight: 600,
                 fontSize: "1rem",
               }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#115293")}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#1976d2")}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1565c0")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0d47a1")}
             >
               Aceptar
             </button>
