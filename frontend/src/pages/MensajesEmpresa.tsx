@@ -1,9 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import {
   Box,
   Typography,
@@ -15,6 +12,8 @@ import {
   Avatar,
   IconButton,
   Fade,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -53,11 +52,16 @@ const MensajesEmpresa = () => {
   const [receptorId, setReceptorId] = useState<number | null>(null);
   const [clienteNombre, setClienteNombre] = useState<string>("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
 
   const token = localStorage.getItem("token");
   const empresaId = Number(localStorage.getItem("empresaId"));
   const navigate = useNavigate();
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  const showSnackbar = (message: string, severity: "error" | "success" | "info" | "warning") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   useEffect(() => {
     if (!token || !solicitudId || !empresaId) {
@@ -74,7 +78,7 @@ const MensajesEmpresa = () => {
         setClienteNombre(res.data.cliente.nombre);
       })
       .catch(() => {
-        toast.error("No se pudo obtener el cliente.");
+        showSnackbar("No se pudo obtener el cliente.", "error");
       });
 
     axios
@@ -83,7 +87,7 @@ const MensajesEmpresa = () => {
       })
       .then((res) => setMensajes(res.data))
       .catch(() => {
-        toast.error("No se pudieron cargar los mensajes.");
+        showSnackbar("No se pudieron cargar los mensajes.", "error");
       });
   }, [token, solicitudId, empresaId, navigate]);
 
@@ -93,12 +97,12 @@ const MensajesEmpresa = () => {
 
   const enviarMensaje = async () => {
     if (!nuevoMensaje.trim()) {
-      toast.warning("Escribe un mensaje antes de enviar.");
+      showSnackbar("Escribe un mensaje antes de enviar.", "warning");
       return;
     }
 
     if (!receptorId) {
-      toast.error("No se ha identificado al cliente.");
+      showSnackbar("No se ha identificado al cliente.", "error");
       return;
     }
 
@@ -120,7 +124,7 @@ const MensajesEmpresa = () => {
       );
 
       setNuevoMensaje("");
-      toast.success("Mensaje enviado");
+      showSnackbar("Mensaje enviado", "success");
 
       const res = await axios.get<Mensaje[]>(
         `${import.meta.env.VITE_API_URL}/api/mensajes/por-solicitud?solicitudId=${solicitudId}`,
@@ -130,7 +134,7 @@ const MensajesEmpresa = () => {
       );
       setMensajes(res.data);
     } catch {
-      toast.error("Error al enviar mensaje.");
+      showSnackbar("Error al enviar mensaje.", "error");
     }
   };
 
@@ -148,7 +152,6 @@ const MensajesEmpresa = () => {
 
   return (
     <Box sx={{ maxWidth: "900px", margin: "2rem auto", px: 2, pb: 5, position: "relative" }}>
-      {/* Botón volver */}
       <Fade in timeout={600}>
         <IconButton
           onClick={() => navigate("/empresa")}
@@ -164,7 +167,6 @@ const MensajesEmpresa = () => {
         </IconButton>
       </Fade>
 
-      {/* Botón cerrar sesión */}
       <Fade in timeout={600}>
         <Button
           onClick={() => setLogoutConfirm(true)}
@@ -183,14 +185,12 @@ const MensajesEmpresa = () => {
         </Button>
       </Fade>
 
-      {/* Título */}
       <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={1}>
         Chat con {clienteNombre || "el Cliente"}
       </Typography>
 
       <Divider sx={{ mb: 3 }} />
 
-      {/* Lista de mensajes */}
       <Paper
         elevation={4}
         sx={{
@@ -250,7 +250,6 @@ const MensajesEmpresa = () => {
         )}
       </Paper>
 
-      {/* Input para enviar mensaje */}
       <Stack direction="row" spacing={2}>
         <TextField
           fullWidth
@@ -264,7 +263,6 @@ const MensajesEmpresa = () => {
         </Button>
       </Stack>
 
-      {/* Confirmación logout */}
       {logoutConfirm && (
         <ConfirmModalLogout
           onCancel={() => setLogoutConfirm(false)}
@@ -275,7 +273,21 @@ const MensajesEmpresa = () => {
         />
       )}
 
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity as "success" | "error" | "info" | "warning"}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

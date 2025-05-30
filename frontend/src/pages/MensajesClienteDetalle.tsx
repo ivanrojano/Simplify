@@ -1,9 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import {
   Box,
   Typography,
@@ -14,6 +11,8 @@ import {
   Divider,
   IconButton,
   Fade,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -54,11 +53,16 @@ const MensajesCliente = () => {
   const [receptorId, setReceptorId] = useState<number | null>(null);
   const [empresaNombre, setEmpresaNombre] = useState("Empresa no disponible");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
 
   const token = localStorage.getItem("token");
   const clienteId = Number(localStorage.getItem("clienteId"));
   const navigate = useNavigate();
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  const showSnackbar = (message: string, severity: "error" | "success" | "info" | "warning") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   useEffect(() => {
     if (!token || !solicitudId || !clienteId) {
@@ -76,11 +80,11 @@ const MensajesCliente = () => {
           setReceptorId(empresa.id);
           setEmpresaNombre(empresa.nombreEmpresa || "Empresa sin nombre");
         } else {
-          toast.error("No se pudo identificar la empresa.");
+          showSnackbar("No se pudo identificar la empresa.", "error");
         }
       })
       .catch(() => {
-        toast.error("Error al cargar los datos de la empresa.");
+        showSnackbar("Error al cargar los datos de la empresa.", "error");
       });
 
     axios
@@ -89,7 +93,7 @@ const MensajesCliente = () => {
       })
       .then((res) => setMensajes(res.data))
       .catch(() => {
-        toast.error("No se pudieron cargar los mensajes.");
+        showSnackbar("No se pudieron cargar los mensajes.", "error");
       });
   }, [token, solicitudId, clienteId, navigate]);
 
@@ -99,12 +103,12 @@ const MensajesCliente = () => {
 
   const enviarMensaje = async () => {
     if (!nuevoMensaje.trim()) {
-      toast.warning("Escribe un mensaje antes de enviar.");
+      showSnackbar("Escribe un mensaje antes de enviar.", "warning");
       return;
     }
 
     if (!receptorId) {
-      toast.error("No se ha identificado a la empresa.");
+      showSnackbar("No se ha identificado a la empresa.", "error");
       return;
     }
 
@@ -135,7 +139,7 @@ const MensajesCliente = () => {
       );
       setMensajes(res.data);
     } catch {
-      toast.error("Error al enviar mensaje.");
+      showSnackbar("Error al enviar mensaje.", "error");
     }
   };
 
@@ -146,7 +150,6 @@ const MensajesCliente = () => {
 
   return (
     <Box sx={{ maxWidth: "900px", margin: "2rem auto", px: 2, pb: 5, position: "relative" }}>
-      {/* Botón volver */}
       <Fade in timeout={600}>
         <IconButton
           onClick={() => navigate("/cliente")}
@@ -162,7 +165,6 @@ const MensajesCliente = () => {
         </IconButton>
       </Fade>
 
-      {/* Botón cerrar sesión */}
       <Fade in timeout={600}>
         <Button
           onClick={() => setLogoutConfirm(true)}
@@ -181,14 +183,12 @@ const MensajesCliente = () => {
         </Button>
       </Fade>
 
-      {/* Título */}
       <Typography variant="h4" fontWeight={800} color="#0d47a1" textAlign="center" mb={1}>
         Chat con {empresaNombre}
       </Typography>
 
       <Divider sx={{ mb: 3 }} />
 
-      {/* Lista de mensajes */}
       <Paper
         elevation={4}
         sx={{
@@ -235,7 +235,6 @@ const MensajesCliente = () => {
         )}
       </Paper>
 
-      {/* Input enviar */}
       <Stack direction="row" spacing={2}>
         <TextField
           fullWidth
@@ -249,7 +248,6 @@ const MensajesCliente = () => {
         </Button>
       </Stack>
 
-      {/* Confirmación logout */}
       {logoutConfirm && (
         <ConfirmModalLogout
           onCancel={() => setLogoutConfirm(false)}
@@ -260,7 +258,21 @@ const MensajesCliente = () => {
         />
       )}
 
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity as "success" | "error" | "info" | "warning"}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

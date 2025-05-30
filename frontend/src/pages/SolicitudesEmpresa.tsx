@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   Box,
   Typography,
@@ -12,6 +10,8 @@ import {
   IconButton,
   Fade,
   Divider,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -46,6 +46,24 @@ const SolicitudesEmpresa = () => {
   const [showModal, setShowModal] = useState(false);
   const [solicitudAEliminar, setSolicitudAEliminar] = useState<number | null>(null);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
+
+  const showSnackbar = (
+    message: string,
+    severity: "success" | "error" | "warning" | "info"
+  ) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const token = localStorage.getItem("token");
   const empresaId = localStorage.getItem("empresaId");
   const navigate = useNavigate();
@@ -61,7 +79,7 @@ const SolicitudesEmpresa = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSolicitudes(res.data))
-      .catch(() => toast.error("No se pudieron cargar las solicitudes."));
+      .catch(() => showSnackbar("No se pudieron cargar las solicitudes.", "error"));
   }, [token, empresaId, navigate]);
 
   const cambiarEstado = async (id: number, nuevoEstado: string) => {
@@ -71,12 +89,12 @@ const SolicitudesEmpresa = () => {
         { estado: nuevoEstado },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success(`Solicitud ${nuevoEstado.toLowerCase()}`);
+      showSnackbar(`Solicitud ${nuevoEstado.toLowerCase()}`, "success");
       setSolicitudes((prev) =>
         prev.map((s) => (s.id === id ? { ...s, estado: nuevoEstado } : s))
       );
     } catch {
-      toast.error("No se pudo actualizar el estado.");
+      showSnackbar("No se pudo actualizar el estado.", "error");
     }
   };
 
@@ -87,12 +105,12 @@ const SolicitudesEmpresa = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Solicitud finalizada");
+      showSnackbar("Solicitud finalizada", "success");
       setSolicitudes((prev) =>
         prev.map((s) => (s.id === id ? { ...s, estado: "FINALIZADA" } : s))
       );
     } catch {
-      toast.error("No se pudo finalizar la solicitud.");
+      showSnackbar("No se pudo finalizar la solicitud.", "error");
     }
   };
 
@@ -107,10 +125,10 @@ const SolicitudesEmpresa = () => {
       await axios.delete(`${import.meta.env.VITE_API_URL}/api/solicitudes/${solicitudAEliminar}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Solicitud eliminada");
+      showSnackbar("Solicitud eliminada", "success");
       setSolicitudes((prev) => prev.filter((s) => s.id !== solicitudAEliminar));
     } catch {
-      toast.error("No se pudo eliminar la solicitud.");
+      showSnackbar("No se pudo eliminar la solicitud.", "error");
     } finally {
       setShowModal(false);
       setSolicitudAEliminar(null);
@@ -124,31 +142,21 @@ const SolicitudesEmpresa = () => {
 
   const getColorForEstado = (estado: string): string => {
     switch (estado) {
-      case "PENDIENTE":
-        return "#f5f5f5";
-      case "ACEPTADA":
-        return "#e3f2fd";
-      case "FINALIZADA":
-        return "#e8f5e9";
-      case "RECHAZADA":
-        return "#ffebee"
-      default:
-        return "#ffffff";
+      case "PENDIENTE": return "#f5f5f5";
+      case "ACEPTADA": return "#e3f2fd";
+      case "FINALIZADA": return "#e8f5e9";
+      case "RECHAZADA": return "#ffebee";
+      default: return "#ffffff";
     }
   };
 
   const getTextColor = (estado: string): string => {
     switch (estado) {
-      case "PENDIENTE":
-        return "#757575";
-      case "ACEPTADA":
-        return "#0d47a1";
-      case "FINALIZADA":
-        return "#2e7d32";
-      case "RECHAZADA":
-        return "#c62828";
-      default:
-        return "#000000";
+      case "PENDIENTE": return "#757575";
+      case "ACEPTADA": return "#0d47a1";
+      case "FINALIZADA": return "#2e7d32";
+      case "RECHAZADA": return "#c62828";
+      default: return "#000000";
     }
   };
 
@@ -167,7 +175,6 @@ const SolicitudesEmpresa = () => {
         mx: "auto",
       }}
     >
-      {/* Botón volver */}
       <Fade in timeout={800}>
         <IconButton
           onClick={() => navigate("/empresa")}
@@ -177,7 +184,6 @@ const SolicitudesEmpresa = () => {
         </IconButton>
       </Fade>
 
-      {/* Cerrar sesión */}
       <Fade in timeout={800}>
         <Button
           onClick={() => setLogoutConfirm(true)}
@@ -196,7 +202,6 @@ const SolicitudesEmpresa = () => {
         </Button>
       </Fade>
 
-      {/* Título */}
       <Fade in timeout={800}>
         <Typography
           variant="h4"
@@ -209,7 +214,6 @@ const SolicitudesEmpresa = () => {
         </Typography>
       </Fade>
 
-      {/* Lista de solicitudes */}
       {solicitudes.length === 0 ? (
         <Typography textAlign="center">No hay solicitudes registradas.</Typography>
       ) : (
@@ -253,19 +257,13 @@ const SolicitudesEmpresa = () => {
                     <AssignmentIcon fontSize="small" />
                     <Typography>
                       <strong>Estado:</strong>{" "}
-                      <span
-                        style={{
-                          color: getTextColor(s.estado),
-                          fontWeight: 600,
-                        }}
-                      >
+                      <span style={{ color: getTextColor(s.estado), fontWeight: 600 }}>
                         {s.estado}
                       </span>
                     </Typography>
                   </Stack>
                 </Stack>
 
-                {/* Botones por estado */}
                 <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
                   {s.estado === "PENDIENTE" && (
                     <>
@@ -273,7 +271,6 @@ const SolicitudesEmpresa = () => {
                       <Button variant="contained" color="error" onClick={() => cambiarEstado(s.id, "RECHAZADA")}>Rechazar</Button>
                     </>
                   )}
-
                   {s.estado === "ACEPTADA" && (
                     <>
                       <Button variant="contained" onClick={() => finalizarSolicitud(s.id)}>Finalizar</Button>
@@ -287,7 +284,6 @@ const SolicitudesEmpresa = () => {
                       </Button>
                     </>
                   )}
-
                   {s.estado === "FINALIZADA" && (
                     <Button
                       variant="contained"
@@ -305,7 +301,6 @@ const SolicitudesEmpresa = () => {
         </Fade>
       )}
 
-      {/* Modales */}
       <ConfirmModalEliminarSolicitud
         open={showModal}
         onClose={() => setShowModal(false)}
@@ -322,7 +317,21 @@ const SolicitudesEmpresa = () => {
         />
       )}
 
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity as any}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

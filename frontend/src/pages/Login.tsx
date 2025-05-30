@@ -263,7 +263,6 @@ const Login = () => {
             >
               Regístrate aquí
             </Button>
-            .
             <br />
             Al registrarte, aceptas nuestra{" "}
             <Button
@@ -279,7 +278,6 @@ const Login = () => {
             >
               Política de Privacidad
             </Button>
-            .
           </Typography>
         </Fade>
       </Box>

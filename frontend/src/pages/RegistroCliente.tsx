@@ -1,7 +1,5 @@
 import { useState } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -15,6 +13,8 @@ import {
   Tooltip,
   useMediaQuery,
   useTheme,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -46,6 +46,23 @@ export default function RegistroCliente() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
+
+  const showSnackbar = (
+    message: string,
+    severity: "success" | "error" | "warning" | "info"
+  ) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -56,16 +73,18 @@ export default function RegistroCliente() {
     e.preventDefault();
 
     if (!form.email || !form.password || !form.nombre || !form.direccion) {
-      toast.warn("Todos los campos son obligatorios.");
+      showSnackbar("Todos los campos son obligatorios.", "warning");
       return;
     }
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/registro/cliente`, form);
-      toast.success("Cliente registrado correctamente");
+      showSnackbar("Cliente registrado correctamente", "success");
+
       setTimeout(() => {
         navigate("/");
-      }, 3000);
+      }, 2000);
+
       setForm({
         email: "",
         password: "",
@@ -75,13 +94,12 @@ export default function RegistroCliente() {
     } catch (err) {
       const status = (err as any)?.response?.status;
       if (status === 409 || status === 401) {
-        toast.error("Ya existe un cliente con ese correo o nombre.");
+        showSnackbar("Ya existe un cliente con ese correo o nombre.", "error");
       } else if (status === 400) {
-        toast.error("Datos inválidos. Revisa el formulario.");
+        showSnackbar("Datos inválidos. Revisa el formulario.", "error");
       } else {
-        toast.error("Error al registrar cliente.");
+        showSnackbar("Error al registrar cliente.", "error");
       }
-      console.error(err);
     }
   };
 
@@ -255,11 +273,21 @@ export default function RegistroCliente() {
         </Box>
       </Fade>
 
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        theme="colored"
-      />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity as "success" | "error" | "info" | "warning"}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

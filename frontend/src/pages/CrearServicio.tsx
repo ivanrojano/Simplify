@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   Box,
   Button,
@@ -12,7 +10,9 @@ import {
   Fade,
   keyframes,
   InputAdornment,
-  Tooltip
+  Tooltip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -32,6 +32,11 @@ const CrearServicio = () => {
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState<number | "">("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -39,21 +44,25 @@ const CrearServicio = () => {
 
   const validarCampos = (): boolean => {
     if (!nombre.trim() || nombre.length < 5 || nombre.length > 40) {
-      toast.error("El nombre debe tener entre 5 y 40 caracteres.");
+      showSnackbar("El nombre debe tener entre 5 y 40 caracteres.", "error");
       return false;
     }
 
     if (!descripcion.trim() || descripcion.length < 10 || descripcion.length > 200) {
-      toast.error("La descripción debe tener entre 10 y 200 caracteres.");
+      showSnackbar("La descripción debe tener entre 10 y 200 caracteres.", "error");
       return false;
     }
 
     if (precio === "" || isNaN(Number(precio)) || Number(precio) <= 0) {
-      toast.error("El precio debe ser un número positivo.");
+      showSnackbar("El precio debe ser un número positivo.", "error");
       return false;
     }
 
     return true;
+  };
+
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbar({ open: true, message, severity });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,11 +81,11 @@ const CrearServicio = () => {
         headers
       );
 
-      toast.success("Servicio creado correctamente");
+      showSnackbar("Servicio creado correctamente", "success");
       setTimeout(() => navigate("/empresa"), 2000);
     } catch (error) {
       console.error("Error al crear servicio:", error);
-      toast.error("No se pudo crear el servicio");
+      showSnackbar("No se pudo crear el servicio", "error");
     }
   };
 
@@ -98,7 +107,7 @@ const CrearServicio = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        textAlign: "center"
+        textAlign: "center",
       }}
     >
       <Fade in timeout={1000}>
@@ -120,7 +129,7 @@ const CrearServicio = () => {
             right: 16,
             color: "#e74c3c",
             textTransform: "none",
-            fontWeight: 600
+            fontWeight: 600,
           }}
         >
           Cerrar Sesión
@@ -137,18 +146,13 @@ const CrearServicio = () => {
             width: 100,
             animation: `${pulse} 2.5s ease-in-out infinite`,
             mb: 2,
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         />
       </Fade>
 
       <Fade in timeout={1000}>
-        <Typography
-          variant="h4"
-          fontWeight={700}
-          color="#0d47a1"
-          mb={3}
-        >
+        <Typography variant="h4" fontWeight={700} color="#0d47a1" mb={3}>
           Crear Servicio
         </Typography>
       </Fade>
@@ -162,7 +166,7 @@ const CrearServicio = () => {
             flexDirection: "column",
             gap: 3,
             width: "100%",
-            maxWidth: 450
+            maxWidth: 450,
           }}
         >
           <TextField
@@ -178,7 +182,7 @@ const CrearServicio = () => {
                     <DriveFileRenameOutlineIcon sx={{ color: "#0d47a1" }} />
                   </Tooltip>
                 </InputAdornment>
-              )
+              ),
             }}
           />
           <TextField
@@ -196,7 +200,7 @@ const CrearServicio = () => {
                     <DescriptionIcon sx={{ color: "#0d47a1" }} />
                   </Tooltip>
                 </InputAdornment>
-              )
+              ),
             }}
           />
           <TextField
@@ -213,7 +217,7 @@ const CrearServicio = () => {
                     <EuroIcon sx={{ color: "#0d47a1" }} />
                   </Tooltip>
                 </InputAdornment>
-              )
+              ),
             }}
           />
           <Button
@@ -226,7 +230,7 @@ const CrearServicio = () => {
               fontSize: "1rem",
               backgroundColor: "#0d47a1",
               "&:hover": { backgroundColor: "#08306b" },
-              transition: "all 0.3s ease-in-out"
+              transition: "all 0.3s ease-in-out",
             }}
           >
             Crear Servicio
@@ -244,7 +248,21 @@ const CrearServicio = () => {
         />
       )}
 
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity as "success" | "error"}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

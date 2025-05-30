@@ -1,7 +1,5 @@
 import { useState } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -16,6 +14,8 @@ import {
   Tooltip,
   useMediaQuery,
   useTheme,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -49,6 +49,23 @@ export default function RegistroEmpresa() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
+
+  const showSnackbar = (
+    message: string,
+    severity: "success" | "error" | "warning" | "info"
+  ) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -60,26 +77,17 @@ export default function RegistroEmpresa() {
 
     const { email, password, nombreEmpresa, descripcion, direccion } = form;
 
-    console.log("Datos del formulario enviados al backend:");
-    console.table(form);
-
     if (!email || !password || !nombreEmpresa || !descripcion || !direccion) {
-      toast.warn("Todos los campos son obligatorios.");
+      showSnackbar("Todos los campos son obligatorios.", "warning");
       return;
     }
 
     try {
       const apiUrl = `${import.meta.env.VITE_API_URL}/api/auth/registro/empresa`;
-      console.log("URL de la API:", apiUrl);
+      await axios.post(apiUrl, form);
+      showSnackbar("Empresa registrada correctamente", "success");
 
-      const response = await axios.post(apiUrl, form);
-
-      console.log("Respuesta del backend:");
-      console.log(response.data);
-
-      toast.success("Empresa registrada correctamente");
-
-      setTimeout(() => navigate("/"), 3000);
+      setTimeout(() => navigate("/"), 2000);
 
       setForm({
         email: "",
@@ -89,14 +97,16 @@ export default function RegistroEmpresa() {
         direccion: "",
       });
     } catch (err: any) {
-      console.error("Error al registrar empresa:");
-      console.log("Mensaje:", err.message);
-      console.log("Status:", err.response?.status);
-      console.log("Respuesta completa:", err.response);
-      toast.error("Error al registrar empresa.");
+      const status = err?.response?.status;
+      if (status === 409 || status === 401) {
+        showSnackbar("Ya existe una empresa con ese correo o nombre.", "error");
+      } else if (status === 400) {
+        showSnackbar("Datos inválidos. Revisa el formulario.", "error");
+      } else {
+        showSnackbar("Error al registrar empresa.", "error");
+      }
     }
   };
-
 
   return (
     <Box
@@ -113,7 +123,6 @@ export default function RegistroEmpresa() {
         alignItems: "center",
       }}
     >
-      {/* Icono de volver */}
       <Fade in timeout={800}>
         <IconButton
           onClick={() => navigate(-1)}
@@ -123,7 +132,6 @@ export default function RegistroEmpresa() {
         </IconButton>
       </Fade>
 
-      {/* Logo */}
       <Fade in timeout={800}>
         <Box
           component="img"
@@ -139,7 +147,6 @@ export default function RegistroEmpresa() {
         />
       </Fade>
 
-      {/* Título */}
       <Fade in timeout={1000}>
         <Typography
           variant={isSmallScreen ? "h6" : "h5"}
@@ -151,7 +158,6 @@ export default function RegistroEmpresa() {
         </Typography>
       </Fade>
 
-      {/* Formulario */}
       <Fade in timeout={1200}>
         <Box
           component="form"
@@ -290,7 +296,21 @@ export default function RegistroEmpresa() {
         </Box>
       </Fade>
 
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity as "success" | "error" | "info" | "warning"}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

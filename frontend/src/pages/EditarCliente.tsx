@@ -12,9 +12,9 @@ import {
   keyframes,
   InputAdornment,
   Tooltip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 import ConfirmModalLogout from "../components/ConfirmModalLogout";
 
@@ -57,6 +57,7 @@ const EditarCliente = () => {
 
   const [loading, setLoading] = useState(true);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const clienteId = localStorage.getItem("clienteId");
@@ -76,7 +77,7 @@ const EditarCliente = () => {
         setLoading(false);
       })
       .catch(() => {
-        toast.error("Error al cargar el perfil.");
+        showSnackbar("Error al cargar el perfil.", "error");
         navigate("/cliente");
       });
   }, [token, clienteId, navigate]);
@@ -85,30 +86,34 @@ const EditarCliente = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
   const validateForm = (): boolean => {
     if (!form.nombre.trim()) {
-      toast.error("El nombre es obligatorio.");
+      showSnackbar("El nombre es obligatorio.", "error");
       return false;
     }
 
     if (form.nombre.trim().length > 20) {
-      toast.error("El nombre no puede tener más de 20 caracteres.");
+      showSnackbar("El nombre no puede tener más de 20 caracteres.", "error");
       return false;
     }
 
     if (!form.direccion.trim() || form.direccion.length < 5) {
-      toast.error("La dirección debe tener al menos 5 caracteres.");
+      showSnackbar("La dirección debe tener al menos 5 caracteres.", "error");
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email.trim())) {
-      toast.error("Email inválido.");
+      showSnackbar("Email inválido.", "error");
       return false;
     }
 
     if (form.telefono && form.telefono.trim().length < 7) {
-      toast.error("El teléfono debe tener al menos 7 dígitos.");
+      showSnackbar("El teléfono debe tener al menos 7 dígitos.", "error");
       return false;
     }
 
@@ -130,12 +135,12 @@ const EditarCliente = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
-        toast.success("Perfil actualizado correctamente");
+        showSnackbar("Perfil actualizado correctamente", "success");
         setTimeout(() => navigate("/cliente"), 1500);
       })
       .catch((error) => {
         console.error(error.response?.data || error);
-        toast.error(error.response?.data?.mensaje || "Error al guardar los cambios.");
+        showSnackbar(error.response?.data?.mensaje || "Error al guardar los cambios.", "error");
       });
   };
 
@@ -226,43 +231,13 @@ const EditarCliente = () => {
             maxWidth: 450,
           }}
         >
-          {/* TextFields */}
-
           {[
-            {
-              label: "Nombre",
-              name: "nombre",
-              icon: <PersonIcon />,
-              required: true,
-            },
-            {
-              label: "Dirección",
-              name: "direccion",
-              icon: <LocationOnIcon />,
-              required: true,
-            },
-            {
-              label: "Email",
-              name: "email",
-              icon: <EmailIcon />,
-              type: "email",
-              required: true,
-            },
-            {
-              label: "Teléfono",
-              name: "telefono",
-              icon: <PhoneIcon />,
-            },
-            {
-              label: "Código Postal",
-              name: "codigoPostal",
-              icon: <HomeIcon />,
-            },
-            {
-              label: "Ciudad",
-              name: "ciudad",
-              icon: <LocationCityIcon />,
-            },
+            { label: "Nombre", name: "nombre", icon: <PersonIcon />, required: true },
+            { label: "Dirección", name: "direccion", icon: <LocationOnIcon />, required: true },
+            { label: "Email", name: "email", icon: <EmailIcon />, type: "email", required: true },
+            { label: "Teléfono", name: "telefono", icon: <PhoneIcon /> },
+            { label: "Código Postal", name: "codigoPostal", icon: <HomeIcon /> },
+            { label: "Ciudad", name: "ciudad", icon: <LocationCityIcon /> },
             {
               label: "Foto de Perfil (URL)",
               name: "fotoUrl",
@@ -318,7 +293,21 @@ const EditarCliente = () => {
         />
       )}
 
-      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity as "success" | "error"}
+          variant="filled"
+          sx={{ fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
