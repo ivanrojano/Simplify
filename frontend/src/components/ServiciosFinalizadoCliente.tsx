@@ -39,7 +39,7 @@ const SolicitudesFinalizadas = () => {
 
     try {
       const res = await axios.get<Solicitud[]>(
-        `${import.meta.env.VITE_API_URL}/api/solicitudes/cliente/${clienteId}`,
+        `http://localhost:8080/api/solicitudes/cliente/${clienteId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const finalizadas = res.data.filter((s) => s.estado === "FINALIZADA");

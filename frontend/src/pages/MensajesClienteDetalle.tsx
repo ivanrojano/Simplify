@@ -71,7 +71,7 @@ const MensajesCliente = () => {
     }
 
     axios
-      .get<Solicitud>(`${import.meta.env.VITE_API_URL}/api/solicitudes/${solicitudId}`, {
+      .get<Solicitud>(`http://localhost:8080/api/solicitudes/${solicitudId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -88,7 +88,7 @@ const MensajesCliente = () => {
       });
 
     axios
-      .get<Mensaje[]>(`${import.meta.env.VITE_API_URL}/api/mensajes/por-solicitud?solicitudId=${solicitudId}`, {
+      .get<Mensaje[]>(`http://localhost:8080/api/mensajes/por-solicitud?solicitudId=${solicitudId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setMensajes(res.data))
@@ -114,7 +114,7 @@ const MensajesCliente = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/mensajes/enviar`,
+        `http://localhost:8080/api/mensajes/enviar`,
         {
           emisorId: clienteId,
           receptorId,
@@ -132,7 +132,7 @@ const MensajesCliente = () => {
       setNuevoMensaje("");
 
       const res = await axios.get<Mensaje[]>(
-        `${import.meta.env.VITE_API_URL}/api/mensajes/por-solicitud?solicitudId=${solicitudId}`,
+        `http://localhost:8080/api/mensajes/por-solicitud?solicitudId=${solicitudId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

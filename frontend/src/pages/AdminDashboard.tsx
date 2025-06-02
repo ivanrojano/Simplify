@@ -65,7 +65,7 @@ const AdminDashboard = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const res = await axios.get<Usuario[]>(`${import.meta.env.VITE_API_URL}/api/admin/usuarios`, {
+      const res = await axios.get<Usuario[]>(`http://localhost:8080/api/admin/usuarios`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsuarios(res.data);
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
 
   const eliminarUsuario = async (id: number) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/usuarios/${id}`, {
+      await axios.delete(`http://localhost:8080/api/admin/usuarios/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsuarios((prev) => prev.filter((u) => u.id !== id));
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
   const resetearPassword = async (id: number) => {
     try {
       await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/admin/usuarios/${id}/reset-password`,
+        `$http://localhost:8080/api/admin/usuarios/${id}/reset-password`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -98,7 +98,7 @@ const AdminDashboard = () => {
     if (rolActual !== "ADMIN") return;
     try {
       await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/admin/usuarios/${id}/rol?nuevoRol=ADMIN`,
+        `http://localhost:8080/api/admin/usuarios/${id}/rol?nuevoRol=ADMIN`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

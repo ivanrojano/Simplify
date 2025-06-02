@@ -78,7 +78,7 @@ export default function RegistroCliente() {
     }
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/registro/cliente`, form);
+      await axios.post(`http://localhost:8080/api/auth/registro/cliente`, form);
       showSnackbar("Cliente registrado correctamente", "success");
 
       setTimeout(() => {

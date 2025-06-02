@@ -83,7 +83,7 @@ export default function RegistroEmpresa() {
     }
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_URL}/api/auth/registro/empresa`;
+      const apiUrl = `http://localhost:8080/api/auth/registro/empresa`;
       await axios.post(apiUrl, form);
       showSnackbar("Empresa registrada correctamente", "success");
 

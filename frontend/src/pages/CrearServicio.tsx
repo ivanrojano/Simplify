@@ -76,7 +76,7 @@ const CrearServicio = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/servicios/empresa/${empresaId}`,
+        `http://localhost:8080/api/servicios/empresa/${empresaId}`,
         { nombre, descripcion, precio },
         headers
       );

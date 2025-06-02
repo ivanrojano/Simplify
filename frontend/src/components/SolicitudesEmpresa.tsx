@@ -75,7 +75,7 @@ const SolicitudesEmpresa = () => {
       if (!token || !empresaId) return
       try {
         const res = await axios.get<Solicitud[]>(
-          `${import.meta.env.VITE_API_URL}/api/solicitudes/empresa/${empresaId}`,
+          `http://localhost:8080/api/solicitudes/empresa/${empresaId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
         const sorted = res.data.sort(
@@ -124,7 +124,7 @@ const SolicitudesEmpresa = () => {
   const handleConfirmEliminar = async () => {
     if (!solicitudAEliminar || !token) return
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/solicitudes/${solicitudAEliminar}`, {
+      await axios.delete(`http://localhost:8080/api/solicitudes/${solicitudAEliminar}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       setSolicitudes((prev) => prev.filter((s) => s.id !== solicitudAEliminar))
@@ -138,7 +138,7 @@ const SolicitudesEmpresa = () => {
     if (!token) return
     try {
       await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/solicitudes/${id}/estado`,
+        `http://localhost:8080/api/solicitudes/${id}/estado`,
         { estado: nuevoEstado },
         { headers: { Authorization: `Bearer ${token}` } }
       )

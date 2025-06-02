@@ -97,7 +97,7 @@ const EditarEmpresa = () => {
     const headers = { headers: { Authorization: `Bearer ${token}` } };
 
     axios
-      .get<Empresa>(`${import.meta.env.VITE_API_URL}/api/empresas/${empresaId}`, headers)
+      .get<Empresa>(`http://localhost:8080/api/empresas/${empresaId}`, headers)
       .then((res) => {
         setForm(res.data);
         setLoading(false);

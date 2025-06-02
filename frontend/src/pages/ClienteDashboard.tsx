@@ -61,7 +61,7 @@ const ClienteDashboard = () => {
     if (!token || !clienteId) return
 
     axios
-      .get<Solicitud[]>(`${import.meta.env.VITE_API_URL}/api/solicitudes/cliente/${clienteId}`, headers)
+      .get<Solicitud[]>(`http://localhost:8080/api/solicitudes/cliente/${clienteId}`, headers)
       .then((res) => setSolicitudes(res.data))
       .catch(() => console.error("Error al cargar solicitudes"))
   }
@@ -78,7 +78,7 @@ const ClienteDashboard = () => {
     const headers = { headers: { Authorization: `Bearer ${token}` } }
 
     axios
-      .get<Cliente>(`${import.meta.env.VITE_API_URL}/api/clientes/${clienteId}`, headers)
+      .get<Cliente>(`http://localhost:8080/api/clientes/${clienteId}`, headers)
       .then((res) => {
         setCliente(res.data)
         window.scrollTo({ top: 0, behavior: "smooth" })

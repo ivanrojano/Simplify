@@ -72,7 +72,7 @@ const ServiciosCliente = () => {
     const headers = { headers: { Authorization: `Bearer ${token}` } }
 
     axios
-      .get<Servicio[]>(`${import.meta.env.VITE_API_URL}/api/servicios`, headers)
+      .get<Servicio[]>(`http://localhost:8080/api/servicios`, headers)
       .then((res) => {
         setServicios(res.data)
         setLoading(false)
@@ -83,7 +83,7 @@ const ServiciosCliente = () => {
       })
 
     axios
-      .get<SolicitudRaw[]>(`${import.meta.env.VITE_API_URL}/api/solicitudes/cliente/${clienteId}`, headers)
+      .get<SolicitudRaw[]>(`http://localhost:8080/api/solicitudes/cliente/${clienteId}`, headers)
       .then((res) => {
         const mapped = res.data.map((s) => ({
           servicioId: s.servicio.id,
@@ -101,7 +101,7 @@ const ServiciosCliente = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/solicitudes/crear`,
+        `http://localhost:8080/api/solicitudes/crear`,
         { clienteId: Number(clienteId), servicioId },
         { headers: { Authorization: `Bearer ${token}` } }
       )

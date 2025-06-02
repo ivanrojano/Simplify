@@ -38,7 +38,7 @@ const ModalValorar = ({ open, onClose, solicitudId, clienteId, onValorada }: Pro
 
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/valoraciones/crear`,
+        `http://localhost:8080/api/valoraciones/crear`,
         {
           clienteId,
           solicitudId,

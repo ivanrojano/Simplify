@@ -52,7 +52,7 @@ const ResumenCliente = ({ nombre, solicitudes }: Props) => {
         if (!token || !clienteId) return
 
         axios
-            .get<Cliente>(`${import.meta.env.VITE_API_URL}/api/clientes/${clienteId}`, {
+            .get<Cliente>(`http://localhost:8080/api/clientes/${clienteId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => setCliente(res.data))
